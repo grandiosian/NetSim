@@ -56,7 +56,7 @@ Le bouton **Mon code**, dans la barre du haut, connecte l'élève à la Centrale
 
 - le schéma en cours est enregistré sur le serveur et retrouvé sur n'importe quel ordinateur ;
 - l'avancement de chaque exercice (étapes validées, exercice terminé) remonte dans le tableau de suivi de l'enseignant ;
-- ouvert depuis le portail élève ou un parcours, NetSim est déjà connecté.
+- ouvert depuis le portail élève ou un parcours, NetSim est déjà connecté ; un exercice choisi sur le portail s'ouvre directement, et le bouton « ← Mes ateliers » ramène au portail.
 
 Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur comme avant.
 Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"` avant le chargement de la page.
