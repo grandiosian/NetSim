@@ -2519,6 +2519,11 @@ function buildExample(k){
         Centrale.sauver('schema',S);
       }
       pret=true;
+      // 3. Exercice demandé depuis le portail (« Ouvrir » sur une activité) : on l'ouvre directement,
+      //    sauf si l'élève est déjà dessus (il reprend alors là où il en était)
+      const demande=Centrale.activiteDemandee();
+      const exo=demande&&EXOS.find(x=>x.k===demande);
+      if(exo&&!(S.exo&&S.exo.k===exo.k))loadExo(exo);
       toast(`Connecté : ${infos.classe} · élève ${infos.eleve}. Ton travail est enregistré automatiquement.`);
     }catch(e){
       toast('Connexion au serveur impossible : '+e.message);
