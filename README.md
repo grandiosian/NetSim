@@ -40,7 +40,7 @@ Menu **Fichier → Exemples et exercices**, rangés par classe puis par thème. 
 - *Routage* : Deux routeurs, routes statiques · Le paquet qui tourne en rond (TTL)
 - *Protocoles et encapsulation* : Ouvrir l’enveloppe
 
-**Bit, l’assistant** : une fenêtre s’ouvre avec chaque exercice. Elle explique l’étape en cours, répond à « Que dois-je faire ? », « Pourquoi ? » (les notions : switch, passerelle, ARP, TTL…), « Je suis bloqué » (diagnostic de ce qui manque : câble, adresse, passerelle, mode) et « Montre-moi » (les appareils concernés clignotent). Quand un ping ou une page échoue, Bit explique la cause probable.
+**Un seul panneau de guidage** : sans exercice, il affiche « Pour commencer » ; avec un exercice, il devient la Consigne. Chaque étape est expliquée en détail (« Comment faire » : où cliquer, quoi taper, ce qu’on doit voir) avec une petite capture animée de l’action : outil Câble puis les deux appareils, champ à remplir, icône du terminal et commande, barre d’adresse du navigateur, menu Réglages, tiroir des trames… L’aide diminue avec la difficulté : complète la première fois qu’une action apparaît et en 5ᵉ, repliée en simple rappel ensuite, puis réduite à « Besoin d’aide ? » en 3ᵉ. Quand un ping, une page ou une impression échoue, la cause probable s’affiche dans la consigne.
 
 **Progression** : dans la liste des exercices, ceux qui ne sont pas encore faits sont grisés, ceux qui sont terminés sont cochés en vert, avec un compteur par classe. La progression est gardée dans le navigateur de l’élève.
 

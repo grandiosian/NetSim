@@ -90,10 +90,10 @@ button{cursor:pointer}
 .chip2{padding:3px 10px 3px 3px}
 .chip2 .pas,.excard .lvl .pas{width:20px;height:20px;font-size:12px}
 .extabs button{display:flex;align-items:center;gap:7px}
-.exo{position:absolute;left:190px;bottom:12px;z-index:12;width:340px;max-height:calc(100% - 110px);border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
+.exo{position:absolute;left:190px;top:12px;z-index:12;width:360px;max-height:calc(100% - 24px);border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
 .exo.folded{width:auto}.exo.folded .pscroll{display:none}
-.app.sim .exo:not(.moved){left:12px;bottom:64px}
-.work.fopen .exo:not(.moved){bottom:352px;max-height:calc(100% - 370px)}
+.app.sim .exo:not(.moved){left:12px}
+.work.fopen .exo:not(.moved){max-height:calc(100% - 370px)}
 .exh h3{margin:6px 0 0;font-family:var(--f-disp);font-weight:800;font-size:18px;line-height:1.2;text-wrap:balance}
 .chip2{display:inline-flex;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:3px 9px}
 .steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:st}
@@ -105,6 +105,69 @@ button{cursor:pointer}
 .qs{margin:0;padding-left:18px;font-size:13px;line-height:1.45;display:flex;flex-direction:column;gap:6px}
 .exo code,.excard code{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border-radius:5px;padding:1px 5px;white-space:nowrap}
 .extabs{display:flex;flex-wrap:wrap}
+.howbox{border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:10px;background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.howh{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.howd{border:1px dashed var(--line);border-radius:10px;padding:7px 10px}
+.howd summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--accent);list-style:none}
+.howd summary::-webkit-details-marker{display:none}
+.howd[open]{display:flex;flex-direction:column;gap:10px}
+.how{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45}
+.how li::marker{font-family:var(--f-mono);font-weight:800;color:var(--accent)}
+.how code{white-space:nowrap}
+.failbox{font-size:12.5px;line-height:1.45;border-radius:10px;padding:8px 10px;background:color-mix(in srgb,var(--warn) 13%,var(--surface));border:1px solid color-mix(in srgb,var(--warn) 45%,transparent)}
+.shot{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:12px 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper);background-image:linear-gradient(30deg,transparent 49.4%,var(--grid) 49.6%,var(--grid) 50.4%,transparent 50.6%),linear-gradient(150deg,transparent 49.4%,var(--grid) 49.6%,var(--grid) 50.4%,transparent 50.6%);background-size:28px 16px;min-height:96px;font-size:12px}
+.shot.col{flex-direction:column;align-items:stretch}
+.s-ar{color:var(--ink-3);font-weight:800}
+.s-dev{display:inline-flex;flex-direction:column;align-items:center;gap:1px}
+.s-dev svg{width:52px;height:42px}
+.s-dev small{font-size:10.5px;font-weight:700;color:var(--ink)}
+.s-pair{position:relative;display:inline-flex;align-items:center;gap:2px}
+.s-line{width:46px;height:12px}
+.s-line path{stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5;fill:none;animation:sline 1s linear infinite}
+.s-line.cut path{stroke:var(--wire);animation:none;stroke-dasharray:none}.s-line .x{stroke:var(--err)!important;stroke-width:3}
+@keyframes sline{to{stroke-dashoffset:-22}}
+.s-tool{display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:9px;border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:11px}
+.s-btn{position:relative;width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff}
+.s-btn .i{fill:currentColor;stroke:none;width:18px;height:18px}
+.s-btn.play{background:#1c3268}.s-btn.pause{background:var(--ok)}
+.s-btn.gear{background:var(--surface);color:var(--ink);border:1px solid var(--line)}.s-btn.gear .i{fill:none;stroke:currentColor;stroke-width:1.8}
+.s-cap{color:var(--ink-2)}
+.scur{position:absolute;right:-6px;bottom:-8px;width:18px;height:18px;animation:sclick 1.6s ease-in-out infinite}
+.scur path{fill:#fff;stroke:#14213d;stroke-width:1.6;stroke-linejoin:round}
+@keyframes sclick{0%,100%{transform:translate(4px,4px)}50%{transform:translate(0,0) scale(.9)}}
+.s-panel{display:inline-flex;flex-direction:column;gap:3px;padding:8px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--line);min-width:150px}
+.s-panel.wide{min-width:0;width:100%}
+.s-panel>b{font-family:var(--f-disp);font-size:13px}
+.s-panel small{color:var(--ink-2);font-weight:700}
+.s-inp{display:inline-flex;align-items:center;gap:1px;font-family:var(--f-mono);font-size:12px;border:1.5px solid var(--accent);border-radius:7px;padding:4px 7px;background:var(--surface);min-width:0}
+.s-row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.s-row3 .s-inp{font-size:10.5px;padding:3px 4px;overflow:hidden}
+.s-add{font-size:11px;font-weight:700;color:var(--accent)}
+.caret{display:inline-block;width:1.5px;height:13px;background:currentColor;margin-left:1px;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.s-menu{display:inline-flex;flex-direction:column;gap:2px;padding:6px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:11.5px}
+.s-menu small{font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);font-weight:700;padding:0 4px}
+.s-mi{padding:4px 8px;border-radius:6px;font-weight:700;display:flex;align-items:center;gap:6px}
+.s-mi.on{background:var(--accent-soft);color:var(--accent)}
+.s-slider{display:inline-block;width:50px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--accent) 40%,var(--line) 40%)}
+.s-win{display:inline-flex;flex-direction:column;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--surface);min-width:140px}
+.shot.col .s-win,.shot.col .s-term{width:100%}
+.s-wbar{background:linear-gradient(180deg,#3358b0,#1c3268);color:#fff;font-size:11px;font-weight:700;padding:3px 8px}
+.s-lines{display:flex;flex-direction:column;gap:4px;padding:8px}.s-lines i{height:5px;border-radius:3px;background:var(--line)}
+.s-url{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:6px;padding:3px 4px 3px 9px;border:1px solid var(--line);border-radius:999px;font-family:var(--f-mono);font-size:11px}
+.s-url b{font-family:var(--f-body);font-size:10px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:2px 7px}
+.s-rowc{display:flex;align-items:center;justify-content:center;gap:8px}
+.s-dicon{display:inline-flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;padding:6px;border-radius:10px;background:linear-gradient(160deg,#2463c9,#7fb6ff);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.s-dicon>span{width:30px;height:30px;border-radius:8px;background:#fff;color:#1c3268;display:flex;align-items:center;justify-content:center}
+.s-term{display:flex;flex-direction:column;border-radius:9px;overflow:hidden;background:#0f1522;color:#d4def5;font-family:var(--f-mono);font-size:11.5px}
+.s-tbar{background:linear-gradient(180deg,#3358b0,#1c3268);color:#fff;font-family:var(--f-body);font-weight:700;font-size:11px;padding:3px 8px}
+.s-tbody{padding:7px 9px;display:flex;flex-wrap:wrap;align-items:center;gap:0 4px}
+.s-tbody .pr{color:#8ea8ff}.s-tbody .okl{flex-basis:100%;color:#7ee2a6;margin-top:3px}
+.s-pill{display:inline-flex;align-items:center;gap:6px;align-self:center;padding:5px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:800;font-family:var(--f-disp);font-size:12.5px}
+.s-pill .i{width:15px;height:15px}
+.s-rows{display:flex;flex-direction:column;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:5px}
+.s-rows>span{position:relative;display:flex;gap:6px;align-items:center;padding:3px 5px;border-radius:6px;font-size:11px}
+.s-rows>span.on{background:var(--accent-soft)}
+@media (prefers-reduced-motion: reduce){.scur,.s-line path,.caret{animation:none}}
 .tcnt{font-family:var(--f-mono);font-size:11px;font-weight:600;opacity:.75;margin-left:2px}
 .excard.st-todo{opacity:.6;filter:grayscale(.85);transition:opacity .2s,filter .2s}
 .excard.st-todo:hover,.excard.st-todo:focus-within{opacity:1;filter:none}
@@ -113,8 +176,6 @@ button{cursor:pointer}
 .st-done .stline{color:var(--ok)}
 .stbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--ink-3);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex:none}
 .stbox.on{background:var(--ok);border-color:var(--ok)}
-.asst{position:absolute;right:12px;bottom:64px;z-index:14;width:340px;max-height:min(480px,calc(100% - 150px));border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
-.asst.folded{width:auto}.asst.folded .pscroll{display:none}
 .asth{display:flex;align-items:center;gap:8px}
 .botav{width:28px;height:28px;flex:none;background:#e2e7f3;border-radius:9px;padding:1px}
 .alog{display:flex;flex-direction:column;gap:8px}
@@ -209,7 +270,8 @@ button{cursor:pointer}
 .bars i{display:block;width:3px;border-radius:1px;background:currentColor}
 .bars i:nth-child(1){height:5px}.bars i:nth-child(2){height:9px}.bars i:nth-child(3){height:13px}
 .lvl [data-lv="0"] .bars i:nth-child(n+2),.lvl [data-lv="1"] .bars i:nth-child(3){opacity:.3}
-#app[data-lv="0"] .hint{display:none}
+.hint{display:none!important}
+.props.empty{display:none}
 #app[data-lv="0"] .lv1,#app[data-lv="0"] .lv2,#app[data-lv="1"] .lv2{display:none!important}
 .simctl{display:none;align-items:center;gap:10px;flex-wrap:wrap}
 .app.sim .simctl{display:flex}
@@ -570,8 +632,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
   .props{position:fixed;top:auto;left:8px;right:8px;bottom:8px;width:auto;max-height:58%;z-index:30}
   .props.empty{display:none}
   .hint{display:none}
-  .asst{left:8px;right:8px;width:auto;bottom:160px;max-height:40%}
-  .exo,.app.sim .exo:not(.moved){left:8px;right:8px;width:auto;bottom:auto;top:150px;max-height:38%}
+  .exo,.app.sim .exo:not(.moved){left:8px;right:8px;width:auto;bottom:auto;top:150px;max-height:40%}
   .ctrl{top:auto;bottom:108px;left:8px;right:auto;margin:0}
   .ftxt{display:none}
   .lvl button{padding:6px 7px}
@@ -686,15 +747,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
       </div>
     </div>
 
-    <aside class="exo glass" id="exoBox" aria-label="Consigne de l’exercice" hidden>
-      <div class="phead" data-fold="exoBox"><span class="pht">Consigne</span><button class="fold" type="button" aria-label="Replier ou déplier"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+    <aside class="exo glass" id="exoBox" aria-label="Guide et consigne">
+      <div class="phead" data-fold="exoBox"><span class="pht" id="exoTitle">Pour commencer</span><button class="fold" type="button" aria-label="Replier ou déplier"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
       <div class="pscroll" id="exo"></div>
-    </aside>
-    <aside class="asst glass" id="asstBox" aria-label="Assistant" hidden>
-      <div class="phead" data-fold="asstBox"><span class="pht asth"><svg class="botav" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4v5" stroke="#1c3268" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="4" r="2.4" fill="#4cc584"/><rect x="4" y="9" width="24" height="20" rx="9" fill="#1c3268"/><rect x="8" y="13" width="16" height="11" rx="5" fill="#e2e7f3"/><circle cx="12.5" cy="18.5" r="2" fill="#1c3268"/><circle cx="19.5" cy="18.5" r="2" fill="#1c3268"/></svg>Bit · assistant</span><span style="display:flex;gap:4px"><button class="fold" type="button" aria-label="Replier ou déplier"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><button class="fold" id="asstClose" type="button" aria-label="Fermer l’assistant">×</button></span></div>
-      <div class="pscroll"><div class="alog" id="alog" role="log" aria-live="polite"></div>
-        <div class="aquick"><button type="button" data-q="what">Que dois-je faire ?</button><button type="button" data-q="why">Pourquoi ?</button><button type="button" data-q="stuck">Je suis bloqué</button><button type="button" data-q="show">Montre-moi</button></div>
-      </div>
     </aside>
     <div class="ctrl glass" id="ctrl"><button class="cmini" id="cMini" type="button"></button></div>
 
@@ -815,7 +870,7 @@ function snap(){HIST.push(JSON.stringify(S));if(HIST.length>60)HIST.shift();}
 function undo(){if(mode!=='design')return;if(!HIST.length){toast('Rien à annuler.');return;}S=JSON.parse(HIST.pop());sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;syncLevel();afterEdit();}
 let saveT=0;
 function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300);}
-function save(){persist();if(typeof checkSoon==='function')checkSoon();}
+function save(){persist();if(typeof checkSoon==='function')checkSoon();if(!S.exo&&typeof renderExo==='function')renderExo();}
 
 function ipsOf(d){if(d.type==='router')return d.ifs.map(f=>ip2n(f.ip)).filter(v=>v!==null);if(TYPES[d.type].host){const v=ip2n(d.ip);return v===null?[]:[v];}return [];}
 /* Liste des interfaces IP valides d'un appareil */
@@ -1088,21 +1143,22 @@ function renderProps(){
   const thing=sel&&(sel.kind==='dev'?D(sel.id):sel.kind==='zone'?Z(sel.id):C(sel.id));
   const PB=$('#propsBox');PB.classList.toggle('empty',!thing);
   $('#propsTitle').textContent=!thing?'Pour commencer':sel.kind==='dev'?TYPES[thing.type].label:sel.kind==='zone'?'Salle':'Câble';
-  if(!thing){sel=null;P.innerHTML=guideHTML();return;}
+  if(!thing){sel=null;P.innerHTML='';return;}
   if(sel.kind==='dev')P.innerHTML=devPropsHTML(thing);
   else if(sel.kind==='zone')P.innerHTML=zonePropsHTML(thing);
   else P.innerHTML=cablePropsHTML(thing);
   updateLive();
 }
 function guideHTML(){
-  return `<div class="guide"><h3 style="margin-top:4px">Construis ton réseau</h3><p class="small muted" style="margin:0 0 10px">Comme dans Filius : conçois d’abord, puis lance la simulation.</p>
+  return `<div class="guide"><h3>Construis ton réseau</h3><p class="small muted" style="margin:0 0 10px">Comme dans Filius : conçois d’abord, puis lance la simulation.</p>
 <ol class="small">
 <li>Glisse des <b>appareils</b> depuis la palette (ou clique dessus).</li>
 <li>Avec l’outil <b>Câble</b>, clique sur deux appareils pour les relier.</li>
 <li>Clique sur un appareil pour régler son <b>adresse IP</b>${lv()===2?', son masque et sa passerelle':lv()===1?' et sa passerelle':''}.</li>
 ${lv()>0?'<li>Avec l’outil <b>Salle</b>, dessine un rectangle autour d’un groupe : le sous-réseau détecté s’affiche en bas.</li>':''}
-<li>Passe en <b>Simulation</b>, clique sur un PC, ouvre l’invite de commandes et tape <code class="ad">ping 192.168.1.12</code> ou <code class="ad">imprimer 192.168.1.50</code>.</li>
+<li>Passe en <b>Simulation</b> avec le bouton ▶, clique sur un PC, ouvre l’invite de commandes et tape <code class="ad">ping 192.168.1.12</code>.</li>
 </ol></div>
+<button class="btn primary" data-act="openex" type="button">Choisir un exercice guidé</button>
 <div class="calc">${pas(lv())} Niveau <b>${LV_NAMES[lv()]}</b> · ${esc(LV_TOAST[lv()].split(' : ')[1])}</div>
 <div class="stats"><span class="stat">${S.devices.length} appareil${S.devices.length>1?'s':''}</span><span class="stat">${S.cables.length} câble${S.cables.length>1?'s':''}</span><span class="stat">${S.zones.length} salle${S.zones.length>1?'s':''}</span></div>
 <p class="small muted" style="margin:0">Raccourcis : <b>Suppr</b> efface la sélection, <b>Ctrl + Z</b> annule, <b>Échap</b> désélectionne. Ton travail est gardé dans ce navigateur.</p>`;
@@ -1789,7 +1845,6 @@ makeDrag($('#palette'),$('#palette .phead'),'palette');
 makeDrag($('#propsBox'),$('#propsBox .phead'),'props');
 makeDrag($('#legend'),$('#legend'),'legend');
 makeDrag($('#exoBox'),$('#exoBox .phead'),'exo');
-makeDrag($('#asstBox'),$('#asstBox .phead'),'asst');
 makeDrag($('.zoom'),$('#zVal'),'zoom');
 window.addEventListener('resize',placeAll);
 $('#cMini').onclick=()=>{if($('#ctrl').dataset.dragged)return;setMode(mode==='design'?'sim':'design');};
@@ -2088,149 +2143,174 @@ function loadExo(x){
   setMode('design');snap();S=blank();S.level=CLASSES[x.c].lv;x.build(H());S.help=x.help!==false;
   S.exo={k:x.k,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0};
   EV=[];
-  $('#exoBox').classList.remove('folded');markProg();asstIntro(x);openAsst();
+  $('#exoBox').classList.remove('folded');markProg();
   sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();
 }
 function checkExo(){
   const x=S.exo,def=exoDef();if(!x||!def)return;x.cur=x.cur||0;x.done=x.done||[];
   let adv=0;
   while(x.cur<def.steps.length){const st=def.steps[x.cur];let ok=false;try{ok=!!(st.c&&st.c());}catch(_){ok=false;}if(!ok)break;x.done[x.cur]=true;x.cur++;adv++;}
-  if(adv){persist();renderExo(true);markProg();asstStepMsg('Bravo, étape réussie ! ');toast(x.cur>=def.steps.length?'Exercice terminé ! Réponds maintenant aux questions.':`Étape réussie ✓ Passe à l’étape ${x.cur+1}.`);}
+  if(adv){persist();markProg();renderExo(true);toast(x.cur>=def.steps.length?'Exercice terminé ! Réponds maintenant aux questions.':`Étape réussie ✓ Passe à l’étape ${x.cur+1}.`);}
 }
 const fmtStep=t=>esc(t).replace(/`([^`]+)`/g,'<code>$1</code>');
+/* ============================================================
+   Guide unique : pour commencer + consigne pas à pas
+   avec explications détaillées et « capture » de l’action.
+   L’aide diminue quand la difficulté augmente.
+   ============================================================ */
+let PROG={};try{PROG=JSON.parse(localStorage.getItem('netsim-progress')||'{}')||{};}catch(_){}
+function saveProg(){try{localStorage.setItem('netsim-progress',JSON.stringify(PROG));}catch(_){}}
+function markProg(){const x=S.exo,def=exoDef();if(!x||!def)return;const p=PROG[x.k]||{};p.n=def.steps.length;p.best=Math.max(p.best||0,x.cur||0);p.started=true;if((x.cur||0)>=def.steps.length)p.done=true;PROG[x.k]=p;
+  const seen=new Set(PROG.__seen||[]);for(let i=0;i<Math.min(x.cur||0,def.steps.length);i++)typesOf(def.steps[i].t).forEach(t=>seen.add(t));PROG.__seen=[...seen];saveProg();}
+const FAILTXT={
+ timeout:'aucune réponse. Personne n’a peut-être cette adresse, l’appareil n’est pas relié, ou il est dans un autre réseau sans passerelle.',
+ noip:'cet appareil n’a pas d’adresse IP valide.',
+ nogw:'la destination est dans un autre réseau et aucune passerelle n’est réglée.',
+ noroute:'aucune route ne mène vers ce réseau.',
+ gw:'la passerelle n’est pas dans le même réseau que l’appareil.',
+ nocable:'l’appareil n’est relié à rien.',
+ unreach:'un routeur ne connaît pas le chemin vers ce réseau.',
+ ttl:'le paquet a tourné en rond jusqu’à épuiser son TTL.',
+ refused:'l’appareil répond, mais aucun serveur n’y est démarré pour ce service.',
+ addr:'l’adresse tapée n’est pas une adresse IP valide.'
+};
+function explainFail(){if(S.exo)renderExo();}
+/* ---- reconnaître le type d’action d’une étape ---- */
+const TYPE_RULES=[
+ ['pause',/Reviens en conception|Repasse en conception|bouton ⏸|^En conception|Retourne en conception/],
+ ['play',/Lance la simulation|Relance la simulation|Lance la simulation/],
+ ['settings',/Réglages/],
+ ['export',/Exporte/],
+ ['erase',/Gomme|Supprime le câble/],
+ ['cable',/outil Câble|Relie|relie|Câble chaque/],
+ ['routerport',/port relié|Port côté|ports du routeur/],
+ ['route',/une route|route du retour|route par défaut|Routes statiques/],
+ ['maskfield',/masque/i],
+ ['gwfield',/passerelle/i],
+ ['ipfield',/adresse `|Donne une adresse|Donne `|Corrige son adresse|Donne à |donne-lui|écris l’adresse/],
+ ['opendev',/Clique sur le switch|Clique sur l’imprimante pour voir|Clique sur l’ESP32|clique sur le switch/],
+ ['frames',/Trames échangées|une trame|enveloppe/],
+ ['terminal',/`(ping|tracert|imprimer|arp)|invite de commandes|Outils réseau/],
+ ['browser',/navigateur|`http/]
+];
+const TYPE_RANK={pause:0,play:0,cable:0,ipfield:0,opendev:0,terminal:0,browser:0,frames:0,gwfield:1,routerport:1,settings:1,maskfield:2,route:2,erase:2,export:2};
+function typesOf(t){const out=[];for(const [k,re] of TYPE_RULES)if(re.test(t))out.push(k);
+  if(out.includes('gwfield')&&!/Règle|règle|Passerelles|passerelle de/.test(t))out.splice(out.indexOf('gwfield'),1);
+  if(out.includes('maskfield')&&!/passe le masque|masque `|un masque|masque \//.test(t))out.splice(out.indexOf('maskfield'),1);
+  if(out.includes('ipfield')&&(out.includes('routerport')||out.includes('route')))out.splice(out.indexOf('ipfield'),1);
+  if(out.includes('frames')&&out.includes('settings'))out.splice(out.indexOf('frames'),1);
+  return out.slice(0,2);}
+const RANKC={'5e':0,'4e':1,'3e':2};
+function isNew(type,def,i){const seen=PROG.__seen||[];if(seen.includes(type))return false;if((TYPE_RANK[type]||0)<RANKC[def.c])return false;
+  for(let j=0;j<i;j++)if(typesOf(def.steps[j].t).includes(type))return false;return true;}
+/* ---- appareils cités, dans l’ordre du texte ---- */
+function mentionedOrdered(t){
+  const out=[];
+  S.devices.forEach(d=>{const m=new RegExp('(^|[^0-9A-Za-z])'+d.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![0-9])').exec(t);if(m)out.push([m.index,d]);});
+  [[/le switch|au switch|les deux switchs|quatre switchs/i,'switch'],[/le routeur|au routeur/i,'router'],[/imprimante/i,'printer'],[/smartphone/i,'phone'],[/le portable/i,'laptop'],[/ESP32/,'esp32'],[/Raspberry/,'rpi'],[/serveur/i,'server']].forEach(([re,ty])=>{const m=re.exec(t);if(m&&!out.some(([,d])=>d.type===ty)){const d=S.devices.find(x=>x.type===ty);if(d)out.push([m.index,d]);}});
+  return out.sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+}
+function ctxOf(t){
+  const ord=mentionedOrdered(t),hosts=ord.filter(d=>TYPES[d.type].host);
+  const bt=[...t.matchAll(/`([^`]+)`/g)].map(m=>m[1]);
+  const cmd=bt.find(c=>/^(ping|tracert|imprimer|arp)\b/.test(c))||(/`arp`/.test(t)?'arp':null);
+  const url=bt.find(c=>/^http/.test(c));
+  const val=bt.find(c=>/^\d+\.\d+\.\d+\.\d+$/.test(c));
+  const dev=hosts[0]||S.devices.find(d=>TYPES[d.type].host);
+  const sw=ord.find(d=>d.type==='switch'||d.type==='router')||S.devices.find(d=>d.type==='switch');
+  const a=ord[0]||dev,b=ord.find(d=>d!==a)||sw;
+  return {ord,dev,sw,a,b,cmd,url,val};
+}
+const bold=s=>fmtStep(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const nm=d=>d?`**${d.name}**`:'l’appareil';
+function howTo(type,c,t){
+  const term=c.dev?APPS.term.name(c.dev):'Invite de commandes';
+  switch(type){
+    case 'pause':return ['Clique sur le bouton vert ⏸ en haut de l’écran.','Tu reviens en conception : tu peux à nouveau modifier les appareils et les câbles.'];
+    case 'play':return ['Clique sur le bouton rond ▶ en haut de l’écran.','Il devient vert ⏸ : les appareils sont allumés et on peut les utiliser.'];
+    case 'settings':return ['Clique sur l’engrenage ⚙ en haut à droite.',/Vider/.test(t)?'Dans le menu, clique sur **Vider les tables ARP et MAC**.':'Dans le menu, déplace le curseur **Vitesse**.'];
+    case 'export':return ['Ouvre le menu **Fichier** en haut à gauche.','Clique sur **Exporter le schéma…**, puis sur **Copier le texte**.'];
+    case 'erase':return ['Dans la boîte à outils, choisis l’outil **Gomme**.','Clique sur le câble à supprimer : il disparaît.'];
+    case 'cable':return ['Dans la boîte à outils (à gauche), clique sur l’outil **Câble**.',`Clique sur ${nm(c.a)}, puis sur ${nm(c.b)}.`,'Un trait apparaît entre les deux : ils sont reliés. Pour un smartphone, le trait est en pointillés (Wi-Fi).'];
+    case 'routerport':return ['Avec l’outil **Sélection**, clique sur le **routeur**.','Dans le panneau de droite, chaque port (eth0, eth1…) indique à quel switch il est relié.','Écris l’adresse dans le champ du bon port, puis appuie sur Entrée.'];
+    case 'route':return ['Clique sur le routeur concerné.','Dans la section **Routes statiques**, clique sur **+ Ajouter une route**.','Remplis les trois champs : le réseau à atteindre, son masque, et « via » (l’adresse du routeur voisin).'];
+    case 'maskfield':return ['Clique sur chaque appareil concerné.','Dans le champ **Masque de sous-réseau**, écris le masque (on peut écrire /25).'];
+    case 'gwfield':return [`Avec l’outil **Sélection**, clique sur ${nm(c.dev)}.`,`Dans le champ **Passerelle**, écris ${c.val?'`'+c.val+'`':'l’adresse du routeur de la salle'} puis appuie sur Entrée.`,'Recommence pour chaque appareil cité.'];
+    case 'ipfield':return [`Avec l’outil **Sélection**, clique sur ${nm(c.dev)}.`,'Le panneau de l’appareil s’ouvre à droite.',`Dans le champ **Adresse IP**, écris ${c.val?'`'+c.val+'`':'l’adresse'} puis appuie sur Entrée.`];
+    case 'opendev':{const d=c.ord.find(x=>!TYPES[x.type].host||x.type==='printer'||x.type==='esp32')||c.a;return [`En simulation, clique sur ${nm(d)} sur le schéma.`,'Sa fenêtre s’ouvre : regarde ce qu’elle contient.'];}
+    case 'frames':return ['En bas de l’écran, clique sur **Trames échangées** pour ouvrir le tiroir.','Clique sur une ligne : son détail s’affiche à droite.','Tu peux aussi cliquer sur une enveloppe pendant qu’elle circule : la simulation se met en pause.'];
+    case 'terminal':return [`Clique sur ${nm(c.dev)} sur le schéma : son écran s’ouvre.`,`Clique sur l’icône **${term}**.`,c.cmd?`Tape \`${c.cmd}\` puis appuie sur la touche Entrée.`:'Tape la commande puis appuie sur Entrée.',
+      /^ping/.test(c.cmd||'')?'« Réponse de … » veut dire que l’appareil a répondu.':/^tracert/.test(c.cmd||'')?'Chaque ligne est un appareil traversé.':/^imprimer/.test(c.cmd||'')?'Le terminal confirme que le document est imprimé.':'Lis le résultat affiché.'];
+    case 'browser':return [`Clique sur ${nm(c.dev)} sur le schéma.`,'Ouvre le **Navigateur web**.',c.url?`Dans la barre d’adresse, tape \`${c.url}\` puis clique sur **Aller**.`:'Tape l’adresse du serveur puis clique sur **Aller**.'];
+  }
+  return [];
+}
+/* ---- « captures » illustrant l’action ---- */
+const sdev=(d,lab)=>d?`<span class="s-dev"><svg viewBox="0 0 100 100"><use href="#ic-${d.type}" width="100" height="100"/></svg>${lab===false?'':`<small>${esc(d.name)}</small>`}</span>`:'';
+const SCUR='<svg class="scur" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2l13 8-6 2-2 6z"/></svg>';
+const SAR='<span class="s-ar">→</span>';
+function shot(type,c,t){
+  const term=c.dev?APPS.term.name(c.dev):'Invite de commandes';
+  switch(type){
+    case 'play':return `<div class="shot"><span class="s-btn play">${ICPLAY}${SCUR}</span><small class="s-cap">bouton en haut, au centre</small></div>`;
+    case 'pause':return `<div class="shot"><span class="s-btn pause">${ICPAUSE}${SCUR}</span><small class="s-cap">retour en conception</small></div>`;
+    case 'cable':return `<div class="shot"><span class="s-tool">${I('<path d="M5 18c4 0 4-12 7-12s3 12 7 12"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>')}Câble</span>${SAR}<span class="s-pair">${sdev(c.a)}<svg class="s-line" viewBox="0 0 60 12"><path d="M2 6H58"/></svg>${sdev(c.b)}${SCUR}</span></div>`;
+    case 'erase':return `<div class="shot"><span class="s-tool">${I('<path d="M15 4l5 5-9 9H6l-3-3z"/><path d="M10 9l5 5M13 20h8"/>')}Gomme</span>${SAR}<span class="s-pair">${sdev(c.a)}<svg class="s-line cut" viewBox="0 0 60 12"><path d="M2 6H58"/><path class="x" d="M24 0L36 12M36 0L24 12"/></svg>${sdev(c.b)}</span></div>`;
+    case 'ipfield':case 'gwfield':case 'maskfield':{const lab=type==='ipfield'?'Adresse IP':type==='gwfield'?'Passerelle (adresse du routeur)':'Masque de sous-réseau';const v=type==='maskfield'?(c.val&&/^255/.test(c.val)?c.val:'255.255.255.128'):(c.val||'192.168.1.x');
+      return `<div class="shot">${sdev(c.dev)}${SAR}<span class="s-panel"><b>${esc(c.dev?c.dev.name:'')}</b><small>${lab}</small><span class="s-inp">${esc(v)}<i class="caret"></i></span></span></div>`;}
+    case 'routerport':{const r=S.devices.find(d=>d.type==='router');const sw=c.ord.find(d=>d.type==='switch')||S.devices.find(d=>d.type==='switch');
+      return `<div class="shot">${sdev(r)}${SAR}<span class="s-panel"><b>${esc(r?r.name:'Routeur')}</b><small><b class="mono">eth0</b> · ${esc(sw?sw.name:'Switch')}</small><span class="s-inp">${esc(c.val||'192.168.1.254')}<i class="caret"></i></span></span></div>`;}
+    case 'route':{const bt=[...t.matchAll(/`([^`]+)`/g)].map(m=>m[1]);return `<div class="shot"><span class="s-panel wide"><b>Routes statiques</b><span class="s-row3"><span class="s-inp">${esc(bt[0]||'192.168.2.0')}</span><span class="s-inp">${esc(bt[1]&&/^255/.test(bt[1])?bt[1]:'255.255.255.0')}</span><span class="s-inp">${esc(bt.find(x=>/^10\./.test(x))||'10.0.0.2')}</span></span><span class="s-add">+ Ajouter une route</span></span></div>`;}
+    case 'settings':return `<div class="shot"><span class="s-btn gear">${I('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>')}${SCUR}</span>${SAR}<span class="s-menu"><small>SIMULATION</small>${/Vider/.test(t)?'<span class="s-mi on">Vider les tables ARP et MAC</span>':'<span class="s-mi on">Vitesse <i class="s-slider"></i></span>'}</span></div>`;
+    case 'export':return `<div class="shot"><span class="s-tool">Fichier ▾</span>${SAR}<span class="s-menu"><span class="s-mi">Importer un schéma…</span><span class="s-mi on">Exporter le schéma…</span></span></div>`;
+    case 'opendev':{const d=c.ord.find(x=>!TYPES[x.type].host||x.type==='printer'||x.type==='esp32')||c.a;return `<div class="shot"><span class="s-pair">${sdev(d)}${SCUR}</span>${SAR}<span class="s-win"><span class="s-wbar">${esc(d?d.name:'')}</span><span class="s-lines"><i></i><i></i><i></i></span></span></div>`;}
+    case 'frames':return `<div class="shot col"><span class="s-pill">${I('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>')}Trames échangées ▲</span><span class="s-rows"><span><b class="ptag2 c-arp">ARP</b> Qui a l’adresse… ?</span><span class="on"><b class="ptag2 c-icmp">ICMP</b> Ping n°1 : es-tu là ?${SCUR}</span><span><b class="ptag2 c-http">HTTP</b> GET / : demande de la page</span></span></div>`;
+    case 'terminal':{const res=/^ping (\S+)/.exec(c.cmd||'');const out=res?`Réponse de ${res[1]} ✓`:/^tracert/.test(c.cmd||'')?'1   192.168.1.254   (routeur)':/^imprimer/.test(c.cmd||'')?'✓ Document imprimé':/^arp/.test(c.cmd||'')?'192.168.1.12   02:4C:…':'';
+      return `<div class="shot col"><span class="s-rowc">${sdev(c.dev)}${SAR}<span class="s-dicon"><span>${ICONS.term}</span>${esc(term)}</span></span><span class="s-term"><span class="s-tbar">${esc(term)}</span><span class="s-tbody"><span class="pr">${esc(c.dev?promptOf(c.dev):'C:\\>')}</span> ${esc(c.cmd||'commande')}<i class="caret"></i>${out?`<span class="okl">${esc(out)}</span>`:''}</span></span></div>`;}
+    case 'browser':return `<div class="shot col"><span class="s-rowc">${sdev(c.dev)}${SAR}<span class="s-dicon"><span>${ICONS.web}</span>Navigateur web</span></span><span class="s-win"><span class="s-url">${esc(c.url||'http://…')}<b>Aller</b></span><span class="s-lines"><i></i><i></i><i style="width:55%"></i></span></span></div>`;
+  }
+  return '';
+}
+function guideBlock(def,i){
+  const st=def.steps[i],ty=typesOf(st.t);if(!ty.length)return '';
+  const c=ctxOf(st.t),main=ty[ty.length-1],full=ty.some(t=>isNew(t,def,i));
+  const subs=ty.flatMap(t=>howTo(t,c,st.t));if(!subs.length)return '';
+  const inner=`<ol class="how">${subs.map(s=>`<li>${bold(s)}</li>`).join('')}</ol>${shot(main,c,st.t)}`;
+  return full?`<div class="howbox"><div class="howh">Comment faire</div>${inner}</div>`:`<details class="howd"><summary>${def.c==='3e'?'Besoin d’aide ?':'Rappel : comment faire ?'}</summary>${inner}</details>`;
+}
+function lastFailHTML(){const e=[...EV].reverse().find(x=>(x.type==='ping'||x.type==='http'||x.type==='print'));if(!e||e.ok)return '';
+  const w=e.type==='ping'?`Ton ping vers ${esc(e.dst)}`:e.type==='print'?`L’impression vers ${esc(e.dst)}`:`La page ${esc(e.dst)}`;
+  return `<div class="failbox"><b>${w} n’a pas marché</b> : ${FAILTXT[e.why||e.err||'timeout']||FAILTXT.timeout}</div>`;}
 function renderExo(flash){
   const B=$('#exoBox');if(!B)return;const x=S.exo;
-  if(!x){B.hidden=true;$('#asstBox').hidden=true;return;}
   B.hidden=false;
+  if(!x){$('#exoTitle').textContent='Pour commencer';$('#exo').innerHTML=guideHTML();return;}
+  $('#exoTitle').textContent='Consigne';
   const def=exoDef(),n=x.steps.length,cur=Math.min(x.cur||0,n),done=x.done||[];
-  const head=`<div class="exh"><span class="chip2">${pas(x.c)}${CLASSES[x.c]?CLASSES[x.c].t:''}${x.cat?' · '+esc(catName(x.c,x.cat)):''} · ${esc(x.dur||'')}</span><h3>${esc(x.t)}</h3></div>`;
+  const head=`<div class="exh"><span class="chip2">${pas(x.c)}${CLASSES[x.c]?CLASSES[x.c].t:''}${x.cat?' · '+esc(catName(x.c,x.cat)):''} · ${esc(x.dur||'')}</span><h3>${esc(x.t)}</h3>${def&&cur===0?`<p class="small muted" style="margin:4px 0 0">${esc(def.p)}</p>`:''}</div>`;
   const prog=`<div class="prog"><div class="ptxt">${cur>=n?'Toutes les étapes sont faites':`Étape <b>${cur+1}</b> sur ${n}`}</div><div class="pbar">${x.steps.map((_,i)=>`<i class="${i<cur?'d':i===cur?'c':''}"></i>`).join('')}</div></div>`;
   let body='';
   if(!def){body=`<ol class="steps">${x.steps.map((st,i)=>`<li><label><input type="checkbox" data-step="${i}"${done[i]?' checked':''}><span>${fmtStep(st)}</span></label></li>`).join('')}</ol>`;}
   else if(cur<n){const st=def.steps[cur];
     body=`<div class="stepcard${flash?' flash':''}"><span class="snum">${cur+1}</span><div class="stxt">${fmtStep(st.t)}</div></div>
-<div class="sstat">${st.c?'<span class="auto">Validation automatique</span> Fais l’action : l’étape se valide toute seule.':'Quand c’est fait, passe à l’étape suivante.'}</div>
+${guideBlock(def,cur)}
+${lastFailHTML()}
+<div class="sstat">${st.c?'<span class="auto">Validation automatique</span> L’étape se coche toute seule quand l’action est faite.':'Quand c’est fait, passe à l’étape suivante.'}</div>
 ${st.h?`<details class="hint2"><summary>Besoin d’un indice ?</summary><p>${fmtStep(st.h)}</p></details>`:''}
 <div class="row"><button class="btn small${st.c?'':' primary'}" data-act="next" type="button">${st.c?'Passer cette étape':'J’ai terminé, étape suivante'}</button></div>`;}
   else body=`<div class="stepcard done${flash?' flash':''}"><span class="snum">✓</span><div class="stxt"><b>Exercice terminé !</b><br>${fmtStep(x.verif)}</div></div>`;
   const qs=x.q&&x.q.length?`<details class="sec"${cur>=n?' open':''}><summary>Questions (${x.q.length})</summary><div class="secb"><ul class="qs">${x.q.map(q=>`<li>${fmtStep(q)}</li>`).join('')}</ul></div></details>`:'';
   const all=def?`<details class="sec"><summary>Toutes les étapes</summary><div class="secb"><ol class="steps ro">${x.steps.map((st,i)=>`<li class="${i<cur?'ok':i===cur?'now':''}"><span>${fmtStep(st)}</span></li>`).join('')}</ol></div></details>`:'';
-  const ver=cur<n?`<details class="sec"><summary>Pour vérifier</summary><div class="secb"><div class="small">${fmtStep(x.verif)}</div></div></details>`:'';
-  $('#exo').innerHTML=head+prog+body+qs+all+ver+`<div class="row" style="gap:6px"><button class="btn small primary" data-act="asst" type="button">Demander à Bit</button><button class="btn small" data-act="restart" type="button">Recommencer</button><button class="btn small" data-act="exoclose" type="button">Retirer la consigne</button></div>`;
+  $('#exo').innerHTML=head+prog+body+qs+all+`<div class="row" style="gap:6px"><button class="btn small" data-act="restart" type="button">Recommencer</button><button class="btn small" data-act="exoclose" type="button">Quitter l’exercice</button></div>`;
 }
 $('#exo').addEventListener('change',e=>{const i=e.target.dataset.step;if(i==null||!S.exo)return;S.exo.done=S.exo.done||[];S.exo.done[+i]=e.target.checked;save();});
 $('#exo').addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
-  if(a==='exoclose'){snap();delete S.exo;renderExo();save();toast('Consigne retirée. Annuler (Ctrl + Z) pour la remettre.');}
-  if(a==='next'&&S.exo){S.exo.cur=(S.exo.cur||0)+1;persist();renderExo(true);markProg();asstStepMsg();checkSoon();}
-  if(a==='asst'){openAsst();if(!A.log.length){const d=exoDef();if(d)asstIntro(d);}}
+  if(a==='exoclose'){snap();delete S.exo;renderExo();save();toast('Exercice quitté. Annuler (Ctrl + Z) pour y revenir.');}
+  if(a==='next'&&S.exo){S.exo.cur=(S.exo.cur||0)+1;persist();markProg();renderExo(true);checkSoon();}
   if(a==='restart'){const d=exoDef();if(d)loadExo(d);else{S.exo.cur=0;S.exo.done=[];renderExo();save();}}
+  if(a==='openex')$('#bExamples').click();
 });
-/* ============================================================
-   Assistant « Bit » : explique l’étape et aide en cas de blocage
-   ============================================================ */
-const BOT='<svg class="botav" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4v5" stroke="#1c3268" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="4" r="2.4" fill="#4cc584"/><rect x="4" y="9" width="24" height="20" rx="9" fill="#1c3268"/><rect x="8" y="13" width="16" height="11" rx="5" fill="#e2e7f3"/><circle cx="12.5" cy="18.5" r="2" fill="#1c3268"/><circle cx="19.5" cy="18.5" r="2" fill="#1c3268"/></svg>';
-const A={log:[],lastFail:''};
-let PROG={};try{PROG=JSON.parse(localStorage.getItem('netsim-progress')||'{}')||{};}catch(_){}
-function saveProg(){try{localStorage.setItem('netsim-progress',JSON.stringify(PROG));}catch(_){}}
-function markProg(){const x=S.exo,def=exoDef();if(!x||!def)return;const p=PROG[x.k]||{};p.n=def.steps.length;p.best=Math.max(p.best||0,x.cur||0);p.started=true;if((x.cur||0)>=def.steps.length)p.done=true;PROG[x.k]=p;saveProg();}
-function say(html,cls){A.log.push({html,cls:cls||''});if(A.log.length>80)A.log.shift();renderAsst();}
-function renderAsst(){
-  const L=$('#alog');if(!L)return;
-  L.innerHTML=A.log.map(m=>m.cls==='me'?`<div class="msg me"><div class="bub">${m.html}</div></div>`:`<div class="msg ${m.cls}">${BOT}<div class="bub">${m.html}</div></div>`).join('');
-  const sc=$('#asstBox .pscroll');if(sc)sc.scrollTop=sc.scrollHeight;
-}
-function openAsst(){const b=$('#asstBox');b.hidden=false;b.classList.remove('folded');renderAsst();placeAll();}
-function curStep(){const x=S.exo,def=exoDef();if(!x||!def)return null;const i=x.cur||0;return i<def.steps.length?{i,n:def.steps.length,st:def.steps[i],def}:{i,n:def.steps.length,st:null,def};}
-const NEED_SIM=/`(ping|tracert|imprimer|arp|http)|navigateur|invite de commandes|Outils réseau|Lance la simulation|enveloppe|trame|Clique sur le switch|Clique sur l’ESP32|file d’impression|Relance/i;
-const NEED_DESIGN=/conception|Câble|câble|Relie|Donne|Règle|Corrige|Supprime|Configure|ajoute|masque|passerelle de|adresse `|l’adresse `|Prépare/;
-function needOf(t){if(/conception/i.test(t)&&!/Relance|Lance la simulation/.test(t))return 'design';if(NEED_SIM.test(t))return 'sim';if(NEED_DESIGN.test(t))return 'design';return '';}
-function mentioned(t){
-  const out=S.devices.filter(d=>new RegExp('(^|[^0-9A-Za-z])'+d.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![0-9])').test(t));
-  const add=(re,type)=>{if(re.test(t))S.devices.filter(d=>d.type===type).forEach(d=>{if(!out.includes(d))out.push(d);});};
-  if(!out.some(d=>d.type==='switch'))add(/le switch|au switch|les deux switchs|quatre switchs/i,'switch');
-  if(!out.some(d=>d.type==='router'))add(/le routeur|au routeur/i,'router');
-  if(!out.some(d=>d.type==='printer'))add(/imprimante/i,'printer');
-  if(!out.some(d=>d.type==='phone'))add(/smartphone/i,'phone');
-  if(!out.some(d=>d.type==='laptop'))add(/le portable/i,'laptop');
-  if(!out.some(d=>d.type==='esp32'))add(/ESP32/,'esp32');
-  if(!out.some(d=>d.type==='rpi'))add(/Raspberry/,'rpi');
-  return out;
-}
-const GLOSS=[
- [/switch/i,'Le <b>switch</b> est comme une multiprise pour le réseau : il relie les appareils d’une même salle et fait passer les messages de l’un à l’autre.'],
- [/ping/i,'La commande <b>ping</b> envoie un petit message « es-tu là ? » à une adresse. Si l’appareil répond, la liaison fonctionne.'],
- [/passerelle/i,'La <b>passerelle</b> est la porte de sortie de la salle : c’est l’adresse du routeur de ton côté. Sans elle, un appareil ne peut parler qu’aux appareils de son propre réseau.'],
- [/routeur/i,'Le <b>routeur</b> relie des réseaux différents. Il a une adresse IP dans chaque réseau qu’il relie, et il choisit le chemin des paquets.'],
- [/masque|\/25/i,'Le <b>masque</b> indique quelle partie de l’adresse IP désigne le réseau. Avec /24, les trois premiers nombres sont le réseau ; avec /25, le réseau est coupé en deux moitiés de 128 adresses.'],
- [/ARP/,'<b>ARP</b> sert à trouver l’adresse MAC (l’adresse de la carte réseau) qui correspond à une adresse IP. La question est envoyée à tous ; seul le bon appareil répond.'],
- [/MAC/,'L’<b>adresse MAC</b> est l’identifiant de la carte réseau. Le switch s’en sert pour savoir sur quel port envoyer chaque trame.'],
- [/TTL/,'Le <b>TTL</b> (durée de vie) diminue de 1 à chaque routeur. Arrivé à 0, le paquet est détruit : cela évite qu’il tourne en rond pour toujours.'],
- [/route/i,'Une <b>route</b> dit au routeur : « pour atteindre tel réseau, passe par tel voisin ». Il en faut une à l’aller et une au retour.'],
- [/tracert/i,'<b>tracert</b> affiche la liste des routeurs traversés pour atteindre une adresse.'],
- [/http|navigateur|page/i,'Le <b>navigateur</b> est un client : il demande une page (GET) au <b>serveur</b> web, qui la renvoie (PAGE). C’est le modèle client / serveur.'],
- [/imprim/i,'Pour <b>imprimer en réseau</b>, l’ordinateur envoie le document à l’adresse IP de l’imprimante, comme n’importe quel message.'],
- [/Wi-Fi|smartphone/i,'Le <b>Wi-Fi</b> remplace le câble par des ondes radio, mais le smartphone a quand même besoin d’une adresse IP pour communiquer.'],
- [/adresse|192\.168/i,'Une <b>adresse IP</b> identifie un appareil dans le réseau, comme une adresse postale. Dans 192.168.1.12, « 192.168.1 » désigne le réseau et « 12 » l’appareil.'],
- [/câble|Relie/i,'Un appareil doit être <b>relié</b> (par câble ou Wi-Fi) à un switch ou un routeur pour échanger des données.']
-];
-const FAILTXT={
- timeout:'Le message n’a reçu aucune réponse. Causes possibles : personne n’a cette adresse, l’appareil n’est pas relié, ou il est dans un autre réseau sans passerelle pour revenir.',
- noip:'Ton appareil n’a pas d’adresse IP valide. Repasse en conception et donne-lui une adresse.',
- nogw:'La destination n’est pas dans le même réseau que ton appareil (les premiers nombres de l’adresse sont différents) et aucune passerelle n’est réglée.',
- noroute:'Aucune route ne mène vers ce réseau.',
- gw:'La passerelle réglée n’est pas dans le même réseau que ton appareil : vérifie son adresse.',
- nocable:'Ton appareil n’est relié à rien : ajoute un câble vers le switch.',
- unreach:'Un routeur a répondu qu’il ne connaît pas le chemin vers ce réseau : il lui manque une route, ou un câble après lui.',
- ttl:'Le paquet a tourné en rond entre des routeurs jusqu’à ce que son TTL arrive à 0.',
- refused:'L’appareil répond, mais il n’a pas de serveur démarré pour ce service (page web ou impression).',
- addr:'L’adresse tapée n’est pas une adresse IP valide : 4 nombres de 0 à 255 séparés par des points.'
-};
-function explainFail(e){
-  if(!S.exo)return;const why=e.why||e.err||'timeout';const what=e.type==='ping'?`Ton ping vers ${esc(e.dst)} a échoué.`:e.type==='print'?`L’impression vers ${esc(e.dst)} a échoué.`:`La page ${esc(e.dst)} ne s’est pas affichée.`;
-  const key=e.type+why+e.dst;if(A.lastFail===key)return;A.lastFail=key;
-  if(!$('#asstBox').hidden)say(`${what} ${FAILTXT[why]||FAILTXT.timeout}`,'warn');
-}
-function asstStepMsg(prefix){const c=curStep();if(!c)return;
-  if(!c.st){say(`${prefix||''}Exercice terminé ! Il te reste à répondre aux questions de la consigne. Tu peux aussi recommencer pour t’entraîner.`,'ok');return;}
-  say(`${prefix||''}<b>Étape ${c.i+1} sur ${c.n}</b> : ${fmtStep(c.st.t)}`,prefix?'ok':'');}
-function asstIntro(def){A.log=[];A.lastFail='';
-  say(`Bonjour, je suis <b>Bit</b>, ton assistant réseau. Dans cet exercice : ${esc(def.p.charAt(0).toLowerCase()+def.p.slice(1))}`);
-  asstStepMsg();say('Si tu ne sais pas quoi faire, utilise les boutons en bas : je peux t’expliquer, t’aider ou te montrer où cliquer.');}
-function asstAsk(q){
-  const c=curStep();
-  if(!c){say('Ouvre un exercice dans Fichier → Exemples et exercices : je t’aiderai à le faire étape par étape.');return;}
-  if(!c.st&&q!=='why'){asstStepMsg();return;}
-  const t=c.st?c.st.t:'',need=needOf(t);
-  if(q==='what'){say(`À faire maintenant (étape ${c.i+1} sur ${c.n}) : ${fmtStep(t)}`);
-    if(need==='sim'&&mode!=='sim')say('Pour cette étape, lance d’abord la simulation avec le bouton ▶ en haut.');
-    if(need==='design'&&mode!=='design')say('Cette étape se fait en mode conception : clique sur le bouton ⏸ en haut pour arrêter la simulation.');
-    if(c.st.c)say('Quand l’action est faite, l’étape se valide toute seule.');return;}
-  if(q==='why'){const src=(t||'')+' '+c.def.t+' '+c.def.p;const g=GLOSS.filter(([re])=>re.test(src)).slice(0,2);
-    if(g.length)g.forEach(([,txt])=>say(txt));else say(`Le but de l’exercice : ${esc(c.def.p)}`);return;}
-  if(q==='show'){const ds=mentioned(t);if(!ds.length){say('Je n’ai pas d’appareil précis à te montrer pour cette étape. Relis la consigne et utilise les outils de la boîte à outils.');return;}
-    highlight(ds);say(`Regarde le schéma : ${ds.map(d=>'<b>'+esc(d.name)+'</b>').join(', ')} ${ds.length>1?'clignotent':'clignote'}.`);return;}
-  if(q==='stuck'){
-    if(need==='sim'&&mode!=='sim'){say('Tu es en mode conception. Lance la simulation avec le bouton ▶ en haut, puis refais l’action.','warn');return;}
-    if(need==='design'&&mode!=='design'){say('Tu es en simulation : on ne peut rien modifier. Clique sur ⏸ en haut pour revenir en conception.','warn');return;}
-    const ds=mentioned(t),tips=[];
-    if(/Relie|Câble|câble/.test(t)){const sws=S.devices.filter(d=>d.type==='switch'||d.type==='router');ds.filter(d=>d.type!=='switch'&&d.type!=='router').forEach(d=>{if(!S.cables.some(c=>c.a.d===d.id||c.b.d===d.id))tips.push(`<b>${esc(d.name)}</b> n’est relié à rien pour l’instant.`);});
-      if(tool!=='cable'&&mode==='design')tips.push('Choisis l’outil <b>Câble</b> dans la boîte à outils, puis clique sur les deux appareils à relier.');}
-    if(/passerelle/i.test(t))ds.filter(d=>TYPES[d.type].host&&!(d.gw||'').trim()).forEach(d=>tips.push(`La passerelle de <b>${esc(d.name)}</b> est encore vide.`));
-    if(/adresse/i.test(t)&&!/passerelle/i.test(t))ds.filter(d=>TYPES[d.type].host&&!(d.ip||'').trim()).forEach(d=>tips.push(`<b>${esc(d.name)}</b> n’a pas encore d’adresse IP.`));
-    if(/routeur|port/i.test(t))ds.filter(d=>d.type==='router').forEach(r=>{if(!r.ifs.some((f,i)=>linkOf(r,i)))tips.push('Le routeur n’est encore relié à aucun switch.');});
-    const last=[...EV].reverse().find(e=>(e.type==='ping'||e.type==='http'||e.type==='print')&&!e.ok);
-    if(!tips.length&&last)tips.push(`Ta dernière tentative (${esc(last.dst)}) a échoué : ${FAILTXT[last.why||last.err||'timeout']||FAILTXT.timeout}`);
-    if(!tips.length&&S.help!==false){const bad=S.devices.map(d=>[d,diag(d)]).filter(([,i])=>i.length).slice(0,2);bad.forEach(([d,i])=>tips.push(`<b>${esc(d.name)}</b> : ${esc(i[0])}.`));}
-    if(!tips.length&&c.st.h)tips.push('Indice : '+fmtStep(c.st.h));
-    if(!tips.length)tips.push(c.st.c?'Relis bien l’étape : l’action exacte demandée va la valider. Les commandes s’écrivent comme dans la consigne, puis on appuie sur Entrée.':'Cette étape est une observation : quand tu as fini, clique sur « J’ai terminé, étape suivante » dans la consigne.');
-    tips.forEach(x=>say(x));if(ds.length)highlight(ds);
-  }
-}
-function highlight(ds){ds.forEach(d=>{const g=document.createElementNS(NS,'g');g.setAttribute('class','hl');g.setAttribute('transform',`translate(${d.x},${d.y+6})`);g.innerHTML='<circle r="58"/><circle r="58" class="hl2"/>';gFx.appendChild(g);setTimeout(()=>g.remove(),3200);});}
-$('#asstBox').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;say(esc(b.textContent),'me');asstAsk(b.dataset.q);});
-$('#asstClose').onclick=()=>{$('#asstBox').hidden=true;};
-
 let exTab=null;
 function exModal(){
   const cnt=c=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="tcnt">${xs.filter(x=>(PROG[x.k]||{}).done).length}/${xs.length}</span>`;};
