@@ -105,6 +105,36 @@ button{cursor:pointer}
 .qs{margin:0;padding-left:18px;font-size:13px;line-height:1.45;display:flex;flex-direction:column;gap:6px}
 .exo code,.excard code{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border-radius:5px;padding:1px 5px;white-space:nowrap}
 .extabs{display:flex;flex-wrap:wrap}
+.catsec{display:flex;flex-direction:column;gap:8px}
+.cath{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:4px}
+.cath h3{margin:0;font-family:var(--f-disp);font-weight:800;font-size:16px}
+.cath span{font-size:12.5px;color:var(--ink-2)}
+.prog{display:flex;flex-direction:column;gap:6px}
+.ptxt{font-size:12px;color:var(--ink-2)}.ptxt b{color:var(--ink)}
+.pbar{display:flex;gap:4px}
+.pbar i{flex:1;height:6px;border-radius:3px;background:color-mix(in srgb,var(--line) 85%,transparent)}
+.pbar i.d{background:var(--ok)}.pbar i.c{background:var(--accent)}
+.stepcard{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--accent-soft) 70%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.stepcard.done{background:color-mix(in srgb,var(--ok) 12%,transparent);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.stepcard.flash{animation:stepin .45s ease-out}
+@keyframes stepin{0%{transform:translateY(6px);opacity:0}100%{transform:none;opacity:1}}
+.snum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-family:var(--f-disp);font-weight:800;font-size:14px}
+.stepcard.done .snum{background:var(--ok);color:#fff}
+.stxt{font-size:14.5px;line-height:1.5;font-weight:700}
+.stxt b{font-family:var(--f-disp)}
+.sstat{font-size:12px;color:var(--ink-2);line-height:1.45}
+.auto{display:inline-block;font-weight:700;color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent);border-radius:999px;padding:1px 8px;margin-right:4px}
+.hint2{font-size:12.5px}
+.hint2 summary{cursor:pointer;color:var(--accent);font-weight:700;list-style:none}
+.hint2 summary::-webkit-details-marker{display:none}
+
+.hint2 p{margin:6px 0 0;line-height:1.45;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.steps.ro{gap:6px}.steps.ro li{font-size:12.5px;line-height:1.4;display:flex;gap:6px}
+.steps.ro li::before{content:counter(st);flex:none;width:18px;height:18px;border-radius:50%;background:var(--surface-2);font-family:var(--f-mono);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+.steps.ro li.ok::before{content:"✓";background:var(--ok);color:#fff}
+.steps.ro li.now::before{background:var(--accent);color:var(--on-accent)}
+.steps.ro li.ok span{color:var(--ink-3)}
+.steps.ro span::before{content:none}
 .excard .meta{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .excard .dur{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2)}
 .moved{margin:0!important;transform:none!important}
@@ -748,7 +778,8 @@ function afterEdit(){render();renderProps();save();}
 function snap(){HIST.push(JSON.stringify(S));if(HIST.length>60)HIST.shift();}
 function undo(){if(mode!=='design')return;if(!HIST.length){toast('Rien à annuler.');return;}S=JSON.parse(HIST.pop());sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;syncLevel();afterEdit();}
 let saveT=0;
-function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300);}
+function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300);}
+function save(){persist();if(typeof checkSoon==='function')checkSoon();}
 
 function ipsOf(d){if(d.type==='router')return d.ifs.map(f=>ip2n(f.ip)).filter(v=>v!==null);if(TYPES[d.type].host){const v=ip2n(d.ip);return v===null?[]:[v];}return [];}
 /* Liste des interfaces IP valides d'un appareil */
@@ -1317,7 +1348,7 @@ function doPing(d,dstStr,out,done){
   out(`Envoi de 4 requêtes ping vers ${n2ip(dst)} :`);
   let seq=0,okc=0;const N=4;
   const next=()=>{
-    if(seq>=N){out(`Statistiques : ${N} envoyés, ${okc} reçus, ${N-okc} perdus (${Math.round((N-okc)/N*100)} % de perte).`,okc===N?'ok':okc?'':'err');return done();}
+    if(seq>=N){rec('ping',{from:d.name,dst:n2ip(dst),ok:okc>0});out(`Statistiques : ${N} envoyés, ${okc} reçus, ${N-okc} perdus (${Math.round((N-okc)/N*100)} % de perte).`,okc===N?'ok':okc?'':'err');return done();}
     seq++;const id=++UID,t0=sim.t;let fin=false;
     const finish=res=>{
       if(fin)return;fin=true;
@@ -1339,7 +1370,8 @@ function doPing(d,dstStr,out,done){
 function doTrace(d,dstStr,out,done){
   const dst=ip2n(dstStr);if(dst===null){out(`« ${dstStr} » n’est pas une adresse IP valide.`,'err');return done();}
   out(`Itinéraire vers ${n2ip(dst)} (10 sauts maximum) :`);
-  if(isLocal(d,dst)){out(`  1   ${n2ip(dst)}  (c’est cet appareil)`,'ok');return done();}
+  const tev=rec('tracert',{from:d.name,dst:n2ip(dst),ok:false});
+  if(isLocal(d,dst)){tev.ok=true;out(`  1   ${n2ip(dst)}  (c’est cet appareil)`,'ok');return done();}
   let ttl=0;
   const step=()=>{
     ttl++;if(ttl>10){out('Itinéraire interrompu.','err');return done();}
@@ -1347,7 +1379,7 @@ function doTrace(d,dstStr,out,done){
     const finish=res=>{
       if(fin)return;fin=true;const n=String(ttl).padStart(3,' ');
       if(res.local){out(ERRMSG[res.local],'err');fx(d,'fail','Pas de route');return done();}
-      if(res.ok){out(`${n}   ${n2ip(res.from)}   destination atteinte`,'ok');fx(d,'ok');out('Itinéraire terminé.');return done();}
+      if(res.ok){tev.ok=true;checkSoon();out(`${n}   ${n2ip(res.from)}   destination atteinte`,'ok');fx(d,'ok');out('Itinéraire terminé.');return done();}
       if(res.kind==='ttl'){out(`${n}   ${n2ip(res.from)}   (routeur)`);schedule(.3,step);return;}
       if(res.kind==='unreach'){out(`${n}   ${n2ip(res.from)}   réseau de destination inaccessible`,'err');fx(d,'fail','Inaccessible');return done();}
       out(`${n}   *   pas de réponse`,'err');fx(d,'fail','Pas de réponse');return done();
@@ -1361,6 +1393,7 @@ function doTrace(d,dstStr,out,done){
 }
 function doHttp(d,dstStr,cb,path){
   path=path||'/';
+  {const _cb=cb;cb=res=>{rec(path==='/imprimer'?'print':'http',{from:d.name,dst:String(dstStr).trim(),ok:!!res.ok,err:res.err});_cb(res);};}
   const dst=ip2n(dstStr);if(dst===null)return cb({err:'addr'});
   if(!l3(d).length){fx(d,'fail','Pas d’adresse IP');return cb({err:'noip'});}
   if(isLocal(d,dst)){
@@ -1400,7 +1433,7 @@ const APPS={
 const WINS=new Map();let zTop=50;
 function winSub(d){if(TYPES[d.type].host)return (d.ip||'').trim()?`${d.ip} · ${d.mac}`:`pas d’adresse IP · ${d.mac}`;if(d.type==='router')return d.ifs.map((f,i)=>(f.ip||'').trim()?`eth${i} ${f.ip}`:'').filter(Boolean).join(' · ')||'aucune interface configurée';return `${TYPES[d.type].ports} ports`;}
 function openWin(d){
-  if(!d)return;
+  if(!d)return;rec('open',{dev:d.name});
   if(WINS.has(d.id)){focusWin(WINS.get(d.id));return;}
   const el=document.createElement('div');el.className=`win win-${d.type}${TYPES[d.type].host&&d.type!=='phone'?' oshost':''}`;
   const n=WINS.size;el.style.left=(Math.min(innerWidth-340,160+n*36))+'px';el.style.top=(70+n*30)+'px';
@@ -1521,6 +1554,7 @@ function runCmd(d,cmd,out,done){
     case 'ping':if(!args[0]){out('Utilisation : ping 192.168.1.10','err');return done();}return doPing(d,args[args.length-1],out,done);
     case 'tracert':case 'traceroute':if(!args[0]){out('Utilisation : tracert 192.168.2.10','err');return done();}return doTrace(d,args[args.length-1],out,done);
     case 'arp':
+      rec('cmd',{c:'arp',from:d.name});
       if(!r.arp.size)out('Table ARP vide : aucun échange récent.\n(Fais un ping, puis relance « arp ».)');
       else out('Adresse IP          Adresse MAC\n'+[...r.arp.entries()].map(([ip,mac])=>`${n2ip(ip).padEnd(20)}${mac}`).join('\n'));
       return done();
@@ -1667,19 +1701,19 @@ function renderDetail(){
     inner=lay('ip','IP · paquet',[['IP source',n2ip(p.src)],['IP destination',n2ip(p.dst)],...(lv()>=1?[['TTL',`${p.ttl} <span class="muted">(diminue de 1 à chaque routeur)</span>`]]:[]),['Protocole',p.proto==='HTTP'?(lv()>=2?'TCP':'HTTP'):p.proto]],data);}
   box.innerHTML=`<div class="fdh"><b>Trame n° ${e.n}</b> · t = ${fmt1(e.t)} s<br>${esc(e.fromName)} → ${esc(e.toName)}</div>`+lay('eth','Ethernet · trame',[['MAC source',mo(fr.src)],['MAC destination',fr.dst===BCAST?`${BCAST} <span class="muted">(diffusion : à tous)</span>`:mo(fr.dst)]],inner);
 }
-function inspectFrame(n,pause){openFrames();fSel=n;if(pause&&mode==='sim'){sim.paused=true;updPause();}renderFrames();const row=$(`#fTable tr[data-n="${n}"]`);if(row)row.scrollIntoView({block:'nearest'});}
+function inspectFrame(n,pause){openFrames();fSel=n;{const le=LOG.find(x=>x.n===n);if(le)rec('frame',{proto:fproto(le.fr)});}if(pause&&mode==='sim'){sim.paused=true;updPause();}renderFrames();const row=$(`#fTable tr[data-n="${n}"]`);if(row)row.scrollIntoView({block:'nearest'});}
 $('#fToggle').onclick=()=>{const o=$('#frames').classList.contains('closed');setFramesOpen(o);if(o){fillDevSelect();renderFrames();}};
 $('#fDev').onchange=e=>{fFilter.dev=e.target.value;renderFrames();};
 $$('.chip[data-p]').forEach(b=>b.onclick=()=>{fFilter[b.dataset.p]=!fFilter[b.dataset.p];b.classList.toggle('on',fFilter[b.dataset.p]);renderFrames();});
 $('#fClear').onclick=()=>{LOG=[];fSel=null;renderFrames();};
-$('#fTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-n]');if(!tr)return;fSel=+tr.dataset.n;$$('#fTable tr.on').forEach(x=>x.classList.remove('on'));tr.classList.add('on');renderDetail();});
+$('#fTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-n]');if(!tr)return;fSel=+tr.dataset.n;{const le=LOG.find(x=>x.n===fSel);if(le)rec('frame',{proto:fproto(le.fr)});}$$('#fTable tr.on').forEach(x=>x.classList.remove('on'));tr.classList.add('on');renderDetail();});
 
 /* ============================================================
    Modes, barre d'outils
    ============================================================ */
 function setMode(m){
   if(m===mode)return;
-  mode=m;const a=$('#app');a.classList.toggle('sim',m==='sim');a.classList.toggle('design',m==='design');
+  mode=m;rec('mode',{m});const a=$('#app');a.classList.toggle('sim',m==='sim');a.classList.toggle('design',m==='design');
   closeAllWins();packets.forEach(p=>p.el.remove());packets=[];sim.events=[];RT={};gFx.innerHTML='';gTemp.innerHTML='';
   sel=null;pendingCable=null;cancelAnimationFrame(sim.raf);
   if(m==='sim'){LOG=[];logN=0;fSel=null;sim.t=0;sim.last=0;sim.paused=false;updPause();sim.raf=requestAnimationFrame(loop);}
@@ -1737,8 +1771,8 @@ $('#gridChk').onchange=e=>{PREF.grid=e.target.checked;savePref();applyPrefs();};
 $('#snapChk').onchange=e=>{PREF.snap=e.target.checked;savePref();};
 $$('#themeSeg [data-th]').forEach(b=>b.onclick=()=>{PREF.theme=b.dataset.th;savePref();applyPrefs();});
 $('#bNew').onclick=()=>{setMode('design');snap();buildExample('vide');sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();toast('Nouveau schéma vide. Annuler (Ctrl + Z) pour revenir au précédent.');};
-$('#speed').oninput=e=>{sim.speed=+e.target.value;$('#speedOut').textContent='×'+String(sim.speed).replace('.',',');};
-$('#bReset').onclick=()=>{Object.values(RT).forEach(r=>{r.arp.clear();r.mac.clear();});toast('Tables ARP et MAC vidées : les prochains échanges recommenceront par des requêtes ARP.');};
+$('#speed').oninput=e=>{sim.speed=+e.target.value;checkSoon();$('#speedOut').textContent='×'+String(sim.speed).replace('.',',');};
+$('#bReset').onclick=()=>{rec('reset');Object.values(RT).forEach(r=>{r.arp.clear();r.mac.clear();});toast('Tables ARP et MAC vidées : les prochains échanges recommenceront par des requêtes ARP.');};
 $('#helpChk').onchange=e=>{S.help=e.target.checked;render();renderProps();save();};
 document.addEventListener('keydown',e=>{
   const t=e.target,typing=t.closest&&t.closest('input,textarea,select,[contenteditable]');
@@ -1794,122 +1828,285 @@ function salle4(h,name,ips,opt){
 }
 const CLASSES={'5e':{t:'5ᵉ',lv:0},'4e':{t:'4ᵉ',lv:1},'3e':{t:'3ᵉ',lv:2}};
 const pas=c=>{const n={'5e':5,'4e':4,'3e':3}[c]||({0:5,1:4,2:3})[c];return n?`<span class="pas p${n}" aria-hidden="true">${n}</span>`:'';};
+const CATS={
+ '5e':[['cabler','Relier les appareils','Câbles, switch et liaison Wi-Fi.'],['adresses','Les adresses IP','Donner, vérifier et corriger des adresses.'],['services','Les services du réseau','Imprimer et consulter une page web.']],
+ '4e':[['routeur','Routeur et passerelle','Faire communiquer deux réseaux.'],['observer','Observer les échanges','ARP, adresses MAC et table du switch.'],['diag','Diagnostiquer une panne','Symptôme, hypothèse, test, correction.'],['iot','Objets connectés','Un capteur qui publie ses mesures.']],
+ '3e':[['sousreseau','Sous-réseaux et masques','Découper et planifier les adresses.'],['routage','Routage','Routes statiques et durée de vie (TTL).'],['protocoles','Protocoles et encapsulation','Ethernet, IP, TCP, HTTP.']]
+};
+const catName=(c,k)=>{const r=(CATS[c]||[]).find(x=>x[0]===k);return r?r[1]:'';};
+/* ---------- suivi des actions pour la validation automatique ---------- */
+let EV=[],ckT=0;
+function rec(type,o){const e=Object.assign({type},o||{});EV.push(e);if(EV.length>500)EV.shift();checkSoon();return e;}
+function checkSoon(){clearTimeout(ckT);ckT=setTimeout(checkExo,250);}
+const X={
+  d:n=>S.devices.find(x=>x.name===n),
+  linked:(a,b)=>{const A=X.d(a),B=X.d(b);return !!(A&&B&&S.cables.some(c=>(c.a.d===A.id&&c.b.d===B.id)||(c.a.d===B.id&&c.b.d===A.id)));},
+  ip:n=>((X.d(n)||{}).ip||'').trim(),
+  gw:n=>((X.d(n)||{}).gw||'').trim(),
+  mask:n=>((X.d(n)||{}).mask||'').trim(),
+  sim:()=>mode==='sim',
+  design:()=>mode==='design',
+  ev:(type,f)=>EV.some(e=>e.type===type&&(!f||f(e))),
+  count:(type,f)=>EV.filter(e=>e.type===type&&(!f||f(e))).length,
+  ping:(from,dst,ok)=>X.ev('ping',e=>(!from||e.from===from)&&(!dst||e.dst===dst)&&(ok==null||e.ok===ok)),
+  http:(from,dst,ok)=>X.ev('http',e=>(!from||e.from===from)&&(!dst||e.dst===dst)&&(ok==null||e.ok===ok)),
+  port:(r,n)=>{const R=X.d(r);if(!R||!R.ifs)return -1;for(let p=0;p<R.ifs.length;p++){const l=linkOf(R,p);if(l&&l.dev&&l.dev.name===n)return p;}return -1;},
+  rip:(r,n)=>{const p=X.port(r,n);return p<0?'':(X.d(r).ifs[p].ip||'').trim();},
+  rmask:(r,n)=>{const p=X.port(r,n);return p<0?'':(X.d(r).ifs[p].mask||'').trim();},
+  in24:(n,pre)=>{const v=X.ip(n);return v.startsWith(pre)&&ip2n(v)!==null&&!/\.(0|255)$/.test(v);},
+  noIssue:names=>names.every(n=>X.d(n)&&diag(X.d(n)).length===0),
+  uniq:names=>{const v=names.map(X.ip);return v.every(Boolean)&&new Set(v).size===v.length;},
+  zoneOf:d=>S.zones.find(z=>inZone(z,d)),
+  route:(r,net,via)=>((X.d(r)||{}).routes||[]).some(x=>x.net.trim()===net&&x.via.trim()===via)
+};
+const SIM={t:'Lance la simulation avec le bouton ▶ en haut de l’écran.',c:X.sim};
 const EXOS=[
- {k:'e5-1',c:'5e',dur:'20 min',t:'Brancher la salle',p:'Relier quatre ordinateurs à un switch et vérifier qu’ils communiquent.',
-  steps:['Avec l’outil Câble, relie chaque PC au switch.','Lance la simulation avec le bouton ▶.','Clique sur PC 1, ouvre l’invite de commandes et tape `ping 192.168.1.12`','Teste aussi `ping 192.168.1.13` et `ping 192.168.1.14`.'],
-  q:['À quoi sert le switch ?'],verif:'Le terminal affiche 4 réponses sur 4 et une coche verte apparaît au-dessus de PC 1.',
+ /* ===== 5e ===== */
+ {k:'e5-1',c:'5e',cat:'cabler',dur:'20 min',t:'Brancher la salle',p:'Relier quatre ordinateurs à un switch et vérifier qu’ils communiquent.',
+  steps:[{t:'Choisis l’outil Câble, clique sur PC 1 puis sur le switch.',h:'L’outil Câble est dans la boîte à outils, à gauche. On peut aussi glisser de PC 1 jusqu’au switch.',c:()=>X.linked('PC 1','Switch 1')},
+   {t:'Relie de la même façon PC 2, PC 3 et PC 4 au switch.',c:()=>['PC 2','PC 3','PC 4'].every(n=>X.linked(n,'Switch 1'))},
+   SIM,
+   {t:'Clique sur PC 1, ouvre l’invite de commandes et tape `ping 192.168.1.12`',h:'L’invite de commandes est une icône du bureau de PC 1. Appuie sur Entrée après la commande.',c:()=>X.ping('PC 1','192.168.1.12',true)},
+   {t:'Vérifie que PC 1 joint aussi `192.168.1.13` et `192.168.1.14`.',c:()=>X.ping(null,'192.168.1.13',true)&&X.ping(null,'192.168.1.14',true)}],
+  q:['À quoi sert le switch ?','Que se passerait-il si on débranchait le câble de PC 3 ?'],verif:'Les ping réussissent : 4 réponses sur 4 et une coche verte sur PC 1.',
   build:h=>salle4(h,'Salle 101',['192.168.1.11','192.168.1.12','192.168.1.13','192.168.1.14'],{link:false})},
- {k:'e5-2',c:'5e',dur:'25 min',t:'Chacun son adresse',p:'Donner une adresse IP unique à chaque appareil d’une salle déjà câblée.',
-  steps:['Clique sur chaque appareil et donne-lui une adresse de la forme 192.168.1.x (x entre 1 et 254).','Deux appareils ne doivent jamais avoir la même adresse : tous les triangles orange doivent disparaître.','Lance la simulation et fais un ping entre deux appareils.'],
+ {k:'e5-2',c:'5e',cat:'cabler',dur:'20 min',t:'Le Wi-Fi de la salle',p:'Connecter un smartphone et un portable au réseau, puis consulter le serveur.',
+  steps:[{t:'Relie le smartphone au switch avec l’outil Câble.',h:'La liaison s’affiche en pointillés : c’est une connexion sans fil (Wi-Fi).',c:()=>X.linked('Smartphone 1','Switch 1')},
+   {t:'Relie aussi le portable au switch.',c:()=>X.linked('Portable 1','Switch 1')},
+   SIM,
+   {t:'Ouvre le smartphone, puis le navigateur, et tape `http://192.168.1.10`',c:()=>X.http('Smartphone 1','192.168.1.10',true)},
+   {t:'Depuis le portable, ouvre l’invite de commandes et tape `ping 192.168.1.11`',c:()=>X.ping('Portable 1','192.168.1.11',true)}],
+  q:['Quelle différence vois-tu entre la liaison du smartphone et celle de PC 1 ?','Le smartphone a-t-il besoin d’une adresse IP, comme un ordinateur ?'],verif:'La page du serveur s’affiche sur le smartphone.',
+  build:h=>{const o=salle4(h,'Salle 101',['192.168.1.11','192.168.1.10','192.168.1.20','192.168.1.21'],{types:['pc','server','phone','laptop'],link:false});h.link(o.ds[0],o.sw);h.link(o.ds[1],o.sw);
+    h.page(o.ds[1],'Serveur de la salle 101\nBienvenue ! Ton smartphone est bien connecté au réseau.');}},
+ {k:'e5-3',c:'5e',cat:'adresses',dur:'25 min',t:'Chacun son adresse',p:'Donner une adresse IP unique à chaque appareil d’une salle déjà câblée.',
+  steps:[{t:'Clique sur PC 1 et écris l’adresse `192.168.1.11` dans le champ « Adresse IP ».',h:'Le champ est dans le panneau de droite quand PC 1 est sélectionné.',c:()=>X.ip('PC 1')==='192.168.1.11'},
+   {t:'Donne une adresse 192.168.1.x à PC 2, PC 3, PC 4 et Portable 1 (x entre 1 et 254, toutes différentes).',h:'Par exemple 192.168.1.12, 192.168.1.13… Seul le dernier nombre change.',c:()=>['PC 2','PC 3','PC 4','Portable 1'].every(n=>X.in24(n,'192.168.1.'))&&X.uniq(['PC 1','PC 2','PC 3','PC 4','Portable 1'])},
+   {t:'Vérifie qu’aucun triangle orange ne reste sur le schéma.',c:()=>X.noIssue(['PC 1','PC 2','PC 3','PC 4','Portable 1'])},
+   SIM,
+   {t:'Depuis PC 1, fais un ping vers l’adresse que tu as donnée à Portable 1.',c:()=>X.ping('PC 1',X.ip('Portable 1'),true)}],
   q:['Quels nombres de l’adresse sont identiques pour tous les appareils de la salle ?','Que se passe-t-il si deux appareils ont la même adresse ?'],verif:'Plus aucun triangle orange, et les ping réussissent.',
   build:h=>salle4(h,'Salle 101',['','','','',''],{types:['pc','pc','pc','pc','laptop']})},
- {k:'e5-3',c:'5e',dur:'20 min',help:false,t:'L’intrus',p:'Un appareil ne répond pas au ping : le trouver et corriger son adresse.',
-  steps:['Lance la simulation.','Depuis PC 1, fais un ping vers chaque appareil : de `192.168.1.12` à `192.168.1.15`.','Un appareil ne répond pas : trouve lequel.','Repasse en conception (bouton ⏸), clique sur cet appareil et corrige son adresse IP.'],
+ {k:'e5-4',c:'5e',cat:'adresses',dur:'20 min',help:false,t:'L’intrus',p:'Un appareil ne répond pas au ping : le trouver et corriger son adresse.',
+  steps:[SIM,
+   {t:'Depuis PC 1, fais un ping vers `192.168.1.12`, `192.168.1.13`, `192.168.1.14` et `192.168.1.15`.',h:'Tape chaque commande puis Entrée. Une flèche ↑ du clavier rappelle la commande précédente.',c:()=>['192.168.1.12','192.168.1.13','192.168.1.14','192.168.1.15'].every(a=>X.ping('PC 1',a))},
+   {t:'Un appareil n’a pas répondu. Reviens en conception avec le bouton ⏸ et retrouve-le.',c:X.design},
+   {t:'Corrige son adresse pour qu’elle commence par 192.168.1, comme les autres.',h:'Regarde l’adresse écrite sous chaque appareil.',c:()=>X.in24('PC 4','192.168.1.')&&X.uniq(['PC 1','PC 2','PC 3','PC 4','Portable 1'])},
+   {t:'Relance la simulation et vérifie avec un ping vers sa nouvelle adresse.',c:()=>X.ping(null,X.ip('PC 4'),true)}],
   q:['Pourquoi cet appareil ne pouvait-il pas communiquer avec les autres ?'],verif:'Les ping vers les quatre appareils réussissent.',
   build:h=>salle4(h,'Salle 101',['192.168.1.11','192.168.1.12','192.168.1.13','192.168.2.14','192.168.1.15'],{types:['pc','pc','pc','pc','laptop']})},
- {k:'e5-4',c:'5e',dur:'20 min',t:'Imprimer en réseau',p:'Configurer l’imprimante de la salle et lui envoyer des documents depuis plusieurs PC.',
-  steps:['Clique sur l’imprimante et donne-lui l’adresse 192.168.1.50.','Lance la simulation.','Ouvre PC 1, puis l’invite de commandes, et tape `imprimer 192.168.1.50`','Recommence depuis PC 2.','Clique sur l’imprimante pour voir sa file d’impression.'],
-  q:['Qui a imprimé, et dans quel ordre ?','Quel appareil envoie le document ? Lequel le reçoit ?'],verif:'La file d’impression contient deux documents.',
+ {k:'e5-5',c:'5e',cat:'adresses',dur:'20 min',help:false,t:'Le doublon',p:'Deux appareils portent la même adresse : repérer le problème et le corriger.',
+  steps:[SIM,
+   {t:'PC 3 devrait avoir l’adresse 192.168.1.13. Depuis PC 1, tape `ping 192.168.1.13`',c:()=>X.ping('PC 1','192.168.1.13')},
+   {t:'Pas de réponse ! Reviens en conception et lis les adresses sous chaque PC : deux sont identiques.',c:X.design},
+   {t:'Donne à PC 3 l’adresse `192.168.1.13`.',c:()=>X.ip('PC 3')==='192.168.1.13'},
+   {t:'Relance la simulation et vérifie avec `ping 192.168.1.13`',c:()=>X.ping(null,'192.168.1.13',true)}],
+  q:['Quels appareils avaient la même adresse ?','Pourquoi une adresse doit-elle être unique dans un réseau ?'],verif:'PC 3 répond à l’adresse 192.168.1.13.',
+  build:h=>salle4(h,'Salle 101',['192.168.1.11','192.168.1.12','192.168.1.12','192.168.1.14'])},
+ {k:'e5-6',c:'5e',cat:'services',dur:'20 min',t:'Imprimer en réseau',p:'Configurer l’imprimante de la salle et lui envoyer des documents depuis plusieurs PC.',
+  steps:[{t:'Clique sur l’imprimante et donne-lui l’adresse `192.168.1.50`.',c:()=>X.ip('Imprimante 1')==='192.168.1.50'},
+   SIM,
+   {t:'Ouvre PC 1, puis l’invite de commandes, et tape `imprimer 192.168.1.50`',c:()=>X.ev('print',e=>e.from==='PC 1'&&e.ok)},
+   {t:'Envoie aussi un document depuis PC 2.',c:()=>X.ev('print',e=>e.from==='PC 2'&&e.ok)},
+   {t:'Clique sur l’imprimante pour voir sa file d’impression.',c:()=>X.ev('open',e=>e.dev==='Imprimante 1')}],
+  q:['Qui a imprimé, et dans quel ordre ?','Quel appareil envoie le document ? Lequel le reçoit ?'],verif:'La file d’impression contient au moins deux documents.',
   build:h=>salle4(h,'Salle 101',['192.168.1.11','192.168.1.12','192.168.1.13','','192.168.1.14'],{types:['pc','pc','laptop','printer','pc']})},
- {k:'e5-5',c:'5e',dur:'30 min',t:'Ma première page web',p:'Demander une page à un serveur avec le navigateur : le modèle client / serveur.',
-  steps:['Lance la simulation.','Ouvre PC 1, puis le navigateur web, et tape `http://192.168.1.10`','Observe les enveloppes GET (la demande) et PAGE (la réponse).','Essaie maintenant `http://192.168.1.20`.','Recommence depuis le smartphone.'],
-  q:['Quel appareil est le client ? Lequel est le serveur ?','Pourquoi le serveur 2 refuse-t-il la connexion ?'],verif:'La page du club robotique s’affiche dans le navigateur de PC 1.',
+ {k:'e5-7',c:'5e',cat:'services',dur:'30 min',t:'Ma première page web',p:'Demander une page à un serveur avec le navigateur : le modèle client / serveur.',
+  steps:[SIM,
+   {t:'Ouvre PC 1, puis le navigateur web, et tape `http://192.168.1.10`',c:()=>X.http('PC 1','192.168.1.10',true)},
+   {t:'Recharge la page et clique sur une enveloppe verte pendant qu’elle circule : c’est la page qui voyage.',h:'La simulation se met en pause. Clique sur l’horloge en bas à gauche pour la relancer.',c:()=>X.ev('frame',e=>e.proto==='HTTP')},
+   {t:'Essaie maintenant `http://192.168.1.20`',c:()=>X.http(null,'192.168.1.20')},
+   {t:'Depuis le smartphone, ouvre la page du club : `http://192.168.1.10`',c:()=>X.http('Smartphone 1','192.168.1.10',true)}],
+  q:['Quel appareil est le client ? Lequel est le serveur ?','Pourquoi le serveur 2 refuse-t-il la connexion ?'],verif:'La page du club robotique s’affiche sur PC 1 et sur le smartphone.',
   build:h=>{const o=salle4(h,'Salle 101',['192.168.1.11','192.168.1.12','192.168.1.10','192.168.1.20','192.168.1.15'],{types:['pc','pc','server','server','phone']});
     h.page(o.ds[2],'Club robotique du collège\nProchaine séance : mercredi à 13 h en salle 101.\nCette page est envoyée par le Serveur 1.');o.ds[3].web.on=false;}},
- {k:'e4-1',c:'4e',dur:'40 min',t:'Relier deux salles',p:'Installer un routeur et régler les passerelles pour qu’une salle accède au serveur de l’autre.',
-  steps:['Relie le routeur au switch de chaque salle.','Clique sur le routeur : donne 192.168.1.254 au port relié à la Salle 101, et 192.168.2.254 au port relié à la Salle serveurs.','Règle la passerelle de chaque appareil : l’adresse du routeur dans sa salle.','Lance la simulation. Depuis PC 1, ouvre `http://192.168.2.10` dans le navigateur.','Dans l’invite de commandes, tape `tracert 192.168.2.10`.'],
+ /* ===== 4e ===== */
+ {k:'e4-1',c:'4e',cat:'routeur',dur:'40 min',t:'Relier deux salles',p:'Installer un routeur et régler les passerelles pour qu’une salle accède au serveur de l’autre.',
+  steps:[{t:'Avec l’outil Câble, relie le routeur à Switch 1 puis à Switch 2.',c:()=>X.linked('Routeur 1','Switch 1')&&X.linked('Routeur 1','Switch 2')},
+   {t:'Clique sur le routeur. Donne `192.168.1.254` au port relié à Switch 1.',h:'Le panneau indique à quoi chaque port (eth0, eth1…) est relié.',c:()=>X.rip('Routeur 1','Switch 1')==='192.168.1.254'},
+   {t:'Donne `192.168.2.254` au port relié à Switch 2.',c:()=>X.rip('Routeur 1','Switch 2')==='192.168.2.254'},
+   {t:'Règle la passerelle de PC 1, PC 2 et Portable 1 : `192.168.1.254`.',h:'La passerelle, c’est la porte de sortie de la salle : l’adresse du routeur de ce côté.',c:()=>['PC 1','PC 2','Portable 1'].every(n=>X.gw(n)==='192.168.1.254')},
+   {t:'Règle la passerelle du Raspberry Pi et de PC 3 : `192.168.2.254`.',c:()=>['Raspberry Pi 1','PC 3'].every(n=>X.gw(n)==='192.168.2.254')},
+   SIM,
+   {t:'Depuis PC 1, ouvre `http://192.168.2.10` dans le navigateur.',c:()=>X.http('PC 1','192.168.2.10',true)},
+   {t:'Dans l’invite de commandes de PC 1, tape `tracert 192.168.2.10`',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='192.168.2.10'&&e.ok)}],
   q:['Pourquoi faut-il une passerelle pour sortir de la salle ?','Par quel appareil passe le message d’après tracert ?'],verif:'La page de l’intranet s’affiche sur PC 1 et tracert affiche 2 lignes.',
   build:h=>{h.zone('Salle 101',0,0,520,480,'bleu');h.zone('Salle serveurs',760,0,520,480,'vert');const a=h.dev('switch',260,240),b=h.dev('switch',1020,240);
     [h.host('pc',96,96,'192.168.1.11'),h.host('pc',424,96,'192.168.1.12'),h.host('laptop',260,400,'192.168.1.13')].forEach(d=>h.link(d,a));
     const pi=h.host('rpi',856,96,'192.168.2.10');h.page(pi,'Intranet du collège\nBravo : tu as traversé le routeur !\nPage servie par le Raspberry Pi 192.168.2.10.');
     [pi,h.host('pc',1184,96,'192.168.2.11')].forEach(d=>h.link(d,b));h.router(640,240,[]);}},
- {k:'e4-2',c:'4e',dur:'30 min',t:'Mais qui a cette adresse ?',p:'Observer les trames ARP : la diffusion puis la mise en mémoire des adresses MAC.',
-  steps:['Lance la simulation.','Dans Réglages (l’engrenage), clique sur « Vider les tables ARP et MAC ».','Ouvre PC 1 et tape `ping 192.168.1.12`','Ouvre le tiroir « Trames échangées » et clique sur la première trame.','Relance le même ping et compare les trames.','Tape `arp` dans l’invite de commandes.'],
+ {k:'e4-2',c:'4e',cat:'routeur',dur:'25 min',t:'La passerelle oubliée',p:'Les appareils de la Salle 101 n’ont pas de passerelle : comprendre le message d’erreur et corriger.',
+  steps:[SIM,
+   {t:'Depuis PC 1, tape `ping 192.168.2.10` et lis le message d’erreur.',c:()=>X.ping('PC 1','192.168.2.10')},
+   {t:'Reviens en conception et règle la passerelle de PC 1 : l’adresse du routeur côté Salle 101.',h:'Clique sur le routeur : l’adresse de son port relié à Switch 1 est la passerelle de la Salle 101.',c:()=>X.gw('PC 1')==='192.168.1.254'},
+   {t:'Relance la simulation et refais `ping 192.168.2.10` depuis PC 1.',c:()=>X.ping('PC 1','192.168.2.10',true)},
+   {t:'Règle aussi la passerelle de PC 2, Portable 1, Smartphone 1 et Imprimante 1.',c:()=>['PC 2','Portable 1','Smartphone 1','Imprimante 1'].every(n=>X.gw(n)==='192.168.1.254')},
+   {t:'Depuis le smartphone, ouvre `http://192.168.2.5` dans le navigateur.',c:()=>X.http('Smartphone 1','192.168.2.5',true)}],
+  q:['Que signifie le message d’erreur de l’étape 2 ?','Pourquoi le ping vers 192.168.1.12 fonctionnait-il même sans passerelle ?'],verif:'Le smartphone affiche la page de l’ENT.',
+  build:h=>{buildDeux(h);['PC 1','PC 2','Portable 1','Smartphone 1','Imprimante 1'].forEach(n=>X.d(n).gw='');}},
+ {k:'e4-3',c:'4e',cat:'observer',dur:'30 min',t:'Mais qui a cette adresse ?',p:'Observer les trames ARP : la diffusion puis la mise en mémoire des adresses MAC.',
+  steps:[SIM,
+   {t:'Ouvre Réglages (l’engrenage en haut à droite) et clique sur « Vider les tables ARP et MAC ».',c:()=>X.ev('reset')},
+   {t:'Depuis PC 1, tape `ping 192.168.1.12`',c:()=>X.ping('PC 1','192.168.1.12',true)},
+   {t:'Ouvre « Trames échangées » en bas, puis clique sur une trame ARP pour voir son détail.',c:()=>X.ev('frame',e=>e.proto==='ARP')},
+   {t:'Relance le même ping et compare les trames : y a-t-il encore de l’ARP ?',c:()=>X.count('ping',e=>e.from==='PC 1'&&e.dst==='192.168.1.12'&&e.ok)>=2},
+   {t:'Tape `arp` dans l’invite de commandes de PC 1.',c:()=>X.ev('cmd',e=>e.c==='arp')}],
   q:['Quelle est la première trame envoyée ? Que demande-t-elle ?','Combien d’appareils l’ont reçue ? Pourquoi ?','Au deuxième ping, y a-t-il encore une trame ARP ? Pourquoi ?'],verif:'La commande arp de PC 1 affiche l’adresse MAC de PC 2.',
   build:h=>buildDeux(h)},
- {k:'e4-3',c:'4e',dur:'35 min',help:false,t:'Panne à trouver',p:'Trois erreurs sont cachées dans le réseau des deux salles. Les retrouver avec ping, tracert et le navigateur.',
-  steps:['Lance la simulation.','Teste le réseau avec ping, tracert et le navigateur depuis plusieurs appareils de la Salle 101.','Pour chaque panne, note : le symptôme, ton hypothèse, le test fait, la correction.','Corrige les trois pannes en mode conception.'],
-  q:['Quelles sont les trois pannes ?'],verif:'Tous les appareils de la Salle 101 affichent la page `http://192.168.2.10`.',
-  build:h=>buildDeux(h,true)},
- {k:'e4-4',c:'4e',dur:'30 min',t:'Le capteur connecté',p:'Consulter la température mesurée par l’ESP32 depuis un smartphone d’une autre salle.',
-  steps:['Lance la simulation.','Ouvre Smartphone 1, puis le navigateur, et tape `http://192.168.2.20`','Relève la température affichée.','Recharge la page quelques secondes plus tard.'],
-  q:['Dessine le chemin suivi par la demande, puis par la réponse.','Quel appareil mesure la température ? Lequel l’affiche ?'],verif:'La page du capteur ESP32 s’affiche sur le smartphone.',
-  build:h=>buildDeux(h)},
- {k:'e4-5',c:'4e',dur:'20 min',t:'Le switch apprend',p:'Observer la table des adresses MAC qu’un switch construit au fil des échanges.',
-  steps:['Lance la simulation et clique sur le switch : sa table MAC est vide.','Ouvre PC 1 et tape `ping 192.168.1.13`','Regarde à nouveau la table MAC du switch.','Fais d’autres ping entre les PC.'],
+ {k:'e4-4',c:'4e',cat:'observer',dur:'20 min',t:'Le switch apprend',p:'Observer la table des adresses MAC qu’un switch construit au fil des échanges.',
+  steps:[SIM,
+   {t:'Clique sur le switch : sa table des adresses MAC est vide.',c:()=>X.ev('open',e=>e.dev==='Switch 1')},
+   {t:'Depuis PC 1, tape `ping 192.168.1.13` et regarde la table du switch se remplir.',c:()=>X.ping('PC 1','192.168.1.13',true)},
+   {t:'Fais un autre ping depuis PC 2 ou PC 4.',c:()=>X.ev('ping',e=>e.ok&&(e.from==='PC 2'||e.from==='PC 4'))}],
   q:['Que contient la table MAC après le premier ping ?','Pourquoi le switch envoie-t-il la première trame sur tous ses ports ?','Et ensuite ?'],verif:'La table MAC associe chaque port à l’adresse MAC d’un PC.',
   build:h=>salle4(h,'Salle 101',['192.168.1.11','192.168.1.12','192.168.1.13','192.168.1.14'])},
- {k:'e3-1',c:'3e',dur:'45 min',help:false,t:'Couper un réseau en deux',p:'Utiliser un masque /25 pour créer deux sous-réseaux, puis les relier par un routeur.',
-  steps:['Lance la simulation et vérifie que PC 1 joint PC 6 : `ping 192.168.10.16`.','En conception, passe le masque de tous les PC à 255.255.255.128 (/25).','Garde 192.168.10.11 à .13 pour PC 1 à 3. Donne 192.168.10.140, .141 et .142 à PC 4 à 6.','Refais un ping de PC 1 vers 192.168.10.140 : que se passe-t-il ?','Supprime le câble entre les deux switchs. Relie-les par le routeur : 192.168.10.126 côté PC 1 à 3, 192.168.10.254 côté PC 4 à 6, masque /25. Règle les passerelles.'],
+ {k:'e4-5',c:'4e',cat:'diag',dur:'35 min',help:false,t:'Panne à trouver',p:'Trois erreurs sont cachées dans le réseau des deux salles. Les retrouver avec ping, tracert et le navigateur.',
+  steps:[SIM,
+   {t:'Depuis PC 1, ouvre `http://192.168.2.10` : ça fonctionne-t-il ?',c:()=>X.http('PC 1','192.168.2.10')},
+   {t:'Teste chaque appareil de la Salle 101 avec ping ou le navigateur. Note les symptômes.',h:'Pour chaque appareil : peut-il joindre 192.168.1.254 ? et 192.168.2.10 ?',c:null},
+   {t:'Trouve et corrige une première panne.',h:'Indice : regarde la passerelle de chaque PC de la Salle 101.',c:()=>panneFix()>=1},
+   {t:'Trouve et corrige la deuxième panne.',h:'Indice : une adresse IP n’est pas dans le réseau de sa salle.',c:()=>panneFix()>=2},
+   {t:'Trouve et corrige la dernière panne.',h:'Indice : regarde bien les câbles autour du routeur.',c:()=>panneFix()>=3},
+   {t:'Vérifie : depuis Portable 1, ouvre `http://192.168.2.10`',c:()=>X.http('Portable 1','192.168.2.10',true)}],
+  q:['Pour chaque panne : symptôme, hypothèse, test, correction.'],verif:'Tous les appareils de la Salle 101 affichent la page `http://192.168.2.10`.',
+  build:h=>buildDeux(h,true)},
+ {k:'e4-6',c:'4e',cat:'iot',dur:'30 min',t:'Le capteur connecté',p:'Consulter la température mesurée par l’ESP32 depuis un smartphone d’une autre salle.',
+  steps:[SIM,
+   {t:'Ouvre Smartphone 1, puis le navigateur, et tape `http://192.168.2.20`',c:()=>X.http('Smartphone 1','192.168.2.20',true)},
+   {t:'Clique sur l’ESP32 pour voir son capteur.',c:()=>X.ev('open',e=>e.dev==='ESP32 1')},
+   {t:'Recharge la page sur le smartphone et compare la température.',c:()=>X.count('http',e=>e.from==='Smartphone 1'&&e.dst==='192.168.2.20'&&e.ok)>=2},
+   {t:'Dans les Outils réseau du smartphone, tape `tracert 192.168.2.20`',c:()=>X.ev('tracert',e=>e.from==='Smartphone 1'&&e.ok)}],
+  q:['Dessine le chemin suivi par la demande, puis par la réponse.','Quel appareil mesure la température ? Lequel l’affiche ?'],verif:'La page du capteur ESP32 s’affiche sur le smartphone.',
+  build:h=>buildDeux(h)},
+ /* ===== 3e ===== */
+ {k:'e3-1',c:'3e',cat:'sousreseau',dur:'45 min',help:false,t:'Couper un réseau en deux',p:'Utiliser un masque /25 pour créer deux sous-réseaux, puis les relier par un routeur.',
+  steps:[{t:'Lance la simulation et vérifie depuis PC 1 : `ping 192.168.10.16`',c:()=>X.ping('PC 1','192.168.10.16',true)},
+   {t:'En conception, passe le masque de PC 1 à PC 6 à `255.255.255.128`.',h:'On peut aussi écrire /25 dans le champ Masque.',c:()=>['PC 1','PC 2','PC 3','PC 4','PC 5','PC 6'].every(n=>X.mask(n)==='255.255.255.128')},
+   {t:'Donne `192.168.10.140`, `192.168.10.141` et `192.168.10.142` à PC 4, PC 5 et PC 6.',c:()=>X.ip('PC 4')==='192.168.10.140'&&X.ip('PC 5')==='192.168.10.141'&&X.ip('PC 6')==='192.168.10.142'},
+   {t:'Relance la simulation : `ping 192.168.10.140` depuis PC 1. Lis l’erreur.',c:()=>X.ping('PC 1','192.168.10.140')},
+   {t:'En conception, supprime le câble entre les deux switchs (outil Gomme).',c:()=>!X.linked('Switch 1','Switch 2')},
+   {t:'Relie le routeur aux deux switchs. Port côté Switch 1 : `192.168.10.126`, côté Switch 2 : `192.168.10.254`, masque /25 pour les deux.',c:()=>X.rip('Routeur 1','Switch 1')==='192.168.10.126'&&X.rip('Routeur 1','Switch 2')==='192.168.10.254'&&X.rmask('Routeur 1','Switch 1')==='255.255.255.128'&&X.rmask('Routeur 1','Switch 2')==='255.255.255.128'},
+   {t:'Passerelles : `192.168.10.126` pour PC 1 à 3, `192.168.10.254` pour PC 4 à 6.',c:()=>['PC 1','PC 2','PC 3'].every(n=>X.gw(n)==='192.168.10.126')&&['PC 4','PC 5','PC 6'].every(n=>X.gw(n)==='192.168.10.254')},
+   {t:'Lance la simulation : `tracert 192.168.10.140` depuis PC 1.',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='192.168.10.140'&&e.ok)}],
   q:['Quelle est la plage d’adresses de chaque sous-réseau ? Leur adresse de diffusion ?','Pourquoi PC 1 ne joint plus PC 4 à l’étape 4 ?'],verif:'`tracert 192.168.10.140` depuis PC 1 passe par 192.168.10.126.',
   build:h=>{h.zone('Salle techno',0,0,1080,520,'violet');const a=h.dev('switch',260,240),b=h.dev('switch',820,240);
     [[96,96],[424,96],[260,400]].forEach((p,i)=>h.link(h.host('pc',p[0],p[1],'192.168.10.1'+(i+1)),a));
     [[656,96],[984,96],[820,400]].forEach((p,i)=>h.link(h.host('pc',p[0],p[1],'192.168.10.1'+(i+4)),b));
     h.link(a,b);h.router(540,420,[]);}},
- {k:'e3-2',c:'3e',dur:'50 min',t:'Deux routeurs, routes statiques',p:'Ajouter les routes qui permettent à deux réseaux éloignés de communiquer.',
-  steps:['Lance la simulation. Depuis PC 1, tape `ping 192.168.2.10` : Routeur 1 répond « réseau inaccessible ».','En conception, ajoute dans Routeur 1 une route : réseau 192.168.2.0, masque 255.255.255.0, via 10.0.0.2.','Ajoute dans Routeur 2 la route du retour vers 192.168.1.0.','Recommence le ping, puis `tracert 192.168.2.10`.'],
+ {k:'e3-2',c:'3e',cat:'sousreseau',dur:'2 séances',t:'Le plan d’adressage du collège',p:'Projet : concevoir les réseaux de quatre lieux du collège, les relier et faire tester son schéma par un autre groupe.',
+  steps:[{t:'Prépare sur papier ton plan : un réseau différent par lieu (par exemple 192.168.10.0/24, 192.168.20.0/24…), avec masque, passerelle et adresses.',c:null},
+   {t:'Câble chaque appareil au switch de son lieu.',c:()=>planHosts().every(d=>{const z=X.zoneOf(d),sw=S.devices.find(s=>s.type==='switch'&&X.zoneOf(s)===z);return sw&&X.linked(d.name,sw.name);})},
+   {t:'Relie les quatre switchs au routeur.',c:()=>S.devices.filter(d=>d.type==='switch').every(s=>X.linked(s.name,'Routeur 1'))},
+   {t:'Donne une adresse et un masque à chaque appareil : un réseau par lieu.',c:planNets},
+   {t:'Configure les quatre ports du routeur, puis la passerelle de chaque appareil.',h:'Plus aucun triangle orange ne doit rester.',c:()=>X.d('Routeur 1').ifs.every(f=>(f.ip||'').trim())&&planHosts().every(d=>(d.gw||'').trim()&&diag(d).length===0)&&diag(X.d('Routeur 1')).length===0},
+   {t:'Lance la simulation : depuis PC 1 (Salle 101), fais un ping vers le serveur.',c:()=>X.ping('PC 1',X.ip('Serveur 1'),true)},
+   {t:'Depuis la Salle 102, envoie un document à l’imprimante du CDI avec `imprimer`.',c:()=>X.ev('print',e=>e.ok&&(e.from==='Portable 1'||e.from==='PC 3'))},
+   {t:'Exporte ton schéma (Fichier → Exporter) et échange-le avec un autre groupe.',c:()=>X.ev('export')}],
+  q:['Combien d’appareils peut-on adresser dans chaque réseau avec ton masque ?','Pourquoi chaque lieu a-t-il besoin de sa propre passerelle ?'],verif:'Depuis chaque lieu, le ping vers le serveur et l’impression au CDI réussissent.',
+  build:h=>{const L=[['Salle 101',0,0,'bleu',['pc','pc']],['Salle 102',0,500,'violet',['laptop','pc']],['CDI',1040,0,'orange',['pc','printer']],['Salle serveurs',1040,500,'vert',['server','rpi']]];
+    L.forEach(([n,x,y,c,t])=>{h.zone(n,x,y,560,420,c);h.dev('switch',x+280,y+290);h.host(t[0],x+104,y+100);h.host(t[1],x+456,y+100);});h.router(800,460,[]);}},
+ {k:'e3-3',c:'3e',cat:'routage',dur:'50 min',t:'Deux routeurs, routes statiques',p:'Ajouter les routes qui permettent à deux réseaux éloignés de communiquer.',
+  steps:[{t:'Lance la simulation. Depuis PC 1, tape `ping 192.168.2.10` : Routeur 1 répond « réseau inaccessible ».',c:()=>X.ping('PC 1','192.168.2.10')},
+   {t:'En conception, ajoute dans Routeur 1 une route : réseau `192.168.2.0`, masque `255.255.255.0`, via `10.0.0.2`.',h:'Section « Routes statiques » du panneau du routeur, bouton « + Ajouter une route ».',c:()=>X.route('Routeur 1','192.168.2.0','10.0.0.2')},
+   {t:'Ajoute dans Routeur 2 la route du retour : vers `192.168.1.0`, via `10.0.0.1`.',c:()=>X.route('Routeur 2','192.168.1.0','10.0.0.1')},
+   {t:'Lance la simulation et refais `ping 192.168.2.10` depuis PC 1. Note le TTL de la réponse.',c:()=>X.ping('PC 1','192.168.2.10',true)},
+   {t:'Tape `tracert 192.168.2.10`',c:()=>X.ev('tracert',e=>e.dst==='192.168.2.10'&&e.ok)}],
   q:['Pourquoi faut-il aussi une route pour le retour ?','Combien de routeurs sont traversés ? De combien a diminué le TTL ?'],verif:'tracert affiche 3 lignes et la réponse au ping a un TTL de 62.',
   build:h=>{h.zone('Réseau A',0,0,440,480,'bleu');h.zone('Réseau B',880,0,440,480,'vert');const a=h.dev('switch',220,240),b=h.dev('switch',1100,240);
     [h.host('pc',96,96,'192.168.1.11','192.168.1.254'),h.host('pc',344,96,'192.168.1.12','192.168.1.254')].forEach(d=>h.link(d,a));
     const r1=h.router(560,240,['192.168.1.254','10.0.0.1']),r2=h.router(760,240,['10.0.0.2','192.168.2.254']);
     const sv=h.host('server',976,96,'192.168.2.10','192.168.2.254');sv.web.page='Serveur du réseau B\nTu as traversé deux routeurs !';
     h.link(a,r1);h.link(r1,r2);h.link(r2,b);[sv,h.host('pc',1224,96,'192.168.2.11','192.168.2.254')].forEach(d=>h.link(d,b));}},
- {k:'e3-3',c:'3e',dur:'30 min',t:'Ouvrir l’enveloppe',p:'Analyser l’encapsulation d’une page web : Ethernet, IP, TCP et HTTP.',
-  steps:['Dans Réglages, règle la vitesse sur ×0,5 et lance la simulation.','Depuis PC 1, ouvre `http://192.168.2.5` dans le navigateur.','Clique sur une enveloppe PAGE pendant qu’elle circule : la simulation se met en pause.','Observe chaque couche dans le détail de la trame, puis clique sur l’horloge pour reprendre.'],
-  q:['Pour chaque couche (Ethernet, IP, TCP, HTTP) : qui est l’expéditeur, qui est le destinataire, que transporte-t-elle ?','Pourquoi l’adresse MAC change-t-elle après le routeur alors que l’adresse IP reste la même ?','Quel est le port du serveur ? Et celui du client ?'],verif:'Le détail montre 4 couches emboîtées : Ethernet, IP, TCP et HTTP.',
-  build:h=>buildDeux(h)},
- {k:'e3-4',c:'3e',dur:'2 séances',t:'Le plan d’adressage du collège',p:'Projet : concevoir les réseaux de quatre lieux du collège, les relier et faire tester son schéma par un autre groupe.',
-  steps:['Choisis un réseau différent pour chaque lieu (par exemple 192.168.10.0/24, 192.168.20.0/24…). Note ton plan dans un tableau : réseau, masque, passerelle, adresses.','Câble chaque appareil au switch de son lieu, puis chaque switch au routeur.','Configure les adresses, les masques, les ports du routeur et les passerelles.','Teste : chaque lieu doit joindre le serveur et l’imprimante du CDI.','Exporte ton schéma (Fichier → Exporter) et échange-le avec un autre groupe, qui le teste.'],
-  q:['Combien d’appareils peut-on adresser dans chaque réseau avec ton masque ?'],verif:'Depuis chaque lieu, le ping vers le serveur et la commande imprimer vers l’imprimante du CDI réussissent.',
-  build:h=>{const L=[['Salle 101',0,0,'bleu',['pc','pc']],['Salle 102',0,500,'violet',['laptop','pc']],['CDI',1040,0,'orange',['pc','printer']],['Salle serveurs',1040,500,'vert',['server','rpi']]];
-    L.forEach(([n,x,y,c,t])=>{h.zone(n,x,y,560,420,c);h.dev('switch',x+280,y+290);h.host(t[0],x+104,y+100);h.host(t[1],x+456,y+100);});h.router(800,460,[]);}},
- {k:'e3-5',c:'3e',dur:'25 min',help:false,t:'Le paquet qui tourne en rond',p:'Deux routes par défaut qui se renvoient le paquet : comprendre le rôle du TTL.',
-  steps:['Dans Réglages, règle la vitesse sur ×4 et lance la simulation.','Depuis PC 1, tape `ping 192.168.2.10` : ça fonctionne.','Tape maintenant `tracert 172.16.0.5` (ce réseau n’existe pas).','Observe les enveloppes entre les deux routeurs et les adresses affichées.'],
-  q:['Regarde la route par défaut de chaque routeur : pourquoi le paquet tourne-t-il en rond ?','À quoi sert le TTL ? Que se passerait-il sans lui ?','Comment corriger la configuration ?'],verif:'tracert affiche tour à tour les adresses des deux routeurs, sans jamais atteindre la destination.',
+ {k:'e3-4',c:'3e',cat:'routage',dur:'25 min',help:false,t:'Le paquet qui tourne en rond',p:'Deux routes par défaut qui se renvoient le paquet : comprendre le rôle du TTL.',
+  steps:[{t:'Dans Réglages, règle la vitesse sur ×4.',c:()=>sim.speed>=3},
+   SIM,
+   {t:'Depuis PC 1, tape `ping 192.168.2.10` : ça fonctionne.',c:()=>X.ping('PC 1','192.168.2.10',true)},
+   {t:'Tape maintenant `tracert 172.16.0.5` (ce réseau n’existe pas) et observe les enveloppes entre les routeurs.',c:()=>X.ev('tracert',e=>e.dst==='172.16.0.5')},
+   {t:'Corrige Routeur 2 : remplace sa route par défaut par une route vers `192.168.1.0` via `10.0.0.1`.',c:()=>X.route('Routeur 2','192.168.1.0','10.0.0.1')&&!X.route('Routeur 2','0.0.0.0','10.0.0.1')},
+   {t:'Refais `tracert 172.16.0.5` : que répond maintenant Routeur 2 ?',c:()=>X.count('tracert',e=>e.dst==='172.16.0.5')>=2}],
+  q:['Pourquoi le paquet tournait-il en rond ?','À quoi sert le TTL ? Que se passerait-il sans lui ?'],verif:'Après correction, Routeur 2 répond « réseau de destination inaccessible ».',
   build:h=>{h.zone('Réseau A',0,0,440,440,'bleu');h.zone('Réseau B',880,0,440,440,'vert');const a=h.dev('switch',220,240),b=h.dev('switch',1100,240);
     [h.host('pc',96,96,'192.168.1.11','192.168.1.254'),h.host('pc',344,96,'192.168.1.12','192.168.1.254')].forEach(d=>h.link(d,a));
     const r1=h.router(560,240,['192.168.1.254','10.0.0.1']),r2=h.router(760,240,['10.0.0.2','192.168.2.254']);
     r1.routes=[{net:'0.0.0.0',mask:'0.0.0.0',via:'10.0.0.2'}];r2.routes=[{net:'0.0.0.0',mask:'0.0.0.0',via:'10.0.0.1'}];
-    const sv=h.host('server',1100,380,'192.168.2.10','192.168.2.254');h.link(a,r1);h.link(r1,r2);h.link(r2,b);h.link(sv,b);}}
+    const sv=h.host('server',1100,380,'192.168.2.10','192.168.2.254');h.link(a,r1);h.link(r1,r2);h.link(r2,b);h.link(sv,b);}},
+ {k:'e3-5',c:'3e',cat:'protocoles',dur:'30 min',t:'Ouvrir l’enveloppe',p:'Analyser l’encapsulation d’une page web : Ethernet, IP, TCP et HTTP.',
+  steps:[{t:'Dans Réglages, règle la vitesse sur ×0,5.',c:()=>sim.speed<=0.5},
+   SIM,
+   {t:'Depuis PC 1, ouvre `http://192.168.2.5` dans le navigateur.',c:()=>X.http('PC 1','192.168.2.5',true)},
+   {t:'Recharge la page et clique sur une enveloppe PAGE pendant qu’elle circule.',h:'La simulation se met en pause : lis les 4 couches dans le détail, puis clique sur l’horloge pour reprendre.',c:()=>X.ev('frame',e=>e.proto==='HTTP')},
+   {t:'Fais un ping, puis ouvre une trame ICMP et une trame ARP pour comparer.',c:()=>X.ev('frame',e=>e.proto==='ICMP')&&X.ev('frame',e=>e.proto==='ARP')}],
+  q:['Pour chaque couche (Ethernet, IP, TCP, HTTP) : qui est l’expéditeur, qui est le destinataire, que transporte-t-elle ?','Pourquoi l’adresse MAC change-t-elle après le routeur alors que l’adresse IP reste la même ?','Quel est le port du serveur ? Et celui du client ?'],verif:'Le détail montre 4 couches emboîtées : Ethernet, IP, TCP et HTTP.',
+  build:h=>buildDeux(h)}
 ];
+function panneFix(){return (X.gw('PC 2')==='192.168.1.254'?1:0)+(X.in24('Portable 1','192.168.1.')?1:0)+(X.linked('Routeur 1','Switch 2')?1:0);}
+function planHosts(){return S.devices.filter(d=>TYPES[d.type].host);}
+function planNets(){const hs=planHosts();const nets=new Map();
+  for(const d of hs){const ip=ip2n(d.ip),m=ip2n(d.mask);if(ip===null||!hostMaskOk(m))return false;const z=X.zoneOf(d);if(!z)return false;const n=netOf(ip,m)+'/'+prefix(m);
+    if(nets.has(z.id)&&nets.get(z.id)!==n)return false;nets.set(z.id,n);}
+  return new Set(nets.values()).size===nets.size&&nets.size===4;}
+function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
 function loadExo(x){
   setMode('design');snap();S=blank();S.level=CLASSES[x.c].lv;x.build(H());S.help=x.help!==false;
-  S.exo={k:x.k,c:x.c,t:x.t,dur:x.dur,steps:x.steps,q:x.q||[],verif:x.verif,done:[]};
+  S.exo={k:x.k,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0};
+  EV=[];
   $('#exoBox').classList.remove('folded');
   sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();
 }
+function checkExo(){
+  const x=S.exo,def=exoDef();if(!x||!def)return;x.cur=x.cur||0;x.done=x.done||[];
+  let adv=0;
+  while(x.cur<def.steps.length){const st=def.steps[x.cur];let ok=false;try{ok=!!(st.c&&st.c());}catch(_){ok=false;}if(!ok)break;x.done[x.cur]=true;x.cur++;adv++;}
+  if(adv){persist();renderExo(true);toast(x.cur>=def.steps.length?'Exercice terminé ! Réponds maintenant aux questions.':`Étape réussie ✓ Passe à l’étape ${x.cur+1}.`);}
+}
 const fmtStep=t=>esc(t).replace(/`([^`]+)`/g,'<code>$1</code>');
-function renderExo(){
+function renderExo(flash){
   const B=$('#exoBox');if(!B)return;const x=S.exo;
   if(!x){B.hidden=true;return;}
   B.hidden=false;
-  $('#exo').innerHTML=`<div class="exh"><span class="chip2">${pas(x.c)}${CLASSES[x.c]?CLASSES[x.c].t:''} · ${esc(x.dur||'')}</span><h3>${esc(x.t)}</h3></div>
-<ol class="steps">${x.steps.map((st,i)=>`<li><label><input type="checkbox" data-step="${i}"${x.done&&x.done[i]?' checked':''}><span>${fmtStep(st)}</span></label></li>`).join('')}</ol>
-${x.q&&x.q.length?`<div class="sec" style="padding-top:8px"><div class="mh" style="padding:0">Questions</div><ul class="qs" style="margin-top:6px">${x.q.map(q=>`<li>${fmtStep(q)}</li>`).join('')}</ul></div>`:''}
-<div class="calc" style="font-family:var(--f-body);font-size:12.5px"><b>Pour vérifier :</b> ${fmtStep(x.verif)}</div>
-<button class="btn small" data-act="exoclose" type="button">Retirer la consigne</button>`;
+  const def=exoDef(),n=x.steps.length,cur=Math.min(x.cur||0,n),done=x.done||[];
+  const head=`<div class="exh"><span class="chip2">${pas(x.c)}${CLASSES[x.c]?CLASSES[x.c].t:''}${x.cat?' · '+esc(catName(x.c,x.cat)):''} · ${esc(x.dur||'')}</span><h3>${esc(x.t)}</h3></div>`;
+  const prog=`<div class="prog"><div class="ptxt">${cur>=n?'Toutes les étapes sont faites':`Étape <b>${cur+1}</b> sur ${n}`}</div><div class="pbar">${x.steps.map((_,i)=>`<i class="${i<cur?'d':i===cur?'c':''}"></i>`).join('')}</div></div>`;
+  let body='';
+  if(!def){body=`<ol class="steps">${x.steps.map((st,i)=>`<li><label><input type="checkbox" data-step="${i}"${done[i]?' checked':''}><span>${fmtStep(st)}</span></label></li>`).join('')}</ol>`;}
+  else if(cur<n){const st=def.steps[cur];
+    body=`<div class="stepcard${flash?' flash':''}"><span class="snum">${cur+1}</span><div class="stxt">${fmtStep(st.t)}</div></div>
+<div class="sstat">${st.c?'<span class="auto">Validation automatique</span> Fais l’action : l’étape se valide toute seule.':'Quand c’est fait, passe à l’étape suivante.'}</div>
+${st.h?`<details class="hint2"><summary>Besoin d’un indice ?</summary><p>${fmtStep(st.h)}</p></details>`:''}
+<div class="row"><button class="btn small${st.c?'':' primary'}" data-act="next" type="button">${st.c?'Passer cette étape':'J’ai terminé, étape suivante'}</button></div>`;}
+  else body=`<div class="stepcard done${flash?' flash':''}"><span class="snum">✓</span><div class="stxt"><b>Exercice terminé !</b><br>${fmtStep(x.verif)}</div></div>`;
+  const qs=x.q&&x.q.length?`<details class="sec"${cur>=n?' open':''}><summary>Questions (${x.q.length})</summary><div class="secb"><ul class="qs">${x.q.map(q=>`<li>${fmtStep(q)}</li>`).join('')}</ul></div></details>`:'';
+  const all=def?`<details class="sec"><summary>Toutes les étapes</summary><div class="secb"><ol class="steps ro">${x.steps.map((st,i)=>`<li class="${i<cur?'ok':i===cur?'now':''}"><span>${fmtStep(st)}</span></li>`).join('')}</ol></div></details>`:'';
+  const ver=cur<n?`<details class="sec"><summary>Pour vérifier</summary><div class="secb"><div class="small">${fmtStep(x.verif)}</div></div></details>`:'';
+  $('#exo').innerHTML=head+prog+body+qs+all+ver+`<div class="row" style="gap:6px"><button class="btn small" data-act="restart" type="button">Recommencer</button><button class="btn small" data-act="exoclose" type="button">Retirer la consigne</button></div>`;
 }
 $('#exo').addEventListener('change',e=>{const i=e.target.dataset.step;if(i==null||!S.exo)return;S.exo.done=S.exo.done||[];S.exo.done[+i]=e.target.checked;save();});
-$('#exo').addEventListener('click',e=>{if(e.target.closest('[data-act="exoclose"]')){snap();delete S.exo;renderExo();save();toast('Consigne retirée. Annuler (Ctrl + Z) pour la remettre.');}});
+$('#exo').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+  if(a==='exoclose'){snap();delete S.exo;renderExo();save();toast('Consigne retirée. Annuler (Ctrl + Z) pour la remettre.');}
+  if(a==='next'&&S.exo){S.exo.cur=(S.exo.cur||0)+1;persist();renderExo(true);checkSoon();}
+  if(a==='restart'){const d=exoDef();if(d)loadExo(d);else{S.exo.cur=0;S.exo.done=[];renderExo();save();}}
+});
 let exTab=null;
 function exModal(){
   const tabs=[['5e',pas('5e')+'5ᵉ · Débutant'],['4e',pas('4e')+'4ᵉ · Intermédiaire'],['3e',pas('3e')+'3ᵉ · Avancé'],['demo','Démonstrations']];
   if(!exTab)exTab=['5e','4e','3e'][lv()];
-  const list=exTab==='demo'?EXAMPLES.map(x=>`<div class="excard"><div class="meta"><span class="lvl">${x.lv==null?'Libre':pas(x.lv)+LV_NAMES[x.lv]}</span></div><h3>${x.t}</h3><p>${x.p}</p><button class="btn small primary" data-ex="${x.k}" type="button">Ouvrir</button></div>`).join('')
-    :EXOS.filter(x=>x.c===exTab).map(x=>`<div class="excard"><div class="meta"><span class="lvl">${pas(x.c)}${CLASSES[x.c].t} · ${LV_NAMES[CLASSES[x.c].lv]}</span><span class="dur">${x.dur}</span></div><h3>${x.t}</h3><p>${x.p}</p><button class="btn small primary" data-exo="${x.k}" type="button">Ouvrir l’exercice</button></div>`).join('');
+  const card=x=>`<div class="excard"><div class="meta"><span class="lvl">${pas(x.c)}Pas à pas · ${x.steps.length} étapes</span><span class="dur">${x.dur}</span></div><h3>${x.t}</h3><p>${x.p}</p><button class="btn small primary" data-exo="${x.k}" type="button">Ouvrir l’exercice</button></div>`;
+  const list=exTab==='demo'?`<div class="exlist">${EXAMPLES.map(x=>`<div class="excard"><div class="meta"><span class="lvl">${x.lv==null?'Libre':pas(x.lv)+LV_NAMES[x.lv]}</span></div><h3>${x.t}</h3><p>${x.p}</p><button class="btn small primary" data-ex="${x.k}" type="button">Ouvrir</button></div>`).join('')}</div>`
+    :CATS[exTab].map(([k,t,d])=>{const xs=EXOS.filter(x=>x.c===exTab&&x.cat===k);return xs.length?`<section class="catsec"><div class="cath"><h3>${t}</h3><span>${d}</span></div><div class="exlist">${xs.map(card).join('')}</div></section>`:'';}).join('');
   openModal(`<div class="mhead"><h2>Exemples et exercices</h2><button class="wbtn wx" data-close type="button" aria-label="Fermer">×</button></div>
 <div class="seg extabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" data-tab="${k}" class="${k===exTab?'on':''}">${l}</button>`).join('')}</div>
-<p class="small muted" style="margin:0">${exTab==='demo'?'Des réseaux complets pour faire une démonstration.':'Chaque exercice s’ouvre au bon niveau avec son schéma de départ et sa consigne.'} Le schéma actuel sera remplacé : Annuler (Ctrl + Z) permet de le récupérer.</p>
-<div class="exlist">${list}</div>`);
+<p class="small muted" style="margin:0">${exTab==='demo'?'Des réseaux complets pour faire une démonstration.':'Chaque exercice s’ouvre au bon niveau et guide l’élève étape par étape : la plupart des étapes se valident toutes seules.'} Le schéma actuel sera remplacé : Annuler (Ctrl + Z) permet de le récupérer.</p>
+${list}`);
 }
 $('#bExamples').onclick=()=>{exModal();
   $('#mbox').onclick=e=>{
     if(e.target.closest('[data-close]'))return closeModal();
     const t=e.target.closest('[data-tab]');if(t){exTab=t.dataset.tab;exModal();return;}
-    const x=e.target.closest('[data-exo]');if(x){const ex=EXOS.find(o=>o.k===x.dataset.exo);closeModal();loadExo(ex);toast(`Exercice « ${ex.t} » ouvert en niveau ${LV_NAMES[CLASSES[ex.c].lv]}.`);return;}
+    const x=e.target.closest('[data-exo]');if(x){const ex=EXOS.find(o=>o.k===x.dataset.exo);closeModal();loadExo(ex);toast(`Exercice « ${ex.t} » : suis les étapes de la consigne.`);return;}
     const b=e.target.closest('[data-ex]');if(!b)return;setMode('design');snap();buildExample(b.dataset.ex);closeModal();sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();};
 };
-$('#bExport').onclick=()=>{
+$('#bExport').onclick=()=>{rec('export');
   const json=JSON.stringify(S,null,1);
   openModal(`<div class="mhead"><h2>Exporter le schéma</h2><button class="wbtn wx" data-close type="button" aria-label="Fermer">×</button></div><p class="small muted" style="margin:0">Copie ce texte et colle-le dans un fichier (par exemple <code class="ad">reseau-salle101.json</code>) ou dans l’ENT pour tes élèves. Pour le recharger : Importer.</p><textarea class="inp" id="expTxt" readonly style="height:260px">${esc(json)}</textarea><div class="row"><button class="btn primary" id="cpy" type="button">Copier le texte</button><span class="small muted">${S.devices.length} appareils · ${S.cables.length} câbles · ${S.zones.length} salles</span></div>`);
   $('#mbox').onclick=e=>{if(e.target.closest('[data-close]'))closeModal();};
