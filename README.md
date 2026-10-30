@@ -49,3 +49,15 @@ Astuce pour l’enseignant : préparer un schéma, désactiver les alertes dans 
 ## Simplifications
 
 Pas de DNS (on tape les adresses IP), pas de poignée de main TCP, pas de DHCP. Le smartphone et l’ESP32 sont reliés par une liaison Wi-Fi dessinée en pointillés.
+
+## Connexion à la Centrale de la classe (facultatif)
+
+Le bouton **Mon code**, dans la barre du haut, connecte l'élève à la Centrale de l'enseignant (`technoversailles.alwaysdata.net`) :
+
+- le schéma en cours est enregistré sur le serveur et retrouvé sur n'importe quel ordinateur ;
+- l'avancement de chaque exercice (étapes validées, exercice terminé) remonte dans le tableau de suivi de l'enseignant ;
+- ouvert depuis le portail élève ou un parcours, NetSim est déjà connecté.
+
+Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur comme avant.
+Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"` avant le chargement de la page.
+

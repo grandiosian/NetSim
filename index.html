@@ -886,7 +886,7 @@ function afterEdit(){render();renderProps();save();}
 function snap(){HIST.push(JSON.stringify(S));if(HIST.length>60)HIST.shift();}
 function undo(){if(mode!=='design')return;if(!HIST.length){toast('Rien à annuler.');return;}S=JSON.parse(HIST.pop());sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;syncLevel();afterEdit();}
 let saveT=0;
-function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300);}
+function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}if(window.centraleTravail)window.centraleTravail();},300);}
 function save(){persist();if(typeof checkSoon==='function')checkSoon();if(!S.exo&&typeof renderExo==='function')renderExo();}
 
 function ipsOf(d){if(d.type==='router')return d.ifs.map(f=>ip2n(f.ip)).filter(v=>v!==null);if(TYPES[d.type].host){const v=ip2n(d.ip);return v===null?[]:[v];}return [];}
@@ -2182,7 +2182,7 @@ const fmtStep=t=>esc(t).replace(/`([^`]+)`/g,'<code>$1</code>');
 let PROG={};try{PROG=JSON.parse(localStorage.getItem('netsim-progress')||'{}')||{};}catch(_){}
 function saveProg(){try{localStorage.setItem('netsim-progress',JSON.stringify(PROG));}catch(_){}}
 function markProg(){const x=S.exo,def=exoDef();if(!x||!def)return;const p=PROG[x.k]||{};p.n=def.steps.length;p.best=Math.max(p.best||0,x.cur||0);p.started=true;if((x.cur||0)>=def.steps.length)p.done=true;PROG[x.k]=p;
-  const seen=new Set(PROG.__seen||[]);for(let i=0;i<Math.min(x.cur||0,def.steps.length);i++)typesOf(def.steps[i].t).forEach(t=>seen.add(t));PROG.__seen=[...seen];saveProg();}
+  const seen=new Set(PROG.__seen||[]);for(let i=0;i<Math.min(x.cur||0,def.steps.length);i++)typesOf(def.steps[i].t).forEach(t=>seen.add(t));PROG.__seen=[...seen];saveProg();if(window.centraleProgres)window.centraleProgres(x.k);}
 const FAILTXT={
  timeout:'aucune réponse. Personne n’a peut-être cette adresse, l’appareil n’est pas relié, ou il est dans un autre réseau sans passerelle.',
  noip:'cet appareil n’a pas d’adresse IP valide.',
@@ -2403,6 +2403,141 @@ function buildExample(k){
   applyPrefs();syncLevel();updPause();placeAll();setHint();render();renderProps();fillDevSelect();renderFrames();
   requestAnimationFrame(fitView);
   window.addEventListener('resize',()=>{});
+})();
+</script>
+
+<!-- ============================================================
+     Centrale élèves (facultatif) : connexion avec le code personnel,
+     sauvegarde du schéma sur le serveur et suivi de la progression
+     des exercices par l'enseignant. Sans réseau ou sans connexion,
+     NetSim fonctionne exactement comme avant (navigateur seul).
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+  const SERVEUR=window.CENTRALE_URL||'https://technoversailles.alwaysdata.net/';
+  const avecJeton=/(^|[#&])centrale=/.test(location.hash);
+  let pret=false,bouton=null,fenetre=null;
+
+  const js=document.createElement('script');
+  js.src=SERVEUR+'js/centrale-client.js';
+  js.onload=demarrer;              // serveur injoignable : rien ne change pour NetSim
+  document.head.appendChild(js);
+
+  function demarrer(){
+    if(!window.Centrale)return;
+    Centrale.init({
+      api:SERVEUR+'api/',
+      app:'netsim',
+      // Liste des exercices : colonnes du tableau de suivi de l'enseignant
+      activites:EXOS.map(x=>({id:x.k,titre:x.t,groupe:CLASSES[x.c].t+' · '+LV_NAMES[CLASSES[x.c].lv],total:x.steps.length})),
+      surDeconnexion:()=>{pret=false;majBouton();toast('Session terminée : reconnecte-toi pour enregistrer ton travail.');}
+    });
+    creerBouton();
+    if(avecJeton||Centrale.connecte())Centrale.afficherConnexion(corpsFenetre(),{onConnecte:connecte});
+  }
+
+  /* ---------- Bouton dans la barre du haut ---------- */
+  function creerBouton(){
+    const ref=$('#bSet')&&$('#bSet').closest('.menuwrap');
+    bouton=document.createElement('button');
+    bouton.className='btn flat';bouton.type='button';bouton.id='bCentrale';
+    bouton.onclick=()=>{
+      if(Centrale.connecte()){
+        const s=Centrale.session();
+        if(confirm(`Connecté : ${s.classe} · élève ${s.eleve}.\nTon travail est enregistré automatiquement.\n\nSe déconnecter ?`)){
+          Centrale.deconnexion();pret=false;majBouton();toast('Déconnecté. NetSim enregistre de nouveau dans ce navigateur seulement.');
+        }
+        return;
+      }
+      ouvrirFenetre();
+    };
+    if(ref)ref.parentNode.insertBefore(bouton,ref);else document.querySelector('.topbar').appendChild(bouton);
+    majBouton();
+  }
+  function majBouton(){
+    if(!bouton)return;
+    const s=Centrale.connecte()&&Centrale.session();
+    bouton.innerHTML=s
+      ?`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>${esc(s.classe)} · ${esc(s.eleve)}</span>`
+      :`<svg class="i" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><span>Mon code</span>`;
+    bouton.title=s?'Ton travail est enregistré sur le serveur de la classe':'Se connecter avec son code pour enregistrer son travail et sa progression';
+  }
+
+  /* ---------- Fenêtre de connexion ---------- */
+  function corpsFenetre(){
+    if(fenetre)return fenetre.querySelector('.cz-corps');
+    fenetre=document.createElement('div');
+    fenetre.hidden=true;
+    fenetre.id='centraleFenetre';
+    fenetre.style.cssText='position:fixed;inset:0;z-index:1000;place-items:center;background:rgba(0,0,0,.35);padding:16px';
+    fenetre.innerHTML='<div style="background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(420px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong style="font-size:1.1rem">Connexion de la classe</strong>'
+      +'<button type="button" class="btn flat" data-fermer aria-label="Fermer">✕</button></div>'
+      +'<p style="margin:0 0 12px;color:var(--ink-3)">Avec ton code, ton schéma et tes exercices sont enregistrés et ton professeur voit ta progression.</p>'
+      +'<div class="cz-corps"></div></div>';
+    fenetre.addEventListener('click',e=>{if(e.target===fenetre||e.target.closest('[data-fermer]'))montrer(false);});
+    document.body.appendChild(fenetre);
+    return fenetre.querySelector('.cz-corps');
+  }
+  function montrer(oui){fenetre.hidden=!oui;fenetre.style.display=oui?'grid':'none';}
+  function ouvrirFenetre(){
+    const corps=corpsFenetre();
+    montrer(true);
+    Centrale.afficherConnexion(corps,{onConnecte:connecte});
+  }
+
+  /* ---------- Une fois connecté ---------- */
+  async function connecte(infos){
+    if(fenetre)montrer(false);
+    majBouton();
+    try{
+      // 1. Progression : on garde le meilleur entre ce navigateur et le serveur
+      const serveur=await Centrale.mesProgressions();
+      Object.entries(serveur).forEach(([k,p])=>{
+        const l=PROG[k]||{};l.started=true;l.n=p.total||l.n;l.best=Math.max(l.best||0,p.faites||0);if(p.statut==='termine')l.done=true;PROG[k]=l;
+      });
+      Object.keys(PROG).forEach(k=>{
+        if(k==='__seen')return;
+        const l=PROG[k],p=serveur[k];
+        if(!p||(l.best||0)>(p.faites||0)||(l.done&&p.statut!=='termine'))envoyerProgres(k);
+      });
+      const vus=await Centrale.charger('decouvertes',[]);
+      PROG.__seen=[...new Set([...(PROG.__seen||[]),...(Array.isArray(vus)?vus:[])])];
+      saveProg();
+      // 2. Schéma : on reprend celui du serveur s'il existe, sinon on envoie celui de ce navigateur
+      const schema=await Centrale.charger('schema',null);
+      if(schema&&Array.isArray(schema.devices)&&Array.isArray(schema.cables)){
+        if(JSON.stringify(schema)!==JSON.stringify(S)){
+          snap();                                   // l'ancien schéma reste accessible avec « Annuler »
+          S=Object.assign(blank(),schema);S.zones=S.zones||[];
+          sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;
+          syncLevel();render();renderProps();if(typeof renderExo==='function')renderExo();fitView();
+          try{localStorage.setItem(KEY,JSON.stringify(S));}catch(_){}
+        }
+      }else{
+        Centrale.sauver('schema',S);
+      }
+      pret=true;
+      toast(`Connecté : ${infos.classe} · élève ${infos.eleve}. Ton travail est enregistré automatiquement.`);
+    }catch(e){
+      toast('Connexion au serveur impossible : '+e.message);
+    }
+  }
+
+  function envoyerProgres(k){
+    const p=PROG[k],def=EXOS.find(e=>e.k===k);
+    if(!p||!def)return;
+    Centrale.progression(k,{titre:def.t,faites:Math.min(p.best||0,def.steps.length),total:def.steps.length,statut:p.done?'termine':'commence'});
+  }
+
+  /* ---------- Appelés par NetSim ---------- */
+  window.centraleTravail=()=>{if(pret&&Centrale.connecte())Centrale.sauver('schema',S);};
+  window.centraleProgres=k=>{
+    if(!pret||!Centrale.connecte())return;
+    envoyerProgres(k);
+    Centrale.sauver('decouvertes',PROG.__seen||[]);
+  };
 })();
 </script>
 
