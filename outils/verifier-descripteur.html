@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vérifier le descripteur</title>
+<style>
+:root{--bg:#f4f6fb;--surface:#fff;--ink:#14213d;--ink-2:#4d5a78;--line:#d5dbe8;--ok:#178a4c;--err:#d23b3b;--accent:#1c3268}
+@media (prefers-color-scheme: dark){:root{--bg:#0f1729;--surface:#151f35;--ink:#e6ecf8;--ink-2:#a3b0cc;--line:#2a3858;--ok:#4cc584;--err:#ff6f6f;--accent:#9db4f2;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-size:24px}
+p{margin:0;color:var(--ink-2)}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+li.ok::before{content:"✓ ";color:var(--ok);font-weight:700}
+li.ko::before{content:"✗ ";color:var(--err);font-weight:700}
+li small{display:block;color:var(--ink-2);white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12px;margin-top:4px;overflow-wrap:anywhere}
+textarea{width:100%;height:220px;font:12px ui-monospace,Menlo,monospace;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;box-sizing:border-box}
+button{font:inherit;font-weight:700;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;align-self:flex-start}
+@media (prefers-color-scheme: dark){button{color:#0c1430}}
+iframe{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>Vérifier le descripteur de NetSim</h1>
+  <p>Compare <code>centrale.json</code> avec ce que l’application déclare réellement (<code>window.NetSim</code>). À ouvrir après chaque modification des exercices.</p>
+  <ul id="res"><li>Chargement de l’application…</li></ul>
+  <p id="aide" hidden>Si des écarts apparaissent, remplace la section <code>activites.liste</code> de <code>centrale.json</code> par le texte ci-dessous et mets à jour <code>atelier.version</code>.</p>
+  <textarea id="maj" hidden readonly></textarea>
+  <button id="cp" type="button" hidden>Copier la liste à jour</button>
+</main>
+<iframe id="f" src="../index.html" title="NetSim"></iframe>
+<script>
+'use strict';
+const res=document.getElementById('res');
+const line=(ok,txt,det)=>{const li=document.createElement('li');li.className=ok?'ok':'ko';li.textContent=txt;if(det){const s=document.createElement('small');s.textContent=det;li.appendChild(s);}res.appendChild(li);return ok;};
+document.getElementById('f').addEventListener('load',async()=>{
+  res.innerHTML='';
+  const N=document.getElementById('f').contentWindow.NetSim;
+  if(!N){line(false,'window.NetSim est introuvable dans l’application.');return;}
+  let D;try{D=await (await fetch('../centrale.json',{cache:'no-store'})).json();}catch(e){line(false,'centrale.json illisible',String(e));return;}
+  let ok=true;
+  ok&=line(D.format==='passerelle.atelier'&&D.version===1,'Format passerelle.atelier v1');
+  ok&=line(D.atelier.app===N.app,`Identifiant d’atelier : ${D.atelier.app}`,D.atelier.app===N.app?'':`application : ${N.app}`);
+  ok&=line(D.atelier.version===N.version,`Version : ${D.atelier.version}`,D.atelier.version===N.version?'':`application : ${N.version}`);
+  const cat=N.catalogue(),act=N.activites();
+  const liste=cat.map((c,i)=>Object.assign({},act[i],Object.fromEntries(Object.entries(c).filter(([k])=>k!=='id'&&k!=='titre'))));
+  const a=JSON.stringify(D.activites.liste),b=JSON.stringify(liste);
+  const same=a===b;ok&=line(same,`Activités : ${D.activites.liste.length} dans le descripteur, ${liste.length} dans l’application`,same?'':diff(D.activites.liste,liste));
+  const d=N.donnees();ok&=line(Object.keys(d).every(k=>k in D.donnees),'Clés de données décrites : '+Object.keys(d).join(', '));
+  ok&=line(N.estSchema(d.schema),'Le schéma courant est reconnu par estSchema()');
+  if(!ok){document.getElementById('aide').hidden=false;const t=document.getElementById('maj');t.hidden=false;t.value=JSON.stringify(liste,null,2);const c=document.getElementById('cp');c.hidden=false;
+    c.onclick=()=>{navigator.clipboard.writeText(t.value).then(()=>c.textContent='Copié',()=>{t.focus();t.select();});};}
+});
+function diff(x,y){const ix=new Map(x.map(e=>[e.id,e])),iy=new Map(y.map(e=>[e.id,e]));const out=[];
+  y.forEach(e=>{if(!ix.has(e.id))out.push('+ '+e.id+' '+e.titre);else if(JSON.stringify(ix.get(e.id))!==JSON.stringify(e))out.push('~ '+e.id+' '+e.titre);});
+  x.forEach(e=>{if(!iy.has(e.id))out.push('- '+e.id+' '+e.titre);});
+  return out.join('\n')||'Ordre différent.';}
+</script>
+</body>
+</html>

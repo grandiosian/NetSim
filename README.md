@@ -61,3 +61,7 @@ Le bouton **Mon code**, dans la barre du haut, connecte l'élève à la Centrale
 Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur comme avant.
 Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"` avant le chargement de la page.
 
+### Passerelle avec la Centrale
+
+Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression, moments d’échange) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 18 activités et schémas JSON des données. La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ce descripteur correspond à l’application.
+

@@ -2395,6 +2395,31 @@ function buildExample(k){
 /* ============================================================
    Démarrage
    ============================================================ */
+/* ============================================================
+   Passerelle : point d’accès unique aux données de NetSim.
+   Utilisé par la connexion à la Centrale (plus bas) et par
+   outils/verifier-descripteur.html. Contrat : PASSERELLE.md
+   et centrale.json (descripteur de l’atelier).
+   ============================================================ */
+const NETSIM_VERSION='1.5.0';
+window.NetSim=Object.freeze({
+  app:'netsim',
+  version:NETSIM_VERSION,
+  descripteur:'centrale.json',
+  /** Activités déclarées à la Centrale (colonnes du tableau de suivi). */
+  activites:()=>EXOS.map(x=>({id:x.k,titre:x.t,groupe:CLASSES[x.c].t+' · '+LV_NAMES[CLASSES[x.c].lv],total:x.steps.length})),
+  /** Catalogue détaillé des exercices. */
+  catalogue:()=>EXOS.map(x=>({id:x.k,classe:x.c,niveau:CLASSES[x.c].lv,categorie:x.cat,categorie_titre:catName(x.c,x.cat),titre:x.t,resume:x.p,duree:x.dur,etapes:x.steps.length,etapes_auto:x.steps.filter(st=>st.c).length,questions:x.q||[],alertes:x.help!==false})),
+  /** Progression d’un exercice au format de la Centrale, ou null. */
+  progression:k=>{const p=PROG[k],def=EXOS.find(e=>e.k===k);if(!p||!def)return null;return {titre:def.t,faites:Math.min(p.best||0,def.steps.length),total:def.steps.length,statut:p.done?'termine':'commence'};},
+  /** Fusionne une progression reçue de la Centrale (le meilleur est gardé). */
+  fusionnerProgression:serveur=>{Object.entries(serveur||{}).forEach(([k,p])=>{if(!EXOS.some(e=>e.k===k))return;const l=PROG[k]||{};l.started=true;l.n=p.total||l.n;l.best=Math.max(l.best||0,p.faites||0);if(p.statut==='termine')l.done=true;PROG[k]=l;});saveProg();},
+  /** Données enregistrées sous chaque clé (voir centrale.json → donnees). */
+  donnees:()=>({schema:JSON.parse(JSON.stringify(S)),decouvertes:[...(PROG.__seen||[])]}),
+  /** Vérifie qu’un objet est un schéma NetSim chargeable. */
+  estSchema:o=>!!(o&&Array.isArray(o.devices)&&Array.isArray(o.cables))
+});
+
 (function init(){
   let loaded=false;
   try{const raw=localStorage.getItem(KEY)||localStorage.getItem('atelier-reseau-v2')||localStorage.getItem('atelier-reseau-v1');if(raw){const o=JSON.parse(raw);if(o&&Array.isArray(o.devices)&&Array.isArray(o.cables)){S=Object.assign(blank(),o);S.zones=S.zones||[];loaded=true;}}}catch(_){}
@@ -2430,7 +2455,7 @@ function buildExample(k){
       api:SERVEUR+'api/',
       app:'netsim',
       // Liste des exercices : colonnes du tableau de suivi de l'enseignant
-      activites:EXOS.map(x=>({id:x.k,titre:x.t,groupe:CLASSES[x.c].t+' · '+LV_NAMES[CLASSES[x.c].lv],total:x.steps.length})),
+      activites:NetSim.activites(),
       surDeconnexion:()=>{pret=false;majBouton();toast('Session terminée : reconnecte-toi pour enregistrer ton travail.');}
     });
     creerBouton();
@@ -2494,9 +2519,7 @@ function buildExample(k){
     try{
       // 1. Progression : on garde le meilleur entre ce navigateur et le serveur
       const serveur=await Centrale.mesProgressions();
-      Object.entries(serveur).forEach(([k,p])=>{
-        const l=PROG[k]||{};l.started=true;l.n=p.total||l.n;l.best=Math.max(l.best||0,p.faites||0);if(p.statut==='termine')l.done=true;PROG[k]=l;
-      });
+      NetSim.fusionnerProgression(serveur);
       Object.keys(PROG).forEach(k=>{
         if(k==='__seen')return;
         const l=PROG[k],p=serveur[k];
@@ -2507,7 +2530,7 @@ function buildExample(k){
       saveProg();
       // 2. Schéma : on reprend celui du serveur s'il existe, sinon on envoie celui de ce navigateur
       const schema=await Centrale.charger('schema',null);
-      if(schema&&Array.isArray(schema.devices)&&Array.isArray(schema.cables)){
+      if(NetSim.estSchema(schema)){
         if(JSON.stringify(schema)!==JSON.stringify(S)){
           snap();                                   // l'ancien schéma reste accessible avec « Annuler »
           S=Object.assign(blank(),schema);S.zones=S.zones||[];
@@ -2531,9 +2554,8 @@ function buildExample(k){
   }
 
   function envoyerProgres(k){
-    const p=PROG[k],def=EXOS.find(e=>e.k===k);
-    if(!p||!def)return;
-    Centrale.progression(k,{titre:def.t,faites:Math.min(p.best||0,def.steps.length),total:def.steps.length,statut:p.done?'termine':'commence'});
+    const p=NetSim.progression(k);
+    if(p)Centrale.progression(k,p);
   }
 
   /* ---------- Appelés par NetSim ---------- */

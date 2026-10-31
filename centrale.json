@@ -1,0 +1,1090 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grandiosian.github.io/NetSim/centrale.json",
+  "format": "passerelle.atelier",
+  "version": 1,
+  "atelier": {
+    "app": "netsim",
+    "nom": "NetSim",
+    "version": "1.5.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, trames animées et 18 exercices guidés (5e, 4e, 3e).",
+    "url": "https://grandiosian.github.io/NetSim/",
+    "urls_secours": [],
+    "icone": "🌐",
+    "depot": "https://github.com/grandiosian/NetSim",
+    "langue": "fr",
+    "classes": [
+      "5e",
+      "4e",
+      "3e"
+    ],
+    "_correspondance": "Champs de la table ateliers de la Centrale : app, nom, description, url, icone, urls_secours."
+  },
+  "centrale": {
+    "module": "js/centrale-client.js",
+    "serveur_par_defaut": "https://technoversailles.alwaysdata.net/",
+    "changer_de_serveur": "window.CENTRALE_URL = \"https://…/\" avant le chargement de la page.",
+    "sites_a_autoriser": [
+      "https://grandiosian.github.io"
+    ],
+    "chargement": "Le module est chargé à la fin de la page. S’il est injoignable, NetSim fonctionne seul (enregistrement dans le navigateur).",
+    "connexion": {
+      "bouton": "« Mon code » dans la barre du haut ; une fois connecté, il affiche « classe · élève » et permet de se déconnecter.",
+      "depuis_le_portail": "Jeton dans l’adresse (#centrale=…) : connexion automatique, le module retire le jeton.",
+      "activite_directe": "Centrale.activiteDemandee() renvoie une clé d’exercice (ex. e5-1) : NetSim l’ouvre, sauf si l’élève est déjà dessus.",
+      "retour": "Bouton « ← Mes ateliers » ajouté par le module."
+    },
+    "fonctions_utilisees": [
+      "init",
+      "afficherConnexion",
+      "connecte",
+      "session",
+      "deconnexion",
+      "charger",
+      "sauver",
+      "progression",
+      "mesProgressions",
+      "activiteDemandee"
+    ],
+    "fonctions_non_utilisees": [
+      "envoyerFichier",
+      "listeFichiers",
+      "chargerFichier",
+      "listeRessources",
+      "etape",
+      "projet.*",
+      "parcours",
+      "ateliers",
+      "lien",
+      "ouvrir"
+    ]
+  },
+  "activites": {
+    "declaration": "Centrale.init({ activites: NetSim.activites() }) : envoyé à activites.php à la première connexion de la session.",
+    "champs_envoyes": [
+      "id",
+      "titre",
+      "groupe",
+      "total"
+    ],
+    "identifiants_stables": true,
+    "groupes": [
+      "5ᵉ · Débutant",
+      "4ᵉ · Intermédiaire",
+      "3ᵉ · Avancé"
+    ],
+    "categories": {
+      "5e": [
+        {
+          "id": "cabler",
+          "titre": "Relier les appareils",
+          "description": "Câbles, switch et liaison Wi-Fi."
+        },
+        {
+          "id": "adresses",
+          "titre": "Les adresses IP",
+          "description": "Donner, vérifier et corriger des adresses."
+        },
+        {
+          "id": "services",
+          "titre": "Les services du réseau",
+          "description": "Imprimer et consulter une page web."
+        }
+      ],
+      "4e": [
+        {
+          "id": "routeur",
+          "titre": "Routeur et passerelle",
+          "description": "Faire communiquer deux réseaux."
+        },
+        {
+          "id": "observer",
+          "titre": "Observer les échanges",
+          "description": "ARP, adresses MAC et table du switch."
+        },
+        {
+          "id": "diag",
+          "titre": "Diagnostiquer une panne",
+          "description": "Symptôme, hypothèse, test, correction."
+        },
+        {
+          "id": "iot",
+          "titre": "Objets connectés",
+          "description": "Un capteur qui publie ses mesures."
+        }
+      ],
+      "3e": [
+        {
+          "id": "sousreseau",
+          "titre": "Sous-réseaux et masques",
+          "description": "Découper et planifier les adresses."
+        },
+        {
+          "id": "routage",
+          "titre": "Routage",
+          "description": "Routes statiques et durée de vie (TTL)."
+        },
+        {
+          "id": "protocoles",
+          "titre": "Protocoles et encapsulation",
+          "description": "Ethernet, IP, TCP, HTTP."
+        }
+      ]
+    },
+    "liste": [
+      {
+        "id": "e5-1",
+        "titre": "Brancher la salle",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "cabler",
+        "categorie_titre": "Relier les appareils",
+        "resume": "Relier quatre ordinateurs à un switch et vérifier qu’ils communiquent.",
+        "duree": "20 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "À quoi sert le switch ?",
+          "Que se passerait-il si on débranchait le câble de PC 3 ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e5-2",
+        "titre": "Le Wi-Fi de la salle",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "cabler",
+        "categorie_titre": "Relier les appareils",
+        "resume": "Connecter un smartphone et un portable au réseau, puis consulter le serveur.",
+        "duree": "20 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Quelle différence vois-tu entre la liaison du smartphone et celle de PC 1 ?",
+          "Le smartphone a-t-il besoin d’une adresse IP, comme un ordinateur ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e5-3",
+        "titre": "Chacun son adresse",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "adresses",
+        "categorie_titre": "Les adresses IP",
+        "resume": "Donner une adresse IP unique à chaque appareil d’une salle déjà câblée.",
+        "duree": "25 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Quels nombres de l’adresse sont identiques pour tous les appareils de la salle ?",
+          "Que se passe-t-il si deux appareils ont la même adresse ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e5-4",
+        "titre": "L’intrus",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "adresses",
+        "categorie_titre": "Les adresses IP",
+        "resume": "Un appareil ne répond pas au ping : le trouver et corriger son adresse.",
+        "duree": "20 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi cet appareil ne pouvait-il pas communiquer avec les autres ?"
+        ],
+        "alertes": false
+      },
+      {
+        "id": "e5-5",
+        "titre": "Le doublon",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "adresses",
+        "categorie_titre": "Les adresses IP",
+        "resume": "Deux appareils portent la même adresse : repérer le problème et le corriger.",
+        "duree": "20 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Quels appareils avaient la même adresse ?",
+          "Pourquoi une adresse doit-elle être unique dans un réseau ?"
+        ],
+        "alertes": false
+      },
+      {
+        "id": "e5-6",
+        "titre": "Imprimer en réseau",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "services",
+        "categorie_titre": "Les services du réseau",
+        "resume": "Configurer l’imprimante de la salle et lui envoyer des documents depuis plusieurs PC.",
+        "duree": "20 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Qui a imprimé, et dans quel ordre ?",
+          "Quel appareil envoie le document ? Lequel le reçoit ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e5-7",
+        "titre": "Ma première page web",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "services",
+        "categorie_titre": "Les services du réseau",
+        "resume": "Demander une page à un serveur avec le navigateur : le modèle client / serveur.",
+        "duree": "30 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Quel appareil est le client ? Lequel est le serveur ?",
+          "Pourquoi le serveur 2 refuse-t-il la connexion ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-1",
+        "titre": "Relier deux salles",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 8,
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "routeur",
+        "categorie_titre": "Routeur et passerelle",
+        "resume": "Installer un routeur et régler les passerelles pour qu’une salle accède au serveur de l’autre.",
+        "duree": "40 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Pourquoi faut-il une passerelle pour sortir de la salle ?",
+          "Par quel appareil passe le message d’après tracert ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-2",
+        "titre": "La passerelle oubliée",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 6,
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "routeur",
+        "categorie_titre": "Routeur et passerelle",
+        "resume": "Les appareils de la Salle 101 n’ont pas de passerelle : comprendre le message d’erreur et corriger.",
+        "duree": "25 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Que signifie le message d’erreur de l’étape 2 ?",
+          "Pourquoi le ping vers 192.168.1.12 fonctionnait-il même sans passerelle ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-3",
+        "titre": "Mais qui a cette adresse ?",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 6,
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "observer",
+        "categorie_titre": "Observer les échanges",
+        "resume": "Observer les trames ARP : la diffusion puis la mise en mémoire des adresses MAC.",
+        "duree": "30 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Quelle est la première trame envoyée ? Que demande-t-elle ?",
+          "Combien d’appareils l’ont reçue ? Pourquoi ?",
+          "Au deuxième ping, y a-t-il encore une trame ARP ? Pourquoi ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-4",
+        "titre": "Le switch apprend",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 4,
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "observer",
+        "categorie_titre": "Observer les échanges",
+        "resume": "Observer la table des adresses MAC qu’un switch construit au fil des échanges.",
+        "duree": "20 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Que contient la table MAC après le premier ping ?",
+          "Pourquoi le switch envoie-t-il la première trame sur tous ses ports ?",
+          "Et ensuite ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-5",
+        "titre": "Panne à trouver",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 7,
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "diag",
+        "categorie_titre": "Diagnostiquer une panne",
+        "resume": "Trois erreurs sont cachées dans le réseau des deux salles. Les retrouver avec ping, tracert et le navigateur.",
+        "duree": "35 min",
+        "etapes": 7,
+        "etapes_auto": 6,
+        "questions": [
+          "Pour chaque panne : symptôme, hypothèse, test, correction."
+        ],
+        "alertes": false
+      },
+      {
+        "id": "e4-6",
+        "titre": "Le capteur connecté",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 5,
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "iot",
+        "categorie_titre": "Objets connectés",
+        "resume": "Consulter la température mesurée par l’ESP32 depuis un smartphone d’une autre salle.",
+        "duree": "30 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Dessine le chemin suivi par la demande, puis par la réponse.",
+          "Quel appareil mesure la température ? Lequel l’affiche ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-1",
+        "titre": "Couper un réseau en deux",
+        "groupe": "3ᵉ · Avancé",
+        "total": 8,
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "sousreseau",
+        "categorie_titre": "Sous-réseaux et masques",
+        "resume": "Utiliser un masque /25 pour créer deux sous-réseaux, puis les relier par un routeur.",
+        "duree": "45 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Quelle est la plage d’adresses de chaque sous-réseau ? Leur adresse de diffusion ?",
+          "Pourquoi PC 1 ne joint plus PC 4 à l’étape 4 ?"
+        ],
+        "alertes": false
+      },
+      {
+        "id": "e3-2",
+        "titre": "Le plan d’adressage du collège",
+        "groupe": "3ᵉ · Avancé",
+        "total": 8,
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "sousreseau",
+        "categorie_titre": "Sous-réseaux et masques",
+        "resume": "Projet : concevoir les réseaux de quatre lieux du collège, les relier et faire tester son schéma par un autre groupe.",
+        "duree": "2 séances",
+        "etapes": 8,
+        "etapes_auto": 7,
+        "questions": [
+          "Combien d’appareils peut-on adresser dans chaque réseau avec ton masque ?",
+          "Pourquoi chaque lieu a-t-il besoin de sa propre passerelle ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-3",
+        "titre": "Deux routeurs, routes statiques",
+        "groupe": "3ᵉ · Avancé",
+        "total": 5,
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Ajouter les routes qui permettent à deux réseaux éloignés de communiquer.",
+        "duree": "50 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi faut-il aussi une route pour le retour ?",
+          "Combien de routeurs sont traversés ? De combien a diminué le TTL ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-4",
+        "titre": "Le paquet qui tourne en rond",
+        "groupe": "3ᵉ · Avancé",
+        "total": 6,
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Deux routes par défaut qui se renvoient le paquet : comprendre le rôle du TTL.",
+        "duree": "25 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Pourquoi le paquet tournait-il en rond ?",
+          "À quoi sert le TTL ? Que se passerait-il sans lui ?"
+        ],
+        "alertes": false
+      },
+      {
+        "id": "e3-5",
+        "titre": "Ouvrir l’enveloppe",
+        "groupe": "3ᵉ · Avancé",
+        "total": 5,
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "protocoles",
+        "categorie_titre": "Protocoles et encapsulation",
+        "resume": "Analyser l’encapsulation d’une page web : Ethernet, IP, TCP et HTTP.",
+        "duree": "30 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pour chaque couche (Ethernet, IP, TCP, HTTP) : qui est l’expéditeur, qui est le destinataire, que transporte-t-elle ?",
+          "Pourquoi l’adresse MAC change-t-elle après le routeur alors que l’adresse IP reste la même ?",
+          "Quel est le port du serveur ? Et celui du client ?"
+        ],
+        "alertes": true
+      }
+    ]
+  },
+  "progression": {
+    "envoi": "Centrale.progression(id, NetSim.progression(id))",
+    "quand": [
+      "ouverture d’un exercice (faites = 0)",
+      "chaque étape validée, automatiquement ou par le bouton « étape suivante / passer »",
+      "dernière étape validée (statut = termine)"
+    ],
+    "champs": {
+      "titre": "titre de l’exercice",
+      "faites": "meilleur nombre d’étapes validées",
+      "total": "nombre d’étapes de l’exercice",
+      "statut": "commence | termine"
+    },
+    "champs_non_utilises": [
+      "score",
+      "score_max",
+      "details"
+    ],
+    "a_la_connexion": "NetSim lit mesProgressions(), garde le meilleur entre le navigateur et le serveur (NetSim.fusionnerProgression), puis renvoie les exercices où le navigateur est en avance.",
+    "format": {
+      "$ref": "#/$defs/Progression"
+    }
+  },
+  "donnees": {
+    "schema": {
+      "description": "Le réseau en cours : appareils, câbles, salles, réglages, et la consigne si c’est un exercice. Même contenu que Fichier → Exporter.",
+      "sauvegarde": "300 ms après chaque modification ; la Centrale regroupe les envois (3 s au plus).",
+      "chargement": "À la connexion : si le serveur a un schéma différent, il remplace celui du navigateur (l’ancien reste accessible avec Annuler). Sinon le schéma du navigateur est envoyé.",
+      "taille_typique": "5 à 40 Ko (limite de la Centrale : 2 Mo par clé).",
+      "format": {
+        "$ref": "#/$defs/Scenario"
+      }
+    },
+    "decouvertes": {
+      "description": "Types d’actions déjà réalisées par l’élève. Sert à réduire l’aide « Comment faire » au fil des exercices.",
+      "sauvegarde": "À chaque progression.",
+      "chargement": "À la connexion, réuni avec celles du navigateur.",
+      "format": {
+        "$ref": "#/$defs/Decouvertes"
+      }
+    }
+  },
+  "fichiers": {
+    "utilises": false,
+    "note": "NetSim n’envoie pas de fichiers et n’utilise pas encore le dossier de projet des ateliers transversaux."
+  },
+  "stockage_local": {
+    "description": "Copies dans le navigateur de l’élève, utilisées sans connexion ou quand la Centrale est injoignable.",
+    "cles": {
+      "netsim-v1": {
+        "contenu": "schéma courant",
+        "format": {
+          "$ref": "#/$defs/Scenario"
+        }
+      },
+      "netsim-progress": {
+        "contenu": "progression locale et découvertes",
+        "format": {
+          "$ref": "#/$defs/ProgressionLocale"
+        }
+      },
+      "netsim-prefs": {
+        "contenu": "préférences d’affichage du poste (thème, grille, positions des panneaux) ; jamais envoyées à la Centrale"
+      }
+    }
+  },
+  "acces_javascript": {
+    "objet": "window.NetSim",
+    "membres": {
+      "app": "Identifiant de l’atelier : \"netsim\".",
+      "version": "Version de NetSim (identique à atelier.version).",
+      "descripteur": "Chemin de ce fichier : \"centrale.json\".",
+      "activites()": "Liste envoyée à la Centrale : [{id, titre, groupe, total}].",
+      "catalogue()": "Catalogue détaillé (champs de activites.liste).",
+      "progression(id)": "{titre, faites, total, statut} ou null.",
+      "fusionnerProgression(serveur)": "Fusionne le résultat de Centrale.mesProgressions().",
+      "donnees()": "{schema, decouvertes} : valeurs des clés enregistrées.",
+      "estSchema(objet)": "true si l’objet est un schéma chargeable."
+    }
+  },
+  "enums": {
+    "niveaux": [
+      {
+        "niveau": 0,
+        "classe": "5e",
+        "titre": "Débutant"
+      },
+      {
+        "niveau": 1,
+        "classe": "4e",
+        "titre": "Intermédiaire"
+      },
+      {
+        "niveau": 2,
+        "classe": "3e",
+        "titre": "Avancé"
+      }
+    ],
+    "types_appareils": [
+      {
+        "type": "pc",
+        "label": "PC",
+        "ports": 1,
+        "poste": true,
+        "wifi": false,
+        "serveur_web": true
+      },
+      {
+        "type": "laptop",
+        "label": "Portable",
+        "ports": 1,
+        "poste": true,
+        "wifi": false,
+        "serveur_web": true
+      },
+      {
+        "type": "phone",
+        "label": "Smartphone",
+        "ports": 1,
+        "poste": true,
+        "wifi": true,
+        "serveur_web": false
+      },
+      {
+        "type": "rpi",
+        "label": "Raspberry Pi",
+        "ports": 1,
+        "poste": true,
+        "wifi": false,
+        "serveur_web": true
+      },
+      {
+        "type": "server",
+        "label": "Serveur",
+        "ports": 1,
+        "poste": true,
+        "wifi": false,
+        "serveur_web": true
+      },
+      {
+        "type": "printer",
+        "label": "Imprimante",
+        "ports": 1,
+        "poste": true,
+        "wifi": false,
+        "serveur_web": true
+      },
+      {
+        "type": "esp32",
+        "label": "ESP32",
+        "ports": 1,
+        "poste": true,
+        "wifi": true,
+        "serveur_web": false
+      },
+      {
+        "type": "switch",
+        "label": "Switch",
+        "ports": 8,
+        "poste": false,
+        "wifi": false,
+        "serveur_web": false
+      },
+      {
+        "type": "router",
+        "label": "Routeur",
+        "ports": 4,
+        "poste": false,
+        "wifi": false,
+        "serveur_web": false
+      }
+    ],
+    "couleurs_salles": [
+      "bleu",
+      "vert",
+      "orange",
+      "violet",
+      "rose",
+      "gris"
+    ],
+    "types_actions": [
+      "browser",
+      "cable",
+      "erase",
+      "export",
+      "frames",
+      "gwfield",
+      "ipfield",
+      "maskfield",
+      "opendev",
+      "pause",
+      "play",
+      "route",
+      "routerport",
+      "settings",
+      "terminal"
+    ]
+  },
+  "$defs": {
+    "Activite": {
+      "type": "object",
+      "required": [
+        "id",
+        "titre",
+        "groupe",
+        "total"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "titre": {
+          "type": "string"
+        },
+        "groupe": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
+    "Progression": {
+      "type": "object",
+      "required": [
+        "faites",
+        "total",
+        "statut"
+      ],
+      "properties": {
+        "titre": {
+          "type": "string"
+        },
+        "faites": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "statut": {
+          "enum": [
+            "commence",
+            "termine"
+          ]
+        }
+      }
+    },
+    "Decouvertes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "browser",
+          "cable",
+          "erase",
+          "export",
+          "frames",
+          "gwfield",
+          "ipfield",
+          "maskfield",
+          "opendev",
+          "pause",
+          "play",
+          "route",
+          "routerport",
+          "settings",
+          "terminal"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "ProgressionLocale": {
+      "type": "object",
+      "description": "Clé = id d’exercice ; __seen = découvertes.",
+      "properties": {
+        "__seen": {
+          "$ref": "#/$defs/Decouvertes"
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "integer",
+            "description": "total"
+          },
+          "best": {
+            "type": "integer",
+            "description": "faites"
+          },
+          "started": {
+            "type": "boolean"
+          },
+          "done": {
+            "type": "boolean",
+            "description": "statut = termine"
+          }
+        }
+      }
+    },
+    "Scenario": {
+      "type": "object",
+      "required": [
+        "devices",
+        "cables"
+      ],
+      "properties": {
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Appareil"
+          }
+        },
+        "cables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Cable"
+          }
+        },
+        "zones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Salle"
+          }
+        },
+        "nextId": {
+          "type": "integer",
+          "description": "Prochain identifiant libre, partagé par appareils, câbles et salles."
+        },
+        "level": {
+          "enum": [
+            0,
+            1,
+            2
+          ],
+          "description": "Niveau : 0 = 5e, 1 = 4e, 2 = 3e."
+        },
+        "help": {
+          "type": "boolean",
+          "description": "Alertes de configuration affichées."
+        },
+        "exo": {
+          "$ref": "#/$defs/ExerciceEnCours"
+        }
+      }
+    },
+    "Appareil": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "name",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": [
+            "pc",
+            "laptop",
+            "phone",
+            "rpi",
+            "server",
+            "printer",
+            "esp32",
+            "switch",
+            "router"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "ip": {
+          "type": "string",
+          "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+          "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+        },
+        "mask": {
+          "type": "string",
+          "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+          "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+        },
+        "gw": {
+          "type": "string",
+          "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+          "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+        },
+        "mac": {
+          "type": "string",
+          "pattern": "^([0-9A-F]{2}:){5}[0-9A-F]{2}$"
+        },
+        "web": {
+          "type": "object",
+          "description": "PC, portable, Raspberry Pi, serveur, imprimante.",
+          "properties": {
+            "on": {
+              "type": "boolean"
+            },
+            "page": {
+              "type": "string",
+              "description": "Texte de la page ; la 1re ligne est le titre."
+            }
+          }
+        },
+        "sensor": {
+          "type": "object",
+          "description": "ESP32 uniquement.",
+          "properties": {
+            "on": {
+              "type": "boolean"
+            }
+          }
+        },
+        "ifs": {
+          "type": "array",
+          "description": "Routeur uniquement : un élément par port, eth0 à eth3.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ip": {
+                "type": "string",
+                "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+                "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+              },
+              "mask": {
+                "type": "string",
+                "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+                "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+              },
+              "mac": {
+                "type": "string",
+                "pattern": "^([0-9A-F]{2}:){5}[0-9A-F]{2}$"
+              }
+            }
+          }
+        },
+        "routes": {
+          "type": "array",
+          "description": "Routeur uniquement : routes statiques.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "net": {
+                "type": "string",
+                "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+                "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+              },
+              "mask": {
+                "type": "string",
+                "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+                "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+              },
+              "via": {
+                "type": "string",
+                "pattern": "^$|^((25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1?\\d?\\d)$",
+                "description": "Adresse IPv4 en notation pointée, ou chaîne vide si non configurée."
+              }
+            }
+          }
+        }
+      }
+    },
+    "Cable": {
+      "type": "object",
+      "required": [
+        "id",
+        "a",
+        "b"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "a": {
+          "$ref": "#/$defs/Extremite"
+        },
+        "b": {
+          "$ref": "#/$defs/Extremite"
+        }
+      }
+    },
+    "Extremite": {
+      "type": "object",
+      "required": [
+        "d",
+        "p"
+      ],
+      "properties": {
+        "d": {
+          "type": "integer",
+          "description": "id de l’appareil"
+        },
+        "p": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Port : 0 pour un poste, 0 à 7 pour un switch, 0 à 3 pour un routeur."
+        }
+      }
+    },
+    "Salle": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        },
+        "color": {
+          "enum": [
+            "bleu",
+            "vert",
+            "orange",
+            "violet",
+            "rose",
+            "gris"
+          ]
+        }
+      }
+    },
+    "ExerciceEnCours": {
+      "type": "object",
+      "description": "Présent si le schéma est un exercice : la consigne voyage avec le schéma.",
+      "properties": {
+        "k": {
+          "type": "string",
+          "description": "id de l’exercice (= id d’activité)"
+        },
+        "c": {
+          "enum": [
+            "5e",
+            "4e",
+            "3e"
+          ]
+        },
+        "cat": {
+          "type": "string"
+        },
+        "t": {
+          "type": "string",
+          "description": "titre"
+        },
+        "dur": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "q": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "questions"
+        },
+        "verif": {
+          "type": "string"
+        },
+        "cur": {
+          "type": "integer",
+          "description": "nombre d’étapes faites"
+        },
+        "done": {
+          "type": "array",
+          "items": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
