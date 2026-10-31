@@ -2491,7 +2491,9 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
 <script>
 (function(){
   'use strict';
-  const SERVEUR=window.CENTRALE_URL||'https://technoversailles.alwaysdata.net/';
+  // Copie servie par une Centrale (…/miroir/netsim/) : on parle à cette Centrale-là (ex. Centrale locale)
+  const miroir=/^https?:$/.test(location.protocol)&&location.pathname.match(/^(.*?\/)miroir\/[^/]+\//);
+  const SERVEUR=window.CENTRALE_URL||(miroir?location.origin+miroir[1]:'https://technoversailles.alwaysdata.net/');
   const avecJeton=/(^|[#&])centrale=/.test(location.hash);
   let pret=false,bouton=null,fenetre=null;
 
