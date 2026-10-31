@@ -6,7 +6,7 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, trames animées et 18 exercices guidés (5e, 4e, 3e).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
@@ -65,7 +65,8 @@
       "id",
       "titre",
       "groupe",
-      "total"
+      "total",
+      "competences"
     ],
     "identifiants_stables": true,
     "groupes": [
@@ -137,6 +138,9 @@
         "titre": "Brancher la salle",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.1"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "cabler",
@@ -156,6 +160,9 @@
         "titre": "Le Wi-Fi de la salle",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.1"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "cabler",
@@ -175,6 +182,9 @@
         "titre": "Chacun son adresse",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.2"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "adresses",
@@ -194,6 +204,9 @@
         "titre": "L’intrus",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.2"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "adresses",
@@ -212,6 +225,9 @@
         "titre": "Le doublon",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.2"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "adresses",
@@ -231,6 +247,9 @@
         "titre": "Imprimer en réseau",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.2"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "services",
@@ -250,6 +269,9 @@
         "titre": "Ma première page web",
         "groupe": "5ᵉ · Débutant",
         "total": 5,
+        "competences": [
+          "SFC15.5.1"
+        ],
         "classe": "5e",
         "niveau": 0,
         "categorie": "services",
@@ -269,6 +291,10 @@
         "titre": "Relier deux salles",
         "groupe": "4ᵉ · Intermédiaire",
         "total": 8,
+        "competences": [
+          "SFC15.4.1",
+          "SFC15.4.3"
+        ],
         "classe": "4e",
         "niveau": 1,
         "categorie": "routeur",
@@ -288,6 +314,9 @@
         "titre": "La passerelle oubliée",
         "groupe": "4ᵉ · Intermédiaire",
         "total": 6,
+        "competences": [
+          "SFC15.4.2"
+        ],
         "classe": "4e",
         "niveau": 1,
         "categorie": "routeur",
@@ -307,6 +336,9 @@
         "titre": "Mais qui a cette adresse ?",
         "groupe": "4ᵉ · Intermédiaire",
         "total": 6,
+        "competences": [
+          "SFC15.4.3"
+        ],
         "classe": "4e",
         "niveau": 1,
         "categorie": "observer",
@@ -327,6 +359,9 @@
         "titre": "Le switch apprend",
         "groupe": "4ᵉ · Intermédiaire",
         "total": 4,
+        "competences": [
+          "SFC15.4.3"
+        ],
         "classe": "4e",
         "niveau": 1,
         "categorie": "observer",
@@ -347,6 +382,9 @@
         "titre": "Panne à trouver",
         "groupe": "4ᵉ · Intermédiaire",
         "total": 7,
+        "competences": [
+          "SFC15.4.2"
+        ],
         "classe": "4e",
         "niveau": 1,
         "categorie": "diag",
@@ -365,6 +403,10 @@
         "titre": "Le capteur connecté",
         "groupe": "4ᵉ · Intermédiaire",
         "total": 5,
+        "competences": [
+          "SFC15.4.1",
+          "CCRI17.4.1"
+        ],
         "classe": "4e",
         "niveau": 1,
         "categorie": "iot",
@@ -384,6 +426,9 @@
         "titre": "Couper un réseau en deux",
         "groupe": "3ᵉ · Avancé",
         "total": 8,
+        "competences": [
+          "SFC15.3.2"
+        ],
         "classe": "3e",
         "niveau": 2,
         "categorie": "sousreseau",
@@ -403,6 +448,10 @@
         "titre": "Le plan d’adressage du collège",
         "groupe": "3ᵉ · Avancé",
         "total": 8,
+        "competences": [
+          "SFC15.3.2",
+          "CCRI22.3.1"
+        ],
         "classe": "3e",
         "niveau": 2,
         "categorie": "sousreseau",
@@ -422,6 +471,9 @@
         "titre": "Deux routeurs, routes statiques",
         "groupe": "3ᵉ · Avancé",
         "total": 5,
+        "competences": [
+          "SFC15.3.2"
+        ],
         "classe": "3e",
         "niveau": 2,
         "categorie": "routage",
@@ -441,6 +493,9 @@
         "titre": "Le paquet qui tourne en rond",
         "groupe": "3ᵉ · Avancé",
         "total": 6,
+        "competences": [
+          "SFC15.3.2"
+        ],
         "classe": "3e",
         "niveau": 2,
         "categorie": "routage",
@@ -460,6 +515,9 @@
         "titre": "Ouvrir l’enveloppe",
         "groupe": "3ᵉ · Avancé",
         "total": 5,
+        "competences": [
+          "SFC15.3.1"
+        ],
         "classe": "3e",
         "niveau": 2,
         "categorie": "protocoles",
@@ -488,7 +546,8 @@
       "titre": "titre de l’exercice",
       "faites": "meilleur nombre d’étapes validées",
       "total": "nombre d’étapes de l’exercice",
-      "statut": "commence | termine"
+      "statut": "commence | termine",
+      "constats": "seulement à la fin d’un exercice (une fois) : une ligne par capacité de l’exercice, voir competences"
     },
     "champs_non_utilises": [
       "score",
@@ -499,6 +558,19 @@
     "format": {
       "$ref": "#/$defs/Progression"
     }
+  },
+  "competences": {
+    "referentiel": "/passerelle/competences.json de la Centrale (programme de technologie cycle 4).",
+    "declaration": "activites.liste[].competences : capacités travaillées par l’exercice (COMP_EXO dans index.html). Chaque exercice vise sa propre classe : 5e → SFC15.5.x, 4e → SFC15.4.x / CCRI17.4.1, 3e → SFC15.3.x / CCRI22.3.1.",
+    "constats": "Quand la dernière étape est validée, NetSim.constats(id) est ajouté à la progression envoyée (une seule fois par essai).",
+    "champs": {
+      "competence": "code de la capacité",
+      "reussi": "vrai si au plus la moitié des étapes automatiques ont été passées avec « Passer cette étape »",
+      "indices": "étapes où « Besoin d’un indice ? » a été ouvert + étapes automatiques passées",
+      "essais": "1 + nombre de « Recommencer » avant de terminer",
+      "preuve": "texte lisible par le professeur"
+    },
+    "niveau_calcule_par_la_centrale": "pas réussi → 1 ; 0 indice et 1 essai → 4 ; au plus 1 indice et 3 essais → 3 ; sinon 2. Bilan = moyenne haute avec les notes du professeur."
   },
   "donnees": {
     "schema": {

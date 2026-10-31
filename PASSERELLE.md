@@ -143,6 +143,27 @@ Envoyée à la Centrale par `Centrale.progression(id, NetSim.progression(id))` :
 | `done` | `statut: "termine"` | Sinon `"commence"`. |
 | `__seen` | clé de données `decouvertes` | Types d’actions déjà faites ; l’aide « Comment faire » se réduit d’autant. |
 
+### Les compétences
+
+NetSim s’appuie sur le référentiel de la Centrale (`/passerelle/competences.json`).
+
+- **Déclaration** : chaque exercice porte `competences` dans `NetSim.activites()` (table `COMP_EXO` de `index.html`, recopiée dans `activites.liste`). 5e → `SFC15.5.1` (composants, topologie) ou `SFC15.5.2` (adresses) ; 4e → `SFC15.4.1/2/3`, `CCRI17.4.1` pour le capteur connecté ; 3e → `SFC15.3.1/2`, `CCRI22.3.1` pour le projet testé par un camarade.
+- **Constats** : quand la dernière étape est validée, la progression envoyée contient `constats` (une fois par essai, `NetSim.constats(id)`).
+
+```json
+{ "titre": "Brancher la salle", "faites": 5, "total": 5, "statut": "termine",
+  "constats": [{ "competence": "SFC15.5.1", "reussi": true, "indices": 3, "essais": 2,
+                 "preuve": "Exercice « Brancher la salle » : 5 étapes, 1 indice ouvert, 2 étapes passées" }] }
+```
+
+| Champ | Ce que NetSim compte (dans `S.exo`) |
+|---|---|
+| `indices` | Étapes où « Besoin d’un indice ? » a été ouvert (`ind`) + étapes automatiques passées avec « Passer cette étape » (`saut`). |
+| `essais` | `essai` : 1 + nombre de « Recommencer » avant de terminer. |
+| `reussi` | Faux si plus de la moitié des étapes automatiques ont été passées. |
+
+La Centrale en déduit le niveau (pas réussi → 1 ; sans aide du premier coup → 4 ; au plus 1 aide et 3 essais → 3 ; sinon 2) et fait le bilan en moyenne haute avec les notes du professeur.
+
 ### Quand les données circulent
 
 | Moment | NetSim fait |
@@ -150,7 +171,7 @@ Envoyée à la Centrale par `Centrale.progression(id, NetSim.progression(id))` :
 | Chargement de la page | Lit `netsim-v1` et `netsim-progress` ; charge le module de la Centrale (sans effet s’il est injoignable). |
 | Connexion (code ou jeton `#centrale=`) | `mesProgressions()` → fusion (le meilleur gagne) → renvoie ce qui est meilleur localement. `charger("decouvertes")` → réunion. `charger("schema")` → remplace le schéma local s’il diffère (Annuler pour revenir), sinon `sauver("schema")`. Puis ouvre `activiteDemandee()` si l’élève n’y est pas déjà. |
 | Chaque modification du schéma | `netsim-v1` après 300 ms, puis `sauver("schema")` (regroupé par la Centrale). |
-| Ouverture d’un exercice, étape validée, exercice terminé | `progression(id, …)` et `sauver("decouvertes")`. |
+| Ouverture d’un exercice, étape validée, exercice terminé | `progression(id, …)` (avec `constats` à la fin de l’exercice) et `sauver("decouvertes")`. |
 | Déconnexion | Le module envoie ce qui reste ; NetSim continue en local. |
 
 ---
@@ -165,6 +186,7 @@ Envoyée à la Centrale par `Centrale.progression(id, NetSim.progression(id))` :
 | `NetSim.activites()` | Liste envoyée à `Centrale.init`. |
 | `NetSim.catalogue()` | Catalogue détaillé : classe, niveau, catégorie, résumé, durée, étapes, étapes automatiques, questions. |
 | `NetSim.progression(id)` | `{titre, faites, total, statut}` ou `null`. |
+| `NetSim.constats(id)` | Constats de compétences si l’exercice en cours vient d’être terminé (une seule fois), sinon `[]`. |
 | `NetSim.fusionnerProgression(serveur)` | Fusionne le résultat de `Centrale.mesProgressions()`. |
 | `NetSim.donnees()` | `{schema, decouvertes}` : valeurs des clés enregistrées. |
 | `NetSim.estSchema(objet)` | Vérifie qu’un objet est un schéma chargeable. |
@@ -173,7 +195,7 @@ Envoyée à la Centrale par `Centrale.progression(id, NetSim.progression(id))` :
 
 ## 4. Faire évoluer NetSim sans casser la Centrale
 
-1. Ajouter un exercice : nouvel `id`, jamais réutilisé.
+1. Ajouter un exercice : nouvel `id`, jamais réutilisé, et ses capacités dans `COMP_EXO`.
 2. Changer `NETSIM_VERSION` dans la page et `atelier.version` dans `centrale.json`.
 3. Ouvrir [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) : la page compare le descripteur avec l’application et donne la liste à jour à coller dans `activites.liste` en cas d’écart.
 4. Changer la forme d’une donnée enregistrée : mettre à jour son schéma dans `$defs`, et garder la lecture de l’ancienne forme (les élèves ont du travail déjà enregistré).
