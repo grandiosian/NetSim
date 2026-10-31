@@ -6,7 +6,7 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, trames animées et 18 exercices guidés (5e, 4e, 3e).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
@@ -18,6 +18,9 @@
       "4e",
       "3e"
     ],
+    "parametres": {
+      "#activite=<id>": "ouvre directement l’exercice <id> (e5-1…), même sans connexion à la Centrale"
+    },
     "_correspondance": "Champs de la table ateliers de la Centrale : app, nom, description, url, icone, urls_secours."
   },
   "centrale": {
@@ -572,6 +575,10 @@
     },
     "niveau_calcule_par_la_centrale": "pas réussi → 1 ; 0 indice et 1 essai → 4 ; au plus 1 indice et 3 essais → 3 ; sinon 2. Bilan = moyenne haute avec les notes du professeur."
   },
+  "ateliers": {
+    "catalogue": "ateliers.json",
+    "note": "Un exercice = un atelier (NetSim.ateliers()). Ouverture directe sans connexion : index.html#activite=<id>."
+  },
   "donnees": {
     "schema": {
       "description": "Le réseau en cours : appareils, câbles, salles, réglages, et la consigne si c’est un exercice. Même contenu que Fichier → Exporter.",
@@ -612,6 +619,9 @@
       },
       "netsim-prefs": {
         "contenu": "préférences d’affichage du poste (thème, grille, positions des panneaux) ; jamais envoyées à la Centrale"
+      },
+      "netsim-nuage": {
+        "contenu": "lien du dossier Nuage de la classe, collé par le professeur sur ce poste (utilisé quand l’élève n’est pas connecté)"
       }
     }
   },
@@ -626,7 +636,8 @@
       "progression(id)": "{titre, faites, total, statut} ou null.",
       "fusionnerProgression(serveur)": "Fusionne le résultat de Centrale.mesProgressions().",
       "donnees()": "{schema, decouvertes} : valeurs des clés enregistrées.",
-      "estSchema(objet)": "true si l’objet est un schéma chargeable."
+      "estSchema(objet)": "true si l’objet est un schéma chargeable.",
+      "ateliers()": "catalogue des ateliers (contenu de ateliers.json)"
     }
   },
   "enums": {

@@ -1,0 +1,393 @@
+{
+  "format": "catalogue.ateliers",
+  "version": 1,
+  "app": "netsim",
+  "app_version": "1.7.0",
+  "referentiel": "technologie-c4-2024",
+  "ateliers": [
+    {
+      "id": "e5-1",
+      "titre": "Brancher la salle",
+      "niveau": "5e",
+      "resume": "Relier quatre ordinateurs à un switch et vérifier qu’ils communiquent.",
+      "duree": "20 min",
+      "competences": [
+        "SFC15.5.1"
+      ],
+      "activites": [
+        {
+          "id": "e5-1",
+          "titre": "Brancher la salle",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        }
+      ],
+      "ouvrir": "e5-1"
+    },
+    {
+      "id": "e5-2",
+      "titre": "Le Wi-Fi de la salle",
+      "niveau": "5e",
+      "resume": "Connecter un smartphone et un portable au réseau, puis consulter le serveur.",
+      "duree": "20 min",
+      "competences": [
+        "SFC15.5.1"
+      ],
+      "activites": [
+        {
+          "id": "e5-2",
+          "titre": "Le Wi-Fi de la salle",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        }
+      ],
+      "ouvrir": "e5-2"
+    },
+    {
+      "id": "e5-3",
+      "titre": "Chacun son adresse",
+      "niveau": "5e",
+      "resume": "Donner une adresse IP unique à chaque appareil d’une salle déjà câblée.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.5.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-3",
+          "titre": "Chacun son adresse",
+          "total": 5,
+          "competences": [
+            "SFC15.5.2"
+          ]
+        }
+      ],
+      "ouvrir": "e5-3"
+    },
+    {
+      "id": "e5-4",
+      "titre": "L’intrus",
+      "niveau": "5e",
+      "resume": "Un appareil ne répond pas au ping : le trouver et corriger son adresse.",
+      "duree": "20 min",
+      "competences": [
+        "SFC15.5.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-4",
+          "titre": "L’intrus",
+          "total": 5,
+          "competences": [
+            "SFC15.5.2"
+          ]
+        }
+      ],
+      "ouvrir": "e5-4"
+    },
+    {
+      "id": "e5-5",
+      "titre": "Le doublon",
+      "niveau": "5e",
+      "resume": "Deux appareils portent la même adresse : repérer le problème et le corriger.",
+      "duree": "20 min",
+      "competences": [
+        "SFC15.5.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-5",
+          "titre": "Le doublon",
+          "total": 5,
+          "competences": [
+            "SFC15.5.2"
+          ]
+        }
+      ],
+      "ouvrir": "e5-5"
+    },
+    {
+      "id": "e5-6",
+      "titre": "Imprimer en réseau",
+      "niveau": "5e",
+      "resume": "Configurer l’imprimante de la salle et lui envoyer des documents depuis plusieurs PC.",
+      "duree": "20 min",
+      "competences": [
+        "SFC15.5.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-6",
+          "titre": "Imprimer en réseau",
+          "total": 5,
+          "competences": [
+            "SFC15.5.2"
+          ]
+        }
+      ],
+      "ouvrir": "e5-6"
+    },
+    {
+      "id": "e5-7",
+      "titre": "Ma première page web",
+      "niveau": "5e",
+      "resume": "Demander une page à un serveur avec le navigateur : le modèle client / serveur.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.5.1"
+      ],
+      "activites": [
+        {
+          "id": "e5-7",
+          "titre": "Ma première page web",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        }
+      ],
+      "ouvrir": "e5-7"
+    },
+    {
+      "id": "e4-1",
+      "titre": "Relier deux salles",
+      "niveau": "4e",
+      "resume": "Installer un routeur et régler les passerelles pour qu’une salle accède au serveur de l’autre.",
+      "duree": "40 min",
+      "competences": [
+        "SFC15.4.1",
+        "SFC15.4.3"
+      ],
+      "activites": [
+        {
+          "id": "e4-1",
+          "titre": "Relier deux salles",
+          "total": 8,
+          "competences": [
+            "SFC15.4.1",
+            "SFC15.4.3"
+          ]
+        }
+      ],
+      "ouvrir": "e4-1"
+    },
+    {
+      "id": "e4-2",
+      "titre": "La passerelle oubliée",
+      "niveau": "4e",
+      "resume": "Les appareils de la Salle 101 n’ont pas de passerelle : comprendre le message d’erreur et corriger.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e4-2",
+          "titre": "La passerelle oubliée",
+          "total": 6,
+          "competences": [
+            "SFC15.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e4-2"
+    },
+    {
+      "id": "e4-3",
+      "titre": "Mais qui a cette adresse ?",
+      "niveau": "4e",
+      "resume": "Observer les trames ARP : la diffusion puis la mise en mémoire des adresses MAC.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.4.3"
+      ],
+      "activites": [
+        {
+          "id": "e4-3",
+          "titre": "Mais qui a cette adresse ?",
+          "total": 6,
+          "competences": [
+            "SFC15.4.3"
+          ]
+        }
+      ],
+      "ouvrir": "e4-3"
+    },
+    {
+      "id": "e4-4",
+      "titre": "Le switch apprend",
+      "niveau": "4e",
+      "resume": "Observer la table des adresses MAC qu’un switch construit au fil des échanges.",
+      "duree": "20 min",
+      "competences": [
+        "SFC15.4.3"
+      ],
+      "activites": [
+        {
+          "id": "e4-4",
+          "titre": "Le switch apprend",
+          "total": 4,
+          "competences": [
+            "SFC15.4.3"
+          ]
+        }
+      ],
+      "ouvrir": "e4-4"
+    },
+    {
+      "id": "e4-5",
+      "titre": "Panne à trouver",
+      "niveau": "4e",
+      "resume": "Trois erreurs sont cachées dans le réseau des deux salles. Les retrouver avec ping, tracert et le navigateur.",
+      "duree": "35 min",
+      "competences": [
+        "SFC15.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e4-5",
+          "titre": "Panne à trouver",
+          "total": 7,
+          "competences": [
+            "SFC15.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e4-5"
+    },
+    {
+      "id": "e4-6",
+      "titre": "Le capteur connecté",
+      "niveau": "4e",
+      "resume": "Consulter la température mesurée par l’ESP32 depuis un smartphone d’une autre salle.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.4.1",
+        "CCRI17.4.1"
+      ],
+      "activites": [
+        {
+          "id": "e4-6",
+          "titre": "Le capteur connecté",
+          "total": 5,
+          "competences": [
+            "SFC15.4.1",
+            "CCRI17.4.1"
+          ]
+        }
+      ],
+      "ouvrir": "e4-6"
+    },
+    {
+      "id": "e3-1",
+      "titre": "Couper un réseau en deux",
+      "niveau": "3e",
+      "resume": "Utiliser un masque /25 pour créer deux sous-réseaux, puis les relier par un routeur.",
+      "duree": "45 min",
+      "competences": [
+        "SFC15.3.2"
+      ],
+      "activites": [
+        {
+          "id": "e3-1",
+          "titre": "Couper un réseau en deux",
+          "total": 8,
+          "competences": [
+            "SFC15.3.2"
+          ]
+        }
+      ],
+      "ouvrir": "e3-1"
+    },
+    {
+      "id": "e3-2",
+      "titre": "Le plan d’adressage du collège",
+      "niveau": "3e",
+      "resume": "Projet : concevoir les réseaux de quatre lieux du collège, les relier et faire tester son schéma par un autre groupe.",
+      "duree": "2 séances",
+      "competences": [
+        "SFC15.3.2",
+        "CCRI22.3.1"
+      ],
+      "activites": [
+        {
+          "id": "e3-2",
+          "titre": "Le plan d’adressage du collège",
+          "total": 8,
+          "competences": [
+            "SFC15.3.2",
+            "CCRI22.3.1"
+          ]
+        }
+      ],
+      "ouvrir": "e3-2"
+    },
+    {
+      "id": "e3-3",
+      "titre": "Deux routeurs, routes statiques",
+      "niveau": "3e",
+      "resume": "Ajouter les routes qui permettent à deux réseaux éloignés de communiquer.",
+      "duree": "50 min",
+      "competences": [
+        "SFC15.3.2"
+      ],
+      "activites": [
+        {
+          "id": "e3-3",
+          "titre": "Deux routeurs, routes statiques",
+          "total": 5,
+          "competences": [
+            "SFC15.3.2"
+          ]
+        }
+      ],
+      "ouvrir": "e3-3"
+    },
+    {
+      "id": "e3-4",
+      "titre": "Le paquet qui tourne en rond",
+      "niveau": "3e",
+      "resume": "Deux routes par défaut qui se renvoient le paquet : comprendre le rôle du TTL.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.3.2"
+      ],
+      "activites": [
+        {
+          "id": "e3-4",
+          "titre": "Le paquet qui tourne en rond",
+          "total": 6,
+          "competences": [
+            "SFC15.3.2"
+          ]
+        }
+      ],
+      "ouvrir": "e3-4"
+    },
+    {
+      "id": "e3-5",
+      "titre": "Ouvrir l’enveloppe",
+      "niveau": "3e",
+      "resume": "Analyser l’encapsulation d’une page web : Ethernet, IP, TCP et HTTP.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.3.1"
+      ],
+      "activites": [
+        {
+          "id": "e3-5",
+          "titre": "Ouvrir l’enveloppe",
+          "total": 5,
+          "competences": [
+            "SFC15.3.1"
+          ]
+        }
+      ],
+      "ouvrir": "e3-5"
+    }
+  ]
+}

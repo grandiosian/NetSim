@@ -2356,9 +2356,29 @@ $('#bExamples').onclick=()=>{exModal();
     const x=e.target.closest('[data-exo]');if(x){const ex=EXOS.find(o=>o.k===x.dataset.exo);closeModal();loadExo(ex);toast(`Exercice « ${ex.t} » : suis les étapes de la consigne.`);return;}
     const b=e.target.closest('[data-ex]');if(!b)return;setMode('design');snap();buildExample(b.dataset.ex);closeModal();sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();};
 };
+/* ---------- Sauvegarde de secours : fichier + dépôt Nuage (avec ou sans Centrale) ---------- */
+const CLE_NUAGE='netsim-nuage';
+function lienNuageLocal(){try{return localStorage.getItem(CLE_NUAGE)||'';}catch(_){return '';}}
+function nomFichierSchema(){
+  const s=window.Centrale&&Centrale.connecte&&Centrale.connecte()?Centrale.session():null;
+  const qui=s?`${s.classe}-${s.eleve}-`:'netsim-';
+  const quoi=S.exo&&S.exo.k?S.exo.k:new Date().toISOString().slice(0,10);
+  return (qui+quoi).replace(/[^A-Za-z0-9_.-]/g,'-')+'.json';
+}
+function telechargerTexte(nom,texte){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([texte],{type:'application/json'}));a.download=nom;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}
+function deposerSurNuage(){
+  const s=window.Centrale&&Centrale.connecte&&Centrale.connecte()?Centrale.session():null;
+  const lien=(s&&s.depot&&s.depot.url)||lienNuageLocal();
+  if(!lien){toast('Fichier enregistré. Aucun dossier Nuage n’est réglé : demande le lien à ton professeur.');return;}
+  window.open(lien,'_blank','noopener');
+  toast('Fichier enregistré : glisse-le dans la page Nuage qui vient de s’ouvrir.'+(s&&s.depot&&s.depot.mot_de_passe?' Mot de passe : '+s.depot.mot_de_passe:''));
+}
 $('#bExport').onclick=()=>{rec('export');
   const json=JSON.stringify(S,null,1);
-  openModal(`<div class="mhead"><h2>Exporter le schéma</h2><button class="wbtn wx" data-close type="button" aria-label="Fermer">×</button></div><p class="small muted" style="margin:0">Copie ce texte et colle-le dans un fichier (par exemple <code class="ad">reseau-salle101.json</code>) ou dans l’ENT pour tes élèves. Pour le recharger : Importer.</p><textarea class="inp" id="expTxt" readonly style="height:260px">${esc(json)}</textarea><div class="row"><button class="btn primary" id="cpy" type="button">Copier le texte</button><span class="small muted">${S.devices.length} appareils · ${S.cables.length} câbles · ${S.zones.length} salles</span></div>`);
+  openModal(`<div class="mhead"><h2>Exporter le schéma</h2><button class="wbtn wx" data-close type="button" aria-label="Fermer">×</button></div><p class="small muted" style="margin:0">Enregistre ton schéma dans un fichier <code class="ad">${esc(nomFichierSchema())}</code>, puis dépose-le dans le dossier Nuage de ta classe : c’est ta sauvegarde de secours. Pour le recharger : Importer.</p><div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn primary" id="expSave" type="button">Enregistrer le fichier</button><button class="btn" id="expNuage" type="button">Déposer sur Nuage</button><button class="btn" id="cpy" type="button">Copier le texte</button></div><textarea class="inp" id="expTxt" readonly style="height:200px">${esc(json)}</textarea><span class="small muted">${S.devices.length} appareils · ${S.cables.length} câbles · ${S.zones.length} salles</span><details class="small"><summary>Professeur : lien du dossier Nuage de la classe</summary><p class="small muted" style="margin:4px 0">Collé une fois sur ce poste, il sert quand l’élève n’est pas connecté à la Centrale (sinon, c’est le lien réglé dans la Centrale).</p><div class="row" style="gap:6px"><input class="inp" id="expLien" type="url" placeholder="https://nuage03.apps.education.fr/s/…" value="${esc(lienNuageLocal())}"><button class="btn" id="expLienOk" type="button">Garder</button></div></details>`);
+  $('#expSave').onclick=()=>{telechargerTexte(nomFichierSchema(),json);toast('Fichier enregistré dans tes téléchargements.');};
+  $('#expNuage').onclick=()=>{telechargerTexte(nomFichierSchema(),json);deposerSurNuage();};
+  $('#expLienOk').onclick=()=>{const v=$('#expLien').value.trim();if(v&&!/^https:\/\/\S+$/.test(v)){toast('Le lien doit commencer par https://');return;}try{v?localStorage.setItem(CLE_NUAGE,v):localStorage.removeItem(CLE_NUAGE);}catch(_){}toast(v?'Lien du dossier Nuage gardé sur ce poste.':'Lien effacé.');};
   $('#mbox').onclick=e=>{if(e.target.closest('[data-close]'))closeModal();};
   $('#cpy').onclick=()=>{const ta=$('#expTxt');const ok=()=>toast('Schéma copié dans le presse-papiers.');try{navigator.clipboard.writeText(json).then(ok,()=>{ta.focus();ta.select();toast('Texte sélectionné : fais Ctrl + C pour copier.');});}catch(_){ta.focus();ta.select();toast('Texte sélectionné : fais Ctrl + C pour copier.');}};
 };
@@ -2403,7 +2423,7 @@ function buildExample(k){
    outils/verifier-descripteur.html. Contrat : PASSERELLE.md
    et centrale.json (descripteur de l’atelier).
    ============================================================ */
-const NETSIM_VERSION='1.6.0';
+const NETSIM_VERSION='1.7.0';
 /* Capacités du référentiel de la Centrale (passerelle/competences.json) travaillées par chaque exercice.
    Recopiées dans centrale.json (activites.liste[].competences) : outils/verifier-descripteur.html compare. */
 const COMP_EXO={
@@ -2417,6 +2437,10 @@ window.NetSim=Object.freeze({
   descripteur:'centrale.json',
   /** Activités déclarées à la Centrale (colonnes du tableau de suivi). */
   activites:()=>EXOS.map(x=>({id:x.k,titre:x.t,groupe:CLASSES[x.c].t+' · '+LV_NAMES[CLASSES[x.c].lv],total:x.steps.length,competences:COMP_EXO[x.k]||[]})),
+  /** Catalogue des ateliers (fichier ateliers.json, format catalogue.ateliers v1) : un exercice = un atelier. */
+  ateliers:()=>({format:'catalogue.ateliers',version:1,app:'netsim',app_version:NETSIM_VERSION,referentiel:'technologie-c4-2024',
+    ateliers:EXOS.map(x=>({id:x.k,titre:x.t,niveau:x.c,resume:x.p,duree:x.dur,competences:COMP_EXO[x.k]||[],
+      activites:[{id:x.k,titre:x.t,total:x.steps.length,competences:COMP_EXO[x.k]||[]}],ouvrir:x.k}))}),
   /** Catalogue détaillé des exercices. */
   catalogue:()=>EXOS.map(x=>({id:x.k,classe:x.c,niveau:CLASSES[x.c].lv,categorie:x.cat,categorie_titre:catName(x.c,x.cat),titre:x.t,resume:x.p,duree:x.dur,etapes:x.steps.length,etapes_auto:x.steps.filter(st=>st.c).length,questions:x.q||[],alertes:x.help!==false})),
   /** Progression d’un exercice au format de la Centrale, ou null. */
@@ -2443,6 +2467,19 @@ window.NetSim=Object.freeze({
   requestAnimationFrame(fitView);
   window.addEventListener('resize',()=>{});
 })();
+/* Ouverture directe d'un exercice par l'adresse (#activite=e5-1), sans la Centrale. Depuis le portail
+   (#centrale=…&activite=…), c'est la connexion à la Centrale qui ouvre l'exercice demandé. */
+function ouvrirDepuisAdresse(){
+  const h=location.hash.replace(/^#/,'');if(/(^|&)centrale=/.test(h))return;
+  const m=/(?:^|&)activite=([^&]+)/.exec(h);if(!m)return;
+  let k;try{k=decodeURIComponent(m[1]);}catch(_){return;}
+  const x=EXOS.find(e=>e.k===k);
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
+  if(!x){toast('Exercice inconnu : '+k);return;}
+  if(!(S.exo&&S.exo.k===k)){loadExo(x);toast(`Exercice « ${x.t} » : suis les étapes de la consigne.`);}
+}
+ouvrirDepuisAdresse();
+window.addEventListener('hashchange',ouvrirDepuisAdresse);
 </script>
 
 <!-- ============================================================

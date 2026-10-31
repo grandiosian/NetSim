@@ -59,9 +59,13 @@ Le bouton **Mon code**, dans la barre du haut, connecte l'élève à la Centrale
 - ouvert depuis le portail élève ou un parcours, NetSim est déjà connecté ; un exercice choisi sur le portail s'ouvre directement, et le bouton « ← Mes ateliers » ramène au portail.
 
 Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur comme avant.
+
+**Sans serveur** : chaque exercice s'ouvre directement par son adresse, par exemple `https://grandiosian.github.io/NetSim/#activite=e5-1`. **Fichier → Exporter le schéma** propose « Enregistrer le fichier » et « Déposer sur Nuage » : le fichier est enregistré puis le dossier Nuage de la classe s'ouvre (lien donné par la Centrale, ou collé une fois sur le poste par le professeur). C'est la sauvegarde de secours.
 Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"` avant le chargement de la page.
 
 ### Passerelle avec la Centrale
 
-Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression, moments d’échange) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 18 activités et schémas JSON des données. La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ce descripteur correspond à l’application.
+Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression, moments d’échange) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 18 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 18 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
+
+Règles communes à toutes les applications : [Données, bonnes pratiques et compatibilité](https://technoversailles.alwaysdata.net/passerelle/?doc=donnees) et [Compétences](https://technoversailles.alwaysdata.net/passerelle/?doc=competences).
 

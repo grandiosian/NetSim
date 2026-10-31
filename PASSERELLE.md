@@ -45,6 +45,17 @@ Un fichier JSON à la racine du site de l’application, nommé `centrale.json`.
 - Une activité inconnue du descripteur est acceptée mais signalée (exercice ajouté depuis la dernière lecture).
 - Les clés et champs inconnus sont ignorés : un descripteur plus récent ne casse pas une Centrale plus ancienne.
 
+### Le catalogue des ateliers (`ateliers.json`)
+
+À côté de `centrale.json`, NetSim publie **[`ateliers.json`](ateliers.json)** (format `catalogue.ateliers` v1 de la Centrale) : un exercice = un atelier, avec son niveau, son résumé, sa durée, ses compétences et son activité. Il est produit par `NetSim.ateliers()` et vérifié par `outils/verifier-descripteur.html`. La Centrale l’importe dans Ateliers → « Ateliers des applications ».
+
+### Sans serveur
+
+- **Ouvrir un exercice par son adresse** : `index.html#activite=e5-1` ouvre l’exercice, même sans la Centrale (l’avancement est gardé si l’élève y était déjà). Depuis le portail (`#centrale=…&activite=…`), c’est la connexion qui ouvre l’exercice demandé.
+- **Sauvegarde de secours** : Fichier → Exporter le schéma → « Enregistrer le fichier » (`5A-07-e5-1.json` si l’élève est connecté, sinon `netsim-e5-1.json`) et « Déposer sur Nuage », qui ouvre le dossier Nuage de la classe : lien de la Centrale si l’élève est connecté, sinon lien collé par le professeur sur le poste (clé locale `netsim-nuage`).
+
+Règles communes : [Données, bonnes pratiques et compatibilité](https://technoversailles.alwaysdata.net/passerelle/?doc=donnees).
+
 ---
 
 ## 2. Les données de NetSim
@@ -184,6 +195,7 @@ La Centrale en déduit le niveau (pas réussi → 1 ; sans aide du premier coup 
 |---|---|
 | `NetSim.app`, `NetSim.version` | `"netsim"` et la version (identique à `centrale.json`). |
 | `NetSim.activites()` | Liste envoyée à `Centrale.init`. |
+| `NetSim.ateliers()` | Contenu de `ateliers.json` (catalogue des ateliers). |
 | `NetSim.catalogue()` | Catalogue détaillé : classe, niveau, catégorie, résumé, durée, étapes, étapes automatiques, questions. |
 | `NetSim.progression(id)` | `{titre, faites, total, statut}` ou `null`. |
 | `NetSim.constats(id)` | Constats de compétences si l’exercice en cours vient d’être terminé (une seule fois), sinon `[]`. |
@@ -197,7 +209,7 @@ La Centrale en déduit le niveau (pas réussi → 1 ; sans aide du premier coup 
 
 1. Ajouter un exercice : nouvel `id`, jamais réutilisé, et ses capacités dans `COMP_EXO`.
 2. Changer `NETSIM_VERSION` dans la page et `atelier.version` dans `centrale.json`.
-3. Ouvrir [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) : la page compare le descripteur avec l’application et donne la liste à jour à coller dans `activites.liste` en cas d’écart.
+3. Ouvrir [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) : la page compare `centrale.json` et `ateliers.json` avec l’application et donne leur contenu à jour en cas d’écart.
 4. Changer la forme d’une donnée enregistrée : mettre à jour son schéma dans `$defs`, et garder la lecture de l’ancienne forme (les élèves ont du travail déjà enregistré).
 
 ## 5. Pistes pour la suite

@@ -25,11 +25,14 @@ iframe{display:none}
 <body>
 <main>
   <h1>Vérifier le descripteur de NetSim</h1>
-  <p>Compare <code>centrale.json</code> avec ce que l’application déclare réellement (<code>window.NetSim</code>). À ouvrir après chaque modification des exercices.</p>
+  <p>Compare <code>centrale.json</code> et <code>ateliers.json</code> avec ce que l’application déclare réellement (<code>window.NetSim</code>). À ouvrir après chaque modification des exercices.</p>
   <ul id="res"><li>Chargement de l’application…</li></ul>
   <p id="aide" hidden>Si des écarts apparaissent, remplace la section <code>activites.liste</code> de <code>centrale.json</code> par le texte ci-dessous et mets à jour <code>atelier.version</code>.</p>
   <textarea id="maj" hidden readonly></textarea>
   <button id="cp" type="button" hidden>Copier la liste à jour</button>
+  <p id="aide2" hidden>Remplace tout le contenu de <code>ateliers.json</code> par le texte ci-dessous.</p>
+  <textarea id="maj2" hidden readonly></textarea>
+  <button id="cp2" type="button" hidden>Copier ateliers.json</button>
 </main>
 <iframe id="f" src="../index.html" title="NetSim"></iframe>
 <script>
@@ -51,6 +54,14 @@ document.getElementById('f').addEventListener('load',async()=>{
   const same=a===b;ok&=line(same,`Activités : ${D.activites.liste.length} dans le descripteur, ${liste.length} dans l’application`,same?'':diff(D.activites.liste,liste));
   const d=N.donnees();ok&=line(Object.keys(d).every(k=>k in D.donnees),'Clés de données décrites : '+Object.keys(d).join(', '));
   ok&=line(N.estSchema(d.schema),'Le schéma courant est reconnu par estSchema()');
+  let A=null;try{A=await (await fetch('../ateliers.json',{cache:'no-store'})).json();}catch(e){A=null;}
+  const at=N.ateliers(),texteAt=JSON.stringify(at,null,2)+'\n',memeAt=!!A&&JSON.stringify(A)===JSON.stringify(at);
+  ok&=line(memeAt,`Catalogue ateliers.json : ${A&&A.ateliers?A.ateliers.length:0} ateliers dans le fichier, ${at.ateliers.length} dans l’application`,
+    memeAt?'':(A&&A.ateliers?(diff(A.ateliers,at.ateliers)==='Ordre différent.'?'En-tête différent (version de l’application ?)':diff(A.ateliers,at.ateliers)):'ateliers.json absent ou illisible'));
+  ok&=line(at.app_version===D.atelier.version,'ateliers.json et centrale.json ont la même version');
+  document.body.dataset.resultat=ok?'ok':'ecarts';
+  if(!memeAt){document.getElementById('aide2').hidden=false;const t2=document.getElementById('maj2');t2.hidden=false;t2.value=texteAt;const c2=document.getElementById('cp2');c2.hidden=false;
+    c2.onclick=()=>{navigator.clipboard.writeText(t2.value).then(()=>c2.textContent='Copié',()=>{t2.focus();t2.select();});};}
   if(!ok){document.getElementById('aide').hidden=false;const t=document.getElementById('maj');t.hidden=false;t.value=JSON.stringify(liste,null,2);const c=document.getElementById('cp');c.hidden=false;
     c.onclick=()=>{navigator.clipboard.writeText(t.value).then(()=>c.textContent='Copié',()=>{t.focus();t.select();});};}
 });
