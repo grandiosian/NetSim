@@ -3487,13 +3487,26 @@ $('#exo').addEventListener('click',e=>{
   if(a==='tour')startTour();
 });
 /* ---------- Démos : réseaux prêts à l’emploi, démo guidée et démos en boucle ---------- */
-let demoEnCours=null;
+let demoEnCours=null,demoDocId=null;
+/* Le document de la démo porte le nom de la démo, et disparaît à la fin de celle-ci. */
+function nommerDocDemo(titre){
+  const id=docCourant(),l=docsLire(),d=l.find(x=>x.id===id);if(!d)return;
+  d.nom=docNomLibre('Démo · '+titre,l.filter(x=>x!==d));docsEcrire(l);
+}
+function supprimerDocDemo(){
+  if(!demoDocId)return;
+  const id=demoDocId;demoDocId=null;
+  docsEcrire(docsLire().filter(x=>x.id!==id));
+  if(docCourant()===id){docFixer(null);$('#bNew').onclick();}
+}
 const DEMOS=[
   {k:'cable',t:'Mon premier câble',p:'Deux PC et un switch : la démo pose les appareils, relie les câbles, donne les adresses et lance un ping.',boucle:false},
   {k:'salle',t:'Ping dans la salle',p:'Les PC d’une salle se pingent en boucle : les trames circulent dans les câbles.',boucle:true,ex:'salle',paires:[['PC 1','192.168.0.12']]},
   {k:'deux',t:'Le paquet traverse le routeur',p:'Deux salles reliées par un routeur : le ping de PC 1 vers PC 3 se répète en boucle.',boucle:true,ex:'deux',paires:[['PC 1','192.168.2.11']]},
   {k:'anneau',t:'Le paquet fait le tour de l’anneau',p:'Quatre routeurs en boucle : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'anneau',paires:[['PC 1','192.168.3.11']]},
-  {k:'maille',t:'Le maillage',p:'Chaque routeur relié aux autres : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'maille',paires:[['PC 1','192.168.3.11']]}
+  {k:'maille',t:'Le maillage',p:'Chaque routeur relié aux autres : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'maille',paires:[['PC 1','192.168.3.11']]},
+  {k:'salle-multi',t:'Plusieurs appareils se répondent',p:'Trois appareils de la salle se pingent à tour de rôle, en boucle : on voit les trames aller et venir sur le switch.',boucle:true,ex:'salle',paires:[['PC 1','192.168.0.10'],['Portable 1','192.168.0.12'],['PC 2','192.168.0.11']]},
+  {k:'deux-multi',t:'Trois réseaux, un routeur',p:'Les PC des deux salles pingent un serveur de l’autre salle : chaque paquet traverse le routeur, en boucle.',boucle:true,ex:'deux',paires:[['PC 1','192.168.2.5'],['Portable 1','192.168.2.10'],['PC 3','192.168.1.11']]}
 ];
 /* ---------- Démos animées : un pointeur montre chaque geste, comme un enregistrement d’écran ---------- */
 /* Chaque attente vérifie l’arrêt : une démo s’interrompt tout de suite. */
@@ -3563,7 +3576,7 @@ async function pingVisible(nom,ip){
 }
 /* Mon premier câble : posé, relié, adressé et testé, geste par geste. */
 async function demoCable(){
-  montrerExemple('vide');await pause(500);
+  montrerExemple('vide');demoDocId=docCourant();nommerDocDemo('Mon premier câble');await pause(500);
   let sw,p1,p2;
   await legende('Ouvre la boîte à outils : les appareils sont à gauche.');
   await aller($('#palette'));
@@ -3607,13 +3620,13 @@ async function lancerDemo(k){
   const c={arret:false};demoEnCours=c;barreDemo(d.t,c);
   try{
     if(d.boucle){
-      montrerExemple(d.ex);await pause(700);
+      montrerExemple(d.ex);demoDocId=docCourant();nommerDocDemo(d.t);await pause(700);
       setMode('sim');if(sim.paused){sim.paused=false;updPause();}
       await pause(400);
       while(true)for(const [de,vers] of d.paires)await pingVisible(de,vers);
     }else await demoCable();
   }catch(_){}
-  finally{if(demoEnCours===c)demoEnCours=null;$('#demoBar').hidden=true;demoCacher();}
+  finally{if(demoEnCours===c)demoEnCours=null;$('#demoBar').hidden=true;demoCacher();supprimerDocDemo();}
 }
 function montrerExemple(k){closeParc();setMode('design');snap();buildExample(k);sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();}
 function barreDemo(nom,c){
