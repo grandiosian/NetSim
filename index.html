@@ -903,6 +903,11 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .docbtns{margin-left:auto}
 .docbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .doclist{margin-top:4px}
+/* Menu des ateliers : Mes documents à gauche et Mes ateliers à droite quand la fenêtre est assez large. */
+.parcgrille{display:block}
+.parcth{font-family:var(--f-disp);font-weight:800;font-size:16px;margin:0 0 8px}
+.parcdocs{margin-bottom:16px}
+@media (min-width:1000px){.parcgrille{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);gap:24px;align-items:start}.parcdocs{margin-bottom:0}}
 .docbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
 .docsep{width:1px;height:22px;background:var(--line);margin:0 4px}
 .doccase{display:inline-flex;align-items:center;flex:none;cursor:pointer}
@@ -3822,7 +3827,7 @@ function parcoursHTML(){
   const tpS=suivant?tousTP.find(t=>t.exos.includes(suivant)):null;
   const codeS=tpS?`${tpS.c[0]}-${tpS.niv+1}-${tousTP.filter(u=>u.c===tpS.c&&u.niv===tpS.niv).indexOf(tpS)+1}`:'';
   const fS=tpS?tpS.exos.filter(exoFait).length:0, nS=tpS?tpS.exos.length:0;
-  const widget=`<div class="widget"><div class="wtop"><div class="wtitre">Tu en es là</div><div class="wetat"><div class="wrecap">${CLASSES_PARC.filter(([c])=>accessibles.includes(c)).map(([c])=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="wrc">${pas(c)}<b>${xs.filter(exoFait).length}/${xs.length}</b></span>`;}).join('')}<span class="wtot">${fait}/${ord.length}</span></div><div class="gbar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div>
+  const widget=`<div class="widget"><div class="wtop"><div class="wtitre">Atelier courant</div><div class="wetat"><div class="wrecap">${CLASSES_PARC.filter(([c])=>accessibles.includes(c)).map(([c])=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="wrc">${pas(c)}<b>${xs.filter(exoFait).length}/${xs.length}</b></span>`;}).join('')}<span class="wtot">${fait}/${ord.length}</span></div><div class="gbar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div>
 <div class="wrow"><div class="wsuite${suivant?' k'+suivant.c[0]:''}">${suivant?`<div class="wsinfo"><div class="wligne">${tpS?`<span class="wbig">${tpS.c[0]}</span>`:''}<span class="tpcn">${codeS}</span><b>${esc(suivant.t)}</b></div><span class="wenonce">${tpS?esc(tpS.desc):''}</span><div class="wtp"><div class="wprog"><i style="width:${nS?Math.round(fS/nS*100):0}%"></i></div><span class="tpcp">${fS}/${nS}</span></div></div><button class="btn primary wgo k${suivant.c[0]}" data-parc="${suivant.k}" type="button">Continuer</button>`:(ord.every(exoFait)?'<b>Tous les ateliers sont terminés. Bravo !</b>':`<b>Tous les ateliers de la ${PREF.classe.replace('e','ᵉ')} sont terminés.</b>`)}</div></div></div>`;
   PARC_DETAIL=DETAIL;
   const filtres=`<div class="pfbarres">${accessibles.length>1?`<div class="pfiltres" role="group" aria-label="Filtrer par classe">${[['all','Tout'],...accessibles.map(c=>[c,c[0]])].map(([v,l])=>`<button type="button" class="pf${PF===v?' on':''}" data-pf="${v}" aria-pressed="${PF===v}" aria-label="${v==='all'?'Toutes les classes':'Classe '+l+'ᵉ'}"><span class="pfc ${v==='all'?'pall':'p'+l}">${l}</span></button>`).join('')}</div>`:''}
@@ -3831,7 +3836,7 @@ function parcoursHTML(){
 ${filtres}
 ${cartes}`;
 }
-function openParc(){closeMenus();$('#parcBody').innerHTML=docsHTML()+parcoursHTML()+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
+function openParc(){closeMenus();$('#parcBody').innerHTML='<div class="parcgrille"><div class="parcdocs">'+docsHTML()+'</div><div class="parcat"><h3 class="parcth">Mes ateliers</h3>'+parcoursHTML()+'</div></div>'+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
 function closeParc(){$('#parc').hidden=true;}
 /* ---------- Mes documents : schémas libres, enregistrés automatiquement dans ce navigateur ---------- */
 const DOCS_CLE='netsim-docs',DOC_COURANT='netsim-doc-courant';
