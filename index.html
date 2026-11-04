@@ -901,6 +901,11 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .docnom{display:flex;flex-direction:column;min-width:0}
 .docbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .doclist{margin-top:4px}
+.docbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.docsep{width:1px;height:22px;background:var(--line);margin:0 4px}
+.doccase{display:inline-flex;align-items:center;flex:none;cursor:pointer}
+.doccase input{width:18px;height:18px;margin:0;accent-color:var(--accent);cursor:pointer}
+.docrow .doccase{margin-right:4px}
 .topbar{position:relative;z-index:88}
 /* Liste des ateliers dans la fiche d’un TP : chaque atelier se déplie pour montrer ses étapes. */
 .flist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -3822,15 +3827,20 @@ function openParc(){closeMenus();$('#parcBody').innerHTML=docsHTML()+parcoursHTM
 function closeParc(){$('#parc').hidden=true;}
 /* ---------- Mes documents : schémas libres, enregistrés automatiquement dans ce navigateur ---------- */
 const DOCS_CLE='netsim-docs',DOC_COURANT='netsim-doc-courant';
+let docChoix=new Set();   // documents cochés dans le menu des ateliers
 function docsLire(){try{const l=JSON.parse(localStorage.getItem(DOCS_CLE)||'[]');return Array.isArray(l)?l:[];}catch(_){return [];}}
 function docsEcrire(l){try{localStorage.setItem(DOCS_CLE,JSON.stringify(l));}catch(_){}}
 function docCourant(){try{return localStorage.getItem(DOC_COURANT);}catch(_){return null;}}
 function docFixer(id){try{if(id)localStorage.setItem(DOC_COURANT,id);else localStorage.removeItem(DOC_COURANT);}catch(_){}}
 function docCourantObj(){const id=docCourant();return id?docsLire().find(d=>d.id===id)||null:null;}
-/* Un document naît du schéma libre en cours ; son nom reste unique dans la liste. */
+/* Nom unique dans la liste : « Nom », « Nom 2 », « Nom 3 »… */
+function docNomLibre(base,l){const noms=l.map(d=>d.nom);let nom=base,n=2;while(noms.includes(nom))nom=`${base} ${n++}`;return nom;}
+function docEntree(nom,schema){return {id:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom,date:Date.now(),schema};}
+/* Un schéma importé reçoit les tableaux et l’identifiant suivant, comme à l’import de la barre Fichier. */
+function docNormaliser(o){const s=Object.assign(blank(),o);s.zones=s.zones||[];s.nextId=Math.max(s.nextId||1,...s.devices.map(d=>d.id+1),...s.cables.map(c=>c.id+1),...s.zones.map(z=>z.id+1));return s;}
+/* Un document naît du schéma libre en cours. */
 function docCreer(base){
-  const l=docsLire(),noms=l.map(d=>d.nom);let nom=base,n=2;while(noms.includes(nom))nom=`${base} ${n++}`;
-  const d={id:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom,date:Date.now(),schema:JSON.parse(JSON.stringify(S))};
+  const l=docsLire(),d=docEntree(docNomLibre(base,l),JSON.parse(JSON.stringify(S)));
   l.push(d);docsEcrire(l);docFixer(d.id);return d;
 }
 /* Le schéma libre est enregistré dans son document ; jamais pendant un atelier. */
@@ -3849,25 +3859,80 @@ function docOuvrir(id){
   sel=null;$('#helpChk').checked=S.help!==false;syncLevel();render();renderProps();save();fitView();closeParc();
   toast(`Document « ${d.nom} » ouvert.`);
 }
-function docSupprimer(id){
-  const d=docsLire().find(x=>x.id===id);if(!d||!confirm(`Supprimer le document « ${d.nom} » ? Cette action est définitive.`))return;
-  docsEcrire(docsLire().filter(x=>x.id!==id));
-  if(docCourant()===id){docFixer(null);$('#bNew').onclick();closeParc();}else openParc();
+function docRenommer(id){
+  const l=docsLire(),d=l.find(x=>x.id===id);if(!d)return;
+  const v=prompt('Nouveau nom du document :',d.nom);if(v==null)return;
+  const nom=v.trim();if(!nom)return;
+  if(l.some(x=>x.id!==id&&x.nom===nom)){toast('Un document porte déjà ce nom.');return;}
+  d.nom=nom;docsEcrire(l);if(docCourant()===id)majResume();docsRafraichir();
 }
-function docAction(a,id){
+function docNomFichier(nom){
+  const base=nom.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9_.-]+/g,'-').replace(/^-+|-+$/g,'');
+  return (base||'document')+'.json';
+}
+/* Un document s’exporte comme le schéma de la barre Fichier ; plusieurs documents forment un seul fichier. */
+function docExporter(ids){
+  const l=docsLire().filter(d=>ids.includes(d.id));if(!l.length)return;
+  if(l.length===1){telechargerTexte(docNomFichier(l[0].nom),JSON.stringify(l[0].schema,null,1));return;}
+  telechargerTexte('netsim-documents.json',JSON.stringify({format:'netsim-documents',version:1,documents:l.map(d=>({nom:d.nom,schema:d.schema}))},null,1));
+}
+/* Accepte un schéma seul (export de la barre Fichier) ou un fichier de plusieurs documents. */
+function docImporter(fichier){
+  const r=new FileReader();
+  r.onload=()=>{
+    let o=null;try{o=JSON.parse(r.result);}catch(_){}
+    let entrees=[];
+    if(o&&o.format==='netsim-documents'&&Array.isArray(o.documents))entrees=o.documents.filter(x=>x&&NetSim.estSchema(x.schema)).map(x=>({nom:String(x.nom||'Document importé'),schema:x.schema}));
+    else if(NetSim.estSchema(o))entrees=[{nom:fichier.name.replace(/\.json$/i,'')||'Document importé',schema:o}];
+    if(!entrees.length){toast('Ce fichier ne contient aucun document NetSim.');return;}
+    const l=docsLire();
+    entrees.forEach(e=>{l.push(docEntree(docNomLibre(e.nom,l),docNormaliser(e.schema)));});
+    docsEcrire(l);
+    toast(entrees.length>1?`${entrees.length} documents importés.`:'Document importé.');
+    docsRafraichir();
+  };
+  r.readAsText(fichier);
+}
+function docSupprimer(ids){
+  const l=docsLire(),aSupprimer=l.filter(x=>ids.includes(x.id));if(!aSupprimer.length)return;
+  const q=aSupprimer.length===1?`Supprimer le document « ${aSupprimer[0].nom} » ? Cette action est définitive.`:`Supprimer ${aSupprimer.length} documents ? Cette action est définitive.`;
+  if(!confirm(q))return;
+  const courant=docCourant();
+  docsEcrire(l.filter(x=>!ids.includes(x.id)));ids.forEach(id=>docChoix.delete(id));
+  if(courant&&ids.includes(courant)){docFixer(null);$('#bNew').onclick();closeParc();return;}
+  docsRafraichir();
+}
+/* Redessine seulement la section des documents, sans fermer le menu. */
+function docsRafraichir(){
+  const s=document.querySelector('#parcBody .docsec');
+  if(s)s.outerHTML=docsHTML();else openParc();
+}
+function docAction(a,id,el){
   if(a==='open')return docOuvrir(id);
   if(a==='new'){$('#bNew').onclick();closeParc();return;}
-  if(a==='save'){docSauverCourant();openParc();toast('Document enregistré dans ce navigateur.');return;}
-  if(a==='del')return docSupprimer(id);
+  if(a==='save'){docSauverCourant();docsRafraichir();toast('Document enregistré dans ce navigateur.');return;}
+  if(a==='rename')return docRenommer(id);
+  if(a==='exp')return docExporter([id]);
+  if(a==='del')return docSupprimer([id]);
+  if(a==='sel'){el.checked?docChoix.add(id):docChoix.delete(id);return docsRafraichir();}
+  if(a==='selAll'){const l=docsLire();docChoix=docChoix.size===l.length?new Set():new Set(l.map(d=>d.id));return docsRafraichir();}
+  if(a==='exporterSel')return docExporter([...docChoix]);
+  if(a==='supprimerSel')return docSupprimer([...docChoix]);
+  if(a==='import')return $('#docFichier').click();
 }
 function docsHTML(){
-  const cur=docCourant(),date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><div class="docnom"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
-  const l=[...docsLire()].sort((a,b)=>b.date-a.date);
-  return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div><div class="docbtns" style="margin-top:8px"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button>${cur?'<button class="btn small" data-doc="save" type="button">Enregistrer maintenant</button>':''}</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div></section>`;
+  const cur=docCourant(),l=[...docsLire()].sort((a,b)=>b.date-a.date);
+  docChoix=new Set([...docChoix].filter(id=>l.some(d=>d.id===id)));
+  const n=docChoix.size,date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="rename" data-id="${d.id}" type="button">Renommer</button><button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
+  return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div>`
+    +`<div class="docbar"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button><button class="btn small" data-doc="import" type="button">Importer…</button>${cur?'<button class="btn small" data-doc="save" type="button">Enregistrer maintenant</button>':''}`
+    +(l.length?`<span class="docsep"></span><label class="doccase docall"><input type="checkbox" data-doc="selAll" aria-label="Tout sélectionner"${n&&n===l.length?' checked':''}></label><span class="small muted">${n?n+' sélectionné'+(n>1?'s':''):'Sélection'}</span>${n?`<button class="btn small" data-doc="exporterSel" type="button">Exporter la sélection</button><button class="btn small danger" data-doc="supprimerSel" type="button">Supprimer la sélection</button>`:''}`:'')
+    +`</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div><input type="file" id="docFichier" accept=".json,application/json" hidden></section>`;
 }
+$('#parc').addEventListener('change',e=>{if(e.target.id==='docFichier'&&e.target.files[0]){docImporter(e.target.files[0]);e.target.value='';}});
 $('#parc').addEventListener('click',e=>{
-  const dc=e.target.closest('[data-doc]');if(dc){docAction(dc.dataset.doc,dc.dataset.id);return;}
+  const dc=e.target.closest('[data-doc]');if(dc){docAction(dc.dataset.doc,dc.dataset.id,dc);return;}
   const pn=e.target.closest('[data-pn]');if(pn){PREF.pn=pn.dataset.pn;savePref();openParc();return;}
   const pf=e.target.closest('[data-pf]');if(pf){PREF.pf=pf.dataset.pf;savePref();openParc();return;}
   const o=e.target.closest('[data-tpopen]');if(o){$('#tpbody').innerHTML=PARC_DETAIL[o.dataset.tpopen]||'';$('#tpmodal').hidden=false;$('#tpbody').scrollTop=0;return;}
