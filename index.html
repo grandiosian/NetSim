@@ -3489,7 +3489,7 @@ const DEMOS=[
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 let demoEnCours=null;
 function pingP(de,vers){return new Promise(res=>{const d=S.devices.find(x=>x.name===de);if(!d)return res();doPing(d,vers,()=>{},res);});}
-function montrerExemple(k){setMode('design');snap();buildExample(k);sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();}
+function montrerExemple(k){closeParc();setMode('design');snap();buildExample(k);sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();}
 function barreDemo(nom,c){
   let b=$('#demoBar');
   if(!b){
@@ -3513,6 +3513,7 @@ async function demoCable(c){
   await geste(()=>{a.ip='192.168.1.11';b.ip='192.168.1.12';});
   await geste(()=>{setMode('sim');if(sim.paused){sim.paused=false;updPause();}},600);
   await pingP(a.name,b.ip);
+  setMode('design');
   toast('Démo terminée : les deux PC se parlent.');
 }
 async function lancerDemo(k){
