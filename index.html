@@ -3995,6 +3995,11 @@ $('#accueil').addEventListener('click',e=>{
     const niv=+n.dataset.niv;
     $('#accueil').hidden=true;
     S.level=niv;PREF.classe=classeAccueil;PREF.niv=niv;savePref();save();syncLevel();render();renderProps();
+    /* Un atelier en cours d’une autre classe ou d’un autre niveau est quitté : l’atelier de la classe et du niveau choisis s’ouvre. */
+    const cur=S.exo?tpsParc().find(t=>t.exos.some(e=>e.k===S.exo.k)):null;
+    const cible=tpsParc().find(t=>t.c===classeAccueil&&t.niv===niv);
+    const x=cible&&(cible.exos.find(e=>!exoFait(e))||cible.exos[0]);
+    if(S.exo&&x&&(!cur||cur.c!==classeAccueil||cur.niv!==niv)){docCreer(S.exo.t||'Atelier');loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);return;}
     openParc();
     const el=document.getElementById(`niv-${classeAccueil}-${niv}`);if(el)el.scrollIntoView({block:'start'});
     return;
