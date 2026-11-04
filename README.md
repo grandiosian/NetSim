@@ -1,71 +1,85 @@
 # NetSim
 
-Simulateur de réseau pour le collège (5ᵉ, 4ᵉ, 3ᵉ), dans l’esprit de Filius, qui fonctionne directement dans le navigateur.
+Simulateur de réseau pour le collège, le lycée et le supérieur, dans l’esprit de Filius. Il fonctionne directement dans le navigateur.
 
 **Ouvrir l’application : https://grandiosian.github.io/NetSim/**
 
-Aucune installation : une seule page HTML. Le travail de chaque élève est enregistré dans son navigateur et peut être exporté ou importé sous forme de fichier `.json`.
+Aucune installation : une seule page HTML (`index.html`). Le travail de chaque élève est enregistré dans son navigateur et peut être exporté ou importé sous forme de fichier `.json`.
 
 ## Ce qu’on peut faire
 
-- **Concevoir** un réseau : PC, portable, smartphone, Raspberry Pi, serveur, imprimante, ESP32, switch et routeur ; câblage ; adresses IP, masque et passerelle ; salles et sous-réseaux.
-- **Simuler** : chaque appareil démarre un petit système (bureau, barre des tâches) avec une invite de commandes (`ping`, `ipconfig`, `tracert`, `arp`, `route`, `imprimer`), un navigateur web, un serveur web modifiable, une file d’impression et un capteur de température pour l’ESP32.
-- **Voir les données circuler** : enveloppes animées sur les câbles (ARP, ping, web, erreurs), coches vertes et croix rouges sur les appareils, tiroir des trames avec le détail de l’encapsulation (Ethernet, IP, TCP, HTTP).
+- **Concevoir** un réseau : PC, portable, smartphone, Raspberry Pi, serveur, imprimante, ESP32, switch et routeur ; câblage ; adresses IP, masque et passerelle ; salles et sous-réseaux. Sélection multiple : Maj + clic, Ctrl + glisser sur le fond pour un rectangle, puis déplacement du groupe.
+- **Simuler** : chaque appareil ouvre son écran (bureau, invite de commandes avec `ping`, `ipconfig`, `tracert`, `arp`, `route`, `imprimer`), un navigateur web, un serveur web modifiable, une messagerie et une file d’impression.
+- **Voir les données circuler** : enveloppes animées sur les câbles, tiroir « Trames échangées » avec le détail de l’encapsulation (Ethernet, IP, TCP, HTTP).
 
-## Trois niveaux
+## Classes et niveaux de difficulté
 
-| Niveau | Classe | Ce qui est visible |
+Le choix de classe se fait avec **Changer de classe**, dans le widget « Visiteur » de la barre du haut. Il y a trois onglets :
+
+| Onglet | Classes | Ateliers |
 |---|---|---|
-| Débutant | 5ᵉ | Adresses IP seulement, ping, navigateur, impression. Pas d’ARP à l’écran, messages en phrases simples. |
-| Intermédiaire | 4ᵉ | Passerelle, routeur, adresses MAC, ARP, `tracert`. Le masque reste fixé à 255.255.255.0. |
-| Avancé | 3ᵉ | Masque de sous-réseau, routes statiques, ports TCP, toutes les tables. |
+| Collège | 5ème, 4ème, 3ème | 31 |
+| Lycée | 2nde, 1re, Terminale | 9 |
+| Supérieur | Bac+1, Bac+2 | 6 |
 
-## Exercices intégrés (pas à pas)
+Chaque classe propose des ateliers aux niveaux **Débutant**, **Intermédiaire** et **Avancé**. Au collège, le niveau de l’atelier suit sa classe (5ème : Débutant, 4ème : Intermédiaire, 3ème : Avancé). Pastilles : vert, jaune et rouge pour le collège, turquoise, cyan et magenta pour le lycée, rose et rose-rouge pour le supérieur.
 
-Menu **Fichier → Exemples et exercices**, rangés par classe puis par thème. Chaque exercice s’ouvre au bon niveau avec son schéma de départ. Le panneau **Consigne** guide l’élève une étape à la fois : une barre de progression, un indice à déplier, et la plupart des étapes se valident toutes seules quand l’action est faite (câble posé, adresse correcte, ping réussi, page affichée…). À la fin, les questions et le critère de vérification s’affichent.
+Le choix de classe ne change pas la vue : depuis le menu, on reste dans le menu ; depuis la création, on reste en création. Quand un atelier est en cours ou qu’un document est ouvert, changer de classe ouvre l’atelier le plus proche du niveau choisi.
 
-**5ᵉ · Débutant**
-- *Relier les appareils* : Brancher la salle · Le Wi-Fi de la salle
-- *Les adresses IP* : Chacun son adresse · L’intrus · Le doublon
-- *Les services du réseau* : Imprimer en réseau · Ma première page web
+## Ateliers (pas à pas)
 
-**4ᵉ · Intermédiaire**
-- *Routeur et passerelle* : Relier deux salles · La passerelle oubliée
-- *Observer les échanges* : Mais qui a cette adresse ? (ARP) · Le switch apprend
-- *Diagnostiquer une panne* : Panne à trouver
-- *Objets connectés* : Le capteur connecté
+Les ateliers se trouvent dans le menu **Mes ateliers** (bouton de la barre du haut). Ils sont présentés comme un parcours, classe par classe, avec leur progression ; un atelier se débloque quand le précédent est terminé. « Effacer ma progression » est en bas du menu.
 
-**3ᵉ · Avancé**
-- *Sous-réseaux et masques* : Couper un réseau en deux (/25) · Le plan d’adressage du collège
-- *Routage* : Deux routeurs, routes statiques · Le paquet qui tourne en rond (TTL)
-- *Protocoles et encapsulation* : Ouvrir l’enveloppe
+Le panneau **Atelier courant** affiche l’atelier en cours, ou le prochain de la classe et du niveau choisis.
 
-**Un seul panneau de guidage** : sans exercice, il affiche « Pour commencer » ; avec un exercice, il devient la Consigne. Chaque étape est expliquée en détail (« Comment faire » : où cliquer, quoi taper, ce qu’on doit voir) avec une petite capture animée de l’action : outil Câble puis les deux appareils, champ à remplir, icône du terminal et commande, barre d’adresse du navigateur, menu Réglages, tiroir des trames… L’aide diminue avec la difficulté : complète la première fois qu’une action apparaît et en 5ᵉ, repliée en simple rappel ensuite, puis réduite à « Besoin d’aide ? » en 3ᵉ. Quand un ping, une page ou une impression échoue, la cause probable s’affiche dans la consigne.
+Le panneau **Consigne** guide l’élève une étape à la fois : une barre de progression, un rappel, et la plupart des étapes se valident toutes seules quand l’action est faite (câble posé, adresse correcte, ping réussi, page affichée…). À la fin, les questions et le critère de vérification s’affichent.
 
-**Progression** : dans la liste des exercices, ceux qui ne sont pas encore faits sont grisés, ceux qui sont terminés sont cochés en vert, avec un compteur par classe. La progression est gardée dans le navigateur de l’élève.
+Thèmes principaux :
+- **Collège 5ème** : premiers pas, câbles, adresses IP, services (impression, page web).
+- **Collège 4ème** : réseau de salle, routeur et passerelle, ARP et table du switch, diagnostic, capteur connecté, DHCP, noms de réseau.
+- **Collège 3ème** : sous-réseaux et masques, routage (routes statiques, TTL), messagerie, DNS, DHCP, encapsulation.
+- **Lycée** : 2nde (réseau local, table du switch, doublon) ; 1re (passerelle, masque, deux routeurs en chaîne) ; Terminale (page web, DNS, DHCP).
+- **Supérieur** : Bac+1 (serveur de messagerie, deux sous-réseaux, route fausse) ; Bac+2 (plan d’adressage, DHCP et DNS, réseau d’entreprise).
 
-Astuce pour l’enseignant : préparer un schéma, désactiver les alertes dans les Réglages pour un exercice de recherche de panne, puis l’exporter et le distribuer aux élèves (la consigne est incluse dans le fichier).
+## Mes documents
+
+Le menu **Mes ateliers** affiche aussi **Mes documents** : les schémas libres de l’élève. Chaque document est enregistré automatiquement dans le navigateur.
+
+- **+ Nouveau document**, **Importer…**, **Tout exporter** (un fichier `netsim-documents.json`).
+- **Ouvrir**, **Exporter**, **Supprimer** sur chaque document ; double-clic sur le nom pour le renommer sur place.
+- Le nom du document en cours apparaît dans la barre du haut.
+
+## Démos
+
+Menu **Fichier → Démos…** :
+
+- **Réseaux d’exemple** : une salle, deux salles et un routeur, un anneau, un maillage.
+- **Démo guidée** : « Mon premier câble », jouée avec un pointeur à l’écran (glisser, relier, saisir les adresses, ping).
+- **Démos en boucle** (pour une porte ouverte) : ping dans la salle, plusieurs appareils, le paquet qui traverse le routeur, le tour de l’anneau, le maillage. Elles tournent jusqu’à **Arrêter la démo**.
+
+Le document créé par une démo est supprimé à la fin.
 
 ## Simplifications
 
-Pas de DNS (on tape les adresses IP), pas de poignée de main TCP, pas de DHCP. Le smartphone et l’ESP32 sont reliés par une liaison Wi-Fi dessinée en pointillés.
+Le smartphone et l’ESP32 sont reliés par une liaison Wi-Fi dessinée en pointillés. Les ateliers du collège ne montrent que les protocoles à leur niveau (pas de poignée de main TCP à l’écran).
 
 ## Connexion à la Centrale de la classe (facultatif)
 
-Le bouton **Mon code**, dans la barre du haut, connecte l'élève à la Centrale de l'enseignant (`technoversailles.alwaysdata.net`) :
+Le widget **Visiteur**, dans la barre du haut, permet de se connecter avec son code à la Centrale de l’enseignant (`technoversailles.alwaysdata.net`) :
 
-- le schéma en cours est enregistré sur le serveur et retrouvé sur n'importe quel ordinateur ;
-- l'avancement de chaque exercice (étapes validées, exercice terminé) remonte dans le tableau de suivi de l'enseignant ;
-- ouvert depuis le portail élève ou un parcours, NetSim est déjà connecté ; un exercice choisi sur le portail s'ouvre directement, et le bouton « ← Mes ateliers » ramène au portail.
+- le schéma en cours est enregistré sur le serveur et retrouvé sur n’importe quel ordinateur ;
+- l’avancement de chaque atelier (étapes validées, atelier terminé) remonte dans le tableau de suivi de l’enseignant ;
+- une fois connecté, la classe est donnée par le code.
 
-Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur comme avant.
+Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur.
 
-**Sans serveur** : chaque exercice s'ouvre directement par son adresse, par exemple `https://grandiosian.github.io/NetSim/#activite=e5-1`. **Fichier → Exporter le schéma** propose « Enregistrer le fichier » et « Déposer sur Nuage » : le fichier est enregistré puis le dossier Nuage de la classe s'ouvre (lien donné par la Centrale, ou collé une fois sur le poste par le professeur). C'est la sauvegarde de secours.
+**Sans serveur** : chaque atelier s’ouvre directement par son adresse, par exemple `https://grandiosian.github.io/NetSim/#activite=e5-1`. **Fichier → Exporter le schéma** propose « Enregistrer le fichier » et « Déposer sur Nuage » : le fichier est enregistré puis le dossier Nuage de la classe s’ouvre. C’est la sauvegarde de secours.
 Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"` avant le chargement de la page.
 
 ### Passerelle avec la Centrale
 
-Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression, moments d’échange) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 18 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 18 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
+Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 46 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 46 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
+
+**Règle :** toute modification d’un atelier (titre, résumé, nombre d’étapes, catégorie, classe, niveau) doit être reportée dans `ateliers.json` et `centrale.json`, puis vérifiée avec le verifier.
 
 Règles communes à toutes les applications : [Données, bonnes pratiques et compatibilité](https://technoversailles.alwaysdata.net/passerelle/?doc=donnees) et [Compétences](https://technoversailles.alwaysdata.net/passerelle/?doc=competences).
-
