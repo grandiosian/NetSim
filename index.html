@@ -908,6 +908,14 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .doclist{margin-top:4px}
 .demobar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:97;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18);font-weight:700;font-size:13px;white-space:nowrap}
 .demobar[hidden]{display:none}
+/* Pointeur de démo : une flèche qui se déplace, appuie et lâche, avec un cercle à chaque clic. */
+.demoptr{position:fixed;z-index:200;pointer-events:none;transition:left .65s cubic-bezier(.4,0,.2,1),top .65s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.demoptr svg{display:block;transition:transform .15s}
+.demoptr.clic svg{transform:scale(.8)}
+.demoptr.clic::after{content:"";position:absolute;left:-12px;top:-12px;width:40px;height:40px;border-radius:50%;border:3px solid var(--accent);animation:demoRipple .5s ease-out forwards}
+@keyframes demoRipple{from{transform:scale(.3);opacity:1}to{transform:scale(1.2);opacity:0}}
+.democap{position:fixed;z-index:201;pointer-events:none;transition:left .65s cubic-bezier(.4,0,.2,1),top .65s cubic-bezier(.4,0,.2,1);max-width:300px;background:var(--ink);color:var(--surface);font-size:13px;font-weight:700;padding:7px 11px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.25);line-height:1.35}
+.democap:empty{display:none}
 /* Menu des ateliers : Mes documents à gauche et Mes ateliers à droite quand la fenêtre est assez large. */
 .parcgrille{display:block}
 .parcth{font-family:var(--f-disp);font-weight:800;font-size:16px;margin:0 0 8px}
@@ -3479,6 +3487,7 @@ $('#exo').addEventListener('click',e=>{
   if(a==='tour')startTour();
 });
 /* ---------- Démos : réseaux prêts à l’emploi, démo guidée et démos en boucle ---------- */
+let demoEnCours=null;
 const DEMOS=[
   {k:'cable',t:'Mon premier câble',p:'Deux PC et un switch : la démo pose les appareils, relie les câbles, donne les adresses et lance un ping.',boucle:false},
   {k:'salle',t:'Ping dans la salle',p:'Les PC d’une salle se pingent en boucle : les trames circulent dans les câbles.',boucle:true,ex:'salle',paires:[['PC 1','192.168.0.12']]},
@@ -3486,9 +3495,126 @@ const DEMOS=[
   {k:'anneau',t:'Le paquet fait le tour de l’anneau',p:'Quatre routeurs en boucle : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'anneau',paires:[['PC 1','192.168.3.11']]},
   {k:'maille',t:'Le maillage',p:'Chaque routeur relié aux autres : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'maille',paires:[['PC 1','192.168.3.11']]}
 ];
-const pause=ms=>new Promise(r=>setTimeout(r,ms));
-let demoEnCours=null;
-function pingP(de,vers){return new Promise(res=>{const d=S.devices.find(x=>x.name===de);if(!d)return res();doPing(d,vers,()=>{},res);});}
+/* ---------- Démos animées : un pointeur montre chaque geste, comme un enregistrement d’écran ---------- */
+/* Chaque attente vérifie l’arrêt : une démo s’interrompt tout de suite. */
+async function pause(ms){
+  if(demoEnCours&&demoEnCours.arret)throw 'arret';
+  await new Promise(r=>setTimeout(r,ms));
+  if(demoEnCours&&demoEnCours.arret)throw 'arret';
+}
+function demoDom(){
+  if(!$('#demoPtr')){
+    const p=document.createElement('div');p.id='demoPtr';p.className='demoptr';
+    p.innerHTML='<svg viewBox="0 0 24 24" width="28" height="28"><path d="M4 2l15 9-6.5 1.6L16 20l-3 1.4-3.6-7.2L4 18z" fill="#fff" stroke="#1a2540" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+    document.body.appendChild(p);
+    const c=document.createElement('div');c.id='demoCap';c.className='democap';document.body.appendChild(c);
+  }
+  $('#demoPtr').style.display='';$('#demoCap').style.display='';
+  return {ptr:$('#demoPtr'),cap:$('#demoCap')};
+}
+function demoCacher(){const p=$('#demoPtr'),c=$('#demoCap');if(p)p.style.display='none';if(c)c.style.display='none';}
+function placerPtr(x,y,ms){
+  const {ptr,cap}=demoDom();
+  ptr.style.transitionDuration=ms+'ms';ptr.style.left=x+'px';ptr.style.top=y+'px';
+  cap.style.transitionDuration=ms+'ms';cap.style.left=(x+24)+'px';cap.style.top=(y+34)+'px';
+}
+function centre(el){const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};}
+function mondeVersEcran(wx,wy){const r=svg.getBoundingClientRect();return {x:r.left+view.x+wx*view.k,y:r.top+view.y+wy*view.k};}
+const dev=nom=>S.devices.find(d=>d.name===nom);
+const devEl=d=>document.querySelector(`[data-dev="${d.id}"]`);
+const outil=t=>document.querySelector(`.tool[data-tool="${t}"]`);
+async function legende(t){demoDom().cap.textContent=t;await pause(900);}
+async function aller(el){const p=centre(el);placerPtr(p.x,p.y,650);await pause(700);}
+/* Un clic : le pointeur s’approche, appuie (cercle), puis l’action se produit. */
+async function clic(el,action){
+  await aller(el);const {ptr}=demoDom();
+  ptr.classList.add('clic');await pause(200);ptr.classList.remove('clic');
+  if(action)action();
+  await pause(350);
+}
+/* Glisser-déposer : le pointeur part de l’élément, suit le chemin, puis lâche au point du monde visé. */
+async function glisser(el,wx,wy,action){
+  const a=centre(el),b=mondeVersEcran(wx,wy);
+  await aller(el);const {ptr}=demoDom();
+  ptr.classList.add('clic');await pause(150);
+  for(let i=1;i<=12;i++){const t=i/12;placerPtr(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,70);await pause(80);}
+  if(action)action();
+  ptr.classList.remove('clic');await pause(350);
+}
+/* Saisie : les lettres s’écrivent une à une dans le champ. */
+async function taper(champ,texte){
+  await clic(champ);champ.focus();let v='';
+  for(const ch of texte){v+=ch;champ.value=v;await pause(70);}
+}
+async function attendreEl(sel){for(let i=0;i<30;i++){const e=document.querySelector(sel);if(e)return e;await pause(100);}return null;}
+/* Une commande tapée dans le terminal d’un PC : on attend la fin des paquets avant de continuer. */
+async function pingVisible(nom,ip){
+  const d=dev(nom);if(!d)return;
+  await clic(devEl(d),()=>{if(!WINS.has(d.id))openWin(d);});
+  if(!$('#term-'+d.id)){
+    const W=WINS.get(d.id),icone=W&&W.el.querySelector('[data-app="term"]');
+    if(icone)await clic(icone,()=>openApp(W,'term'));
+  }
+  const champ=await attendreEl('#term-'+d.id);if(!champ)return;
+  await taper(champ,'ping '+ip);
+  champ.form.requestSubmit();
+  for(let i=0;i<300&&champ.disabled;i++)await pause(100);
+  await pause(600);
+}
+/* Mon premier câble : posé, relié, adressé et testé, geste par geste. */
+async function demoCable(){
+  montrerExemple('vide');await pause(500);
+  let sw,p1,p2;
+  await legende('Ouvre la boîte à outils : les appareils sont à gauche.');
+  await aller($('#palette'));
+  await legende('Glisse un switch sur la feuille.');
+  await glisser(document.querySelector('.pdev[data-type="switch"]'),300,240,()=>{sw=newDevice('switch',300,240);render();renderProps();fitView();});
+  await legende('Glisse un PC à gauche du switch.');
+  await glisser(document.querySelector('.pdev[data-type="pc"]'),120,160,()=>{p1=newDevice('pc',120,160);render();renderProps();});
+  await legende('Glisse un second PC à droite.');
+  await glisser(document.querySelector('.pdev[data-type="pc"]'),480,160,()=>{p2=newDevice('pc',480,160);render();renderProps();});
+  await legende('Choisis l’outil Câble.');
+  await clic(outil('cable'),()=>setTool('cable'));
+  await legende('Relie PC 1 au switch : clique sur PC 1, puis sur le switch.');
+  await clic(devEl(p1));
+  await clic(devEl(sw),()=>{connect(p1,sw,true);render();});
+  await legende('Relie PC 2 au switch.');
+  await clic(devEl(p2));
+  await clic(devEl(sw),()=>{connect(p2,sw,true);render();});
+  await clic(outil('select'),()=>setTool('select'));
+  await legende('Clique sur PC 1 : son panneau Propriétés s’ouvre à droite.');
+  await clic(devEl(p1),()=>{sel={kind:'dev',id:p1.id};renderProps();});
+  await legende('Écris son adresse IP dans le champ Adresse IP.');
+  const ip1=document.querySelector('#props [data-f="ip"]');
+  await taper(ip1,'192.168.1.11');ip1.dispatchEvent(new Event('change',{bubbles:true}));
+  await legende('Fais de même pour PC 2 : clique dessus, puis écris 192.168.1.12.');
+  await clic(devEl(p2),()=>{sel={kind:'dev',id:p2.id};renderProps();});
+  const ip2=document.querySelector('#props [data-f="ip"]');
+  await taper(ip2,'192.168.1.12');ip2.dispatchEvent(new Event('change',{bubbles:true}));
+  await legende('Passe en simulation : le bouton ▶ en haut.');
+  setMode('sim');if(sim.paused){sim.paused=false;updPause();}
+  await pause(500);
+  await legende('Ouvre l’invite de commandes de PC 1 et tape un ping vers PC 2.');
+  await pingVisible('PC 1','192.168.1.12');
+  await legende('Le ping a réussi : les deux PC se parlent.');
+  await pause(1200);
+  setMode('design');
+}
+/* Une démo en boucle tape le ping dans le terminal, à l’écran, en boucle. */
+async function lancerDemo(k){
+  const d=DEMOS.find(x=>x.k===k);if(!d)return;
+  if(demoEnCours){demoEnCours.arret=true;await new Promise(r=>{const t=setInterval(()=>{if(!demoEnCours){clearInterval(t);r();}},100);});}
+  const c={arret:false};demoEnCours=c;barreDemo(d.t,c);
+  try{
+    if(d.boucle){
+      montrerExemple(d.ex);await pause(700);
+      setMode('sim');if(sim.paused){sim.paused=false;updPause();}
+      await pause(400);
+      while(true)for(const [de,vers] of d.paires)await pingVisible(de,vers);
+    }else await demoCable();
+  }catch(_){}
+  finally{if(demoEnCours===c)demoEnCours=null;$('#demoBar').hidden=true;demoCacher();}
+}
 function montrerExemple(k){closeParc();setMode('design');snap();buildExample(k);sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();}
 function barreDemo(nom,c){
   let b=$('#demoBar');
@@ -3499,36 +3625,6 @@ function barreDemo(nom,c){
     $('#demoStop').onclick=()=>{if(demoEnCours)demoEnCours.arret=true;};
   }
   $('#demoNom').textContent=nom;b.hidden=false;
-}
-/* Une démo guidée joue les gestes un par un : chaque appareil, chaque câble, chaque adresse. */
-async function demoCable(c){
-  const geste=async(f,ms=900)=>{if(c.arret)throw 'arret';f();render();renderProps();await pause(ms);};
-  montrerExemple('vide');await pause(500);
-  let sw,a,b;
-  await geste(()=>{sw=newDevice('switch',300,240);fitView();});
-  await geste(()=>{a=newDevice('pc',120,160);});
-  await geste(()=>{b=newDevice('pc',480,160);});
-  await geste(()=>{connect(a,sw,true);});
-  await geste(()=>{connect(b,sw,true);});
-  await geste(()=>{a.ip='192.168.1.11';b.ip='192.168.1.12';});
-  await geste(()=>{setMode('sim');if(sim.paused){sim.paused=false;updPause();}},600);
-  await pingP(a.name,b.ip);
-  setMode('design');
-  toast('Démo terminée : les deux PC se parlent.');
-}
-async function lancerDemo(k){
-  const d=DEMOS.find(x=>x.k===k);if(!d)return;
-  if(demoEnCours){demoEnCours.arret=true;await new Promise(r=>{const t=setInterval(()=>{if(!demoEnCours){clearInterval(t);r();}},100);});}   // une seule démo à la fois
-  const c={arret:false};demoEnCours=c;barreDemo(d.t,c);
-  try{
-    if(d.boucle){
-      montrerExemple(d.ex);await pause(600);
-      setMode('sim');if(sim.paused){sim.paused=false;updPause();}
-      await pause(400);
-      while(!c.arret){for(const [de,vers] of d.paires){if(c.arret)break;await pingP(de,vers);await pause(1600);}}
-    }else await demoCable(c);
-  }catch(_){}
-  finally{if(demoEnCours===c)demoEnCours=null;$('#demoBar').hidden=true;}
 }
 function demosModal(){
   const carte=(x,titre,bouton)=>`<div class="excard"><div class="meta"><span class="lvl">${titre}</span></div><h3>${x.t}</h3><p>${x.p}</p>${bouton}</div>`;
