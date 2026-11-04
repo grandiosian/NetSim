@@ -908,6 +908,13 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .doclist{margin-top:4px}
 .demobar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:97;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18);font-weight:700;font-size:13px;white-space:nowrap}
 .demobar[hidden]{display:none}
+/* Formulaire « Mon code » : mêmes styles que le formulaire de la Centrale. */
+.centrale-form{display:flex;flex-direction:column;gap:10px;max-width:420px}
+.centrale-form label{font-weight:600}
+.centrale-form input{font:500 1.05rem ui-monospace,Menlo,Consolas,monospace;padding:10px 12px;border:1px solid #b9b6ae;border-radius:8px;width:100%;box-sizing:border-box;background:inherit;color:inherit}
+.centrale-form button{font:inherit;font-weight:600;padding:10px 16px;border:0;border-radius:8px;background:#1f5f8b;color:#fff;cursor:pointer}
+.centrale-form button[disabled]{opacity:.6;cursor:wait}
+.centrale-erreur{color:#b3261e;min-height:1.4em;margin:0}
 /* Pointeur de démo : une flèche qui se déplace, appuie et lâche, avec un cercle à chaque clic. */
 .demoptr{position:fixed;z-index:200;pointer-events:none;transition:left .65s cubic-bezier(.4,0,.2,1),top .65s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
 .demoptr svg{display:block;transition:transform .15s}
@@ -4394,9 +4401,8 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     fenetre.id='centraleFenetre';
     fenetre.style.cssText='position:fixed;inset:0;z-index:1000;place-items:center;background:rgba(0,0,0,.35);padding:16px';
     fenetre.innerHTML='<div style="background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(420px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25)">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong style="font-size:1.1rem">Connexion de la classe</strong>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong style="font-size:1.1rem">Connexion</strong>'
       +'<button type="button" class="btn flat" data-fermer aria-label="Fermer">✕</button></div>'
-      +'<p style="margin:0 0 12px;color:var(--ink-3)">Avec ton code, ton schéma et tes ateliers sont enregistrés et ton professeur voit ta progression.</p>'
       +'<div class="cz-corps"></div></div>';
     fenetre.addEventListener('click',e=>{if(e.target===fenetre||e.target.closest('[data-fermer]'))montrer(false);});
     document.body.appendChild(fenetre);
