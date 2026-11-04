@@ -1054,6 +1054,126 @@
           "Qu’est-ce qui se passe si la plage est épuisée ?"
         ],
         "alertes": true
+      },
+      {
+        "id": "sb1-0",
+        "titre": "Le serveur de messagerie",
+        "groupe": "Bac+1 · Débutant",
+        "total": 5,
+        "competences": [],
+        "classe": "bac1",
+        "niveau": 1,
+        "categorie": "client",
+        "categorie_titre": "Client-serveur",
+        "resume": "Un serveur range les messages de la classe : configurer le serveur, les postes, puis envoyer un message.",
+        "duree": "25 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi le message ne va-t-il pas directement de PC 1 à PC 2 ?",
+          "Quel protocole sert à envoyer un message et lequel à le relever ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb1-1",
+        "titre": "Deux sous-réseaux",
+        "groupe": "Bac+1 · Intermédiaire",
+        "total": 4,
+        "competences": [],
+        "classe": "bac1",
+        "niveau": 1,
+        "categorie": "adressage",
+        "categorie_titre": "Adressage avancé",
+        "resume": "Le masque définit le réseau de chaque poste : donner le bon masque à chaque groupe de postes.",
+        "duree": "30 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Combien d’adresses utilisables offre un masque /25 ?",
+          "Pourquoi PC 1 ne peut-il pas joindre PC 3 directement ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb1-2",
+        "titre": "Une route fausse",
+        "groupe": "Bac+1 · Avancé",
+        "total": 5,
+        "competences": [],
+        "classe": "bac1",
+        "niveau": 1,
+        "categorie": "adressage",
+        "categorie_titre": "Adressage avancé",
+        "resume": "Une route pointe vers une adresse inconnue : trouver la route fautive, la corriger et rétablir la communication.",
+        "duree": "35 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi une route vers une adresse inconnue fait-elle échouer tout le trajet ?",
+          "Comment vérifier le chemin suivi par un paquet ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb2-0",
+        "titre": "Plan d’adressage",
+        "groupe": "Bac+2 · Débutant",
+        "total": 5,
+        "competences": [],
+        "classe": "bac2",
+        "niveau": 2,
+        "categorie": "conception",
+        "categorie_titre": "Conception",
+        "resume": "Deux réseaux séparés par un routeur : établir le plan d’adressage, puis régler les passerelles.",
+        "duree": "30 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi chaque réseau a-t-il sa propre plage d’adresses ?",
+          "Quelle est l’adresse de passerelle d’un poste du réseau B ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb2-1",
+        "titre": "DHCP et DNS",
+        "groupe": "Bac+2 · Intermédiaire",
+        "total": 5,
+        "competences": [],
+        "classe": "bac2",
+        "niveau": 2,
+        "categorie": "conception",
+        "categorie_titre": "Conception",
+        "resume": "Un serveur distribue les adresses et traduit le nom du campus : configurer les deux services.",
+        "duree": "35 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi le DNS et le DHCP sont-ils souvent sur le même serveur ?",
+          "Que se passe-t-il si la plage DHCP est épuisée ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb2-2",
+        "titre": "Réseau d’entreprise",
+        "groupe": "Bac+2 · Avancé",
+        "total": 5,
+        "competences": [],
+        "classe": "bac2",
+        "niveau": 2,
+        "categorie": "conception",
+        "categorie_titre": "Conception",
+        "resume": "Deux réseaux routés : un routeur distribue les adresses du réseau B, puis le poste reçoit son adresse et joint le réseau A.",
+        "duree": "40 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi le routeur doit-il avoir une adresse dans chaque réseau ?",
+          "Quelle différence entre une adresse donnée à la main et une adresse DHCP ?"
+        ],
+        "alertes": true
       }
     ]
   },

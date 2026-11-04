@@ -812,6 +812,108 @@
         }
       ],
       "ouvrir": "et-2"
+    },
+    {
+      "id": "sb1-0",
+      "titre": "Le serveur de messagerie",
+      "niveau": "bac1",
+      "resume": "Un serveur range les messages de la classe : configurer le serveur, les postes, puis envoyer un message.",
+      "duree": "25 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb1-0",
+          "titre": "Le serveur de messagerie",
+          "total": 5,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb1-0"
+    },
+    {
+      "id": "sb1-1",
+      "titre": "Deux sous-réseaux",
+      "niveau": "bac1",
+      "resume": "Le masque définit le réseau de chaque poste : donner le bon masque à chaque groupe de postes.",
+      "duree": "30 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb1-1",
+          "titre": "Deux sous-réseaux",
+          "total": 4,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb1-1"
+    },
+    {
+      "id": "sb1-2",
+      "titre": "Une route fausse",
+      "niveau": "bac1",
+      "resume": "Une route pointe vers une adresse inconnue : trouver la route fautive, la corriger et rétablir la communication.",
+      "duree": "35 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb1-2",
+          "titre": "Une route fausse",
+          "total": 5,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb1-2"
+    },
+    {
+      "id": "sb2-0",
+      "titre": "Plan d’adressage",
+      "niveau": "bac2",
+      "resume": "Deux réseaux séparés par un routeur : établir le plan d’adressage, puis régler les passerelles.",
+      "duree": "30 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb2-0",
+          "titre": "Plan d’adressage",
+          "total": 5,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb2-0"
+    },
+    {
+      "id": "sb2-1",
+      "titre": "DHCP et DNS",
+      "niveau": "bac2",
+      "resume": "Un serveur distribue les adresses et traduit le nom du campus : configurer les deux services.",
+      "duree": "35 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb2-1",
+          "titre": "DHCP et DNS",
+          "total": 5,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb2-1"
+    },
+    {
+      "id": "sb2-2",
+      "titre": "Réseau d’entreprise",
+      "niveau": "bac2",
+      "resume": "Deux réseaux routés : un routeur distribue les adresses du réseau B, puis le poste reçoit son adresse et joint le réseau A.",
+      "duree": "40 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb2-2",
+          "titre": "Réseau d’entreprise",
+          "total": 5,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb2-2"
     }
   ]
 }
