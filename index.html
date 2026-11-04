@@ -1466,7 +1466,7 @@ function renderDevices(){
 <path class="hitbox" d="M-55.4256 22L0 -10L55.4256 22L0 54Z"/>
 <path class="tile" d="M-55.4256 22L0 -10L55.4256 22L0 54Z"/>
 <circle class="halo" id="halo-${d.id}" r="40"/>
-<use href="#ic-${d.type}" x="-50" y="-40" width="100" height="78"/>
+<use href="#ic-${d.type}" x="-50" y="-32" width="100" height="78"/>
 <g class="lab" transform="translate(0,58) scale(${LF})"><text class="dname" y="14">${esc(d.name)}</text>
 ${ipl?`<text class="dip${(d.ip||'').trim()?'':' none'}" y="29">${esc(ipl)}</text>`:''}</g>
 ${srv&&lv()>0?`<g class="wb" id="wb-${d.id}" transform="translate(-40,30)"><rect x="-15" y="-8" width="30" height="16" rx="8"/><text y="3.5">${d.type==='esp32'?'°C':d.type==='printer'?'ipp':'www'}</text></g>`:''}
