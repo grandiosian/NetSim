@@ -278,6 +278,7 @@ button{cursor:pointer}
 #app[data-lv="0"] .lv1,#app[data-lv="0"] .lv2,#app[data-lv="1"] .lv2{display:none!important}
 /* Un atelier qui parle des trames affiche le panneau, quel que soit le niveau. */
 #app.trames-requises[data-lv="0"] #frames.lv1{display:block!important}
+#app.arp-requis[data-lv="0"] #frames .chip[data-p="ARP"]{display:inline-flex!important}
 #app[data-lv="0"] .wbtn[data-act="frames"]{display:none}
 .simctl{display:none;align-items:center;gap:10px;flex-wrap:wrap}
 .app.sim .simctl{display:flex}
@@ -2058,7 +2059,7 @@ function logFrame(from,to,fr){
 function txFrame(d,port,fr){
   const c=cableAt(d.id,port);if(!c)return false;
   const o=otherEnd(c,d.id,port),to=D(o.d);if(!to)return false;
-  const n=logFrame(d,to,fr),cls=fcls(fr),hid=lv()===0&&fr.type==='ARP';
+  const n=logFrame(d,to,fr),cls=fcls(fr),hid=!arpVisible()&&fr.type==='ARP';
   const g=document.createElementNS(NS,'g');g.setAttribute('class','pkt '+cls);g.dataset.pkt=n;
   g.innerHTML=`<rect x="-23" y="-11" width="46" height="22" rx="5"/><path class="flap" d="M-21 -9L0 2L21 -9"/><text y="4">${flabel(fr)}</text><title>${esc(finfo(fr))}</title>`;
   g.setAttribute('transform',`translate(${d.x},${d.y})`);
@@ -2753,16 +2754,21 @@ function assistant(cle){
 $('#asOk').onclick=()=>{$('#assist').hidden=true;};
 function openFrames(){assistant('frames');setFramesOpen(true);fillDevSelect();renderFrames();}
 function fillDevSelect(){const s=$('#fDev'),v=fFilter.dev;s.innerHTML=`<option value="all">Tous les appareils</option>`+S.devices.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');s.value=S.devices.some(d=>String(d.id)===v)?v:'all';fFilter.dev=s.value;}
-function fMatch(e){if(lv()===0&&e.fr.type==='ARP')return false;if(!fFilter[fproto(e.fr)])return false;if(fFilter.dev==='all')return true;const id=+fFilter.dev;return e.from===id||e.to===id;}
+/* Les trames ARP sont cachées au niveau Débutant, sauf si l’atelier en cours les demande. */
+let arpAffiche=false;
+function arpVisible(){return lv()>0||arpAffiche;}
+function fMatch(e){if(!arpVisible()&&e.fr.type==='ARP')return false;if(!fFilter[fproto(e.fr)])return false;if(fFilter.dev==='all')return true;const id=+fFilter.dev;return e.from===id||e.to===id;}
 function kindName(fr){if(fr.type==='ARP')return 'ARP';const p=fr.ip;if(p.proto==='DHCP')return 'DHCP';if(p.proto==='DNS')return 'DNS';if(p.proto==='MSG')return 'Messagerie';if(p.proto==='ICMP')return p.icmp.kind==='req'||p.icmp.kind==='rep'?'Ping':'Erreur';if(p.http.kind==='rst')return 'Erreur';return p.http.path==='/imprimer'||(p.http.body||'').startsWith('Document imprimé')?'Impression':'Web';}
-function finfo0(fr){const p=fr.ip,a=nameOf(p.src)||n2ip(p.src),b=nameOf(p.dst)||n2ip(p.dst);
+function finfo0(fr){
+  if(fr.type==='ARP'){const r=fr.arp,qui=nameOf(r.sip)||n2ip(r.sip);return r.op==='req'?`${qui} demande qui a l’adresse ${n2ip(r.tip)}`:`${qui} répond : son adresse MAC est ${r.smac}`;}
+  const p=fr.ip,a=nameOf(p.src)||n2ip(p.src),b=nameOf(p.dst)||n2ip(p.dst);
   if(p.proto==='ICMP'){const k=p.icmp.kind;return k==='req'?`${a} demande à ${b} : « es-tu là ? »`:k==='rep'?`${a} répond à ${b} : « oui, je suis là ! »`:k==='unreach'?`${a} signale : je ne connais pas ce réseau`:`${a} signale : le message a fait trop de détours`;}
   const h=p.http;if(h.kind==='get')return h.path==='/imprimer'?`${a} envoie un document à imprimer à ${b}`:`${a} demande la page web de ${b}`;
   if(h.kind==='rst')return `${a} refuse : pas de serveur web ici`;
   return (h.body||'').startsWith('Document imprimé')?`${a} confirme : document imprimé`:`${a} envoie sa page web à ${b}`;}
 function srcDst(fr){if(fr.type==='ARP'){const a=fr.arp;return [n2ip(a.sip),a.op==='req'?'tous':n2ip(a.tip)];}return [n2ip(fr.ip.src),n2ip(fr.ip.dst)];}
 function renderFrames(){
-  $('#fCount').textContent=lv()===0?LOG.filter(e=>e.fr.type!=='ARP').length:LOG.length;
+  $('#fCount').textContent=!arpVisible()?LOG.filter(e=>e.fr.type!=='ARP').length:LOG.length;
   if($('#frames').classList.contains('closed'))return;
   const box=$('#fTable');
   const atBottom=box.scrollTop+box.clientHeight>=box.scrollHeight-30;
@@ -3541,7 +3547,7 @@ function tramesRequises(x){return x.steps.some(s=>/trame|Trame/.test((s.t||'')+'
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());$('#app').classList.toggle('trames-requises',tramesRequises(x));S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles();S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());$('#app').classList.toggle('trames-requises',tramesRequises(x));arpAffiche=x.steps.some(s=>/ARP/.test((s.t||'')+' '+(s.h||'')));$('#app').classList.toggle('arp-requis',arpAffiche);S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles();S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
