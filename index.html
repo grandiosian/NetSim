@@ -3786,9 +3786,11 @@ ${bouton}</div>`;
 let PARC_DETAIL={};
 function parcoursHTML(){
   const ord=parcoursOrdre(),fait=ord.filter(exoFait).length,suivant=ord.find(x=>exoEtat(x,ord)==='prochain');
-  /* Classes accessibles : la classe en cours et les précédentes. Une nouvelle classe s’ouvre quand la précédente est terminée. */
-  const ordreC=CLASSES_PARC.map(([c])=>c),classeC=suivant?suivant.c:ordreC[ordreC.length-1];
-  const accessibles=ordreC.slice(0,ordreC.indexOf(classeC)+1);
+  /* Classe choisie (PREF.classe) : elle borne les classes affichées. Quand la classe suivante s’ouvre par la progression, elle devient la classe choisie. */
+  const ordreC=CLASSES_PARC.map(([c])=>c),idxP=ordreC.indexOf(suivant?suivant.c:ordreC[ordreC.length-1]);
+  if(!PREF.classe||idxP>ordreC.indexOf(PREF.progC||ordreC[0])){PREF.classe=ordreC[idxP];}
+  if(PREF.progC!==ordreC[idxP]){PREF.progC=ordreC[idxP];savePref();}
+  const accessibles=ordreC.slice(0,ordreC.indexOf(PREF.classe)+1);
   const tps=tpsParc().filter(t=>accessibles.includes(t.c));
   const chemin=tps.map((t,i)=>{const e=tpEtat(t,ord);
     return `<button class="cnode ${e}" data-tpopen="${tpId(t)}" type="button"><span class="cdot">${e==='fini'?'✓':e==='verrou'?'🔒':i+1}</span><span class="clab">${TP_LABEL[t.k].replace('-','<br>')}</span></button>`;
@@ -4097,7 +4099,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
         if(it.dataset.profil==='connexion'){
           if(!window.Centrale){toast('La Centrale est injoignable pour le moment : NetSim fonctionne sans connexion.');return;}
           ouvrirFenetre();
-        }else document.querySelector('[data-parc-act="classe"]').click();
+        }else{$('#accueil').hidden=false;accueilEtape('classe');}
       });
       document.body.appendChild(profil);
       document.addEventListener('click',e=>{if(!profil.hidden&&!profil.contains(e.target)&&!bouton.contains(e.target))profil.hidden=true;});
