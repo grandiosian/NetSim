@@ -442,10 +442,10 @@ table.ft{width:100%;border-collapse:collapse;font-size:12.5px}
 .app.design.t-cable .dev{cursor:crosshair}
 .app.design.t-zone #cv{cursor:crosshair}
 .hitbox{fill:transparent}
-.tile{fill:color-mix(in srgb,var(--tile) 7%,transparent);stroke:color-mix(in srgb,var(--tile) 28%,transparent);stroke-width:1.5;transition:fill .3s,stroke .3s}
-.app.sim .tile{fill:color-mix(in srgb,var(--ok) 14%,transparent);stroke:color-mix(in srgb,var(--ok) 55%,transparent)}
+.tile{fill:transparent;stroke:transparent;stroke-width:1.5;transition:fill .3s,stroke .3s}
+.app.sim .dev:hover .tile{fill:color-mix(in srgb,var(--ok) 14%,transparent);stroke:color-mix(in srgb,var(--ok) 55%,transparent)}
 .dev.sel .tile,.dev.pend .tile{fill:color-mix(in srgb,var(--accent) 16%,transparent);stroke:var(--accent);stroke-width:2}
-.dev:hover .tile{stroke:color-mix(in srgb,var(--tile) 55%,transparent)}
+.dev:hover .tile{fill:color-mix(in srgb,var(--tile) 7%,transparent);stroke:color-mix(in srgb,var(--tile) 55%,transparent)}
 .dev use{filter:drop-shadow(0 3px 3px rgba(20,33,61,.18))}
 .dname{font-family:var(--f-body);font-weight:700;font-size:13px;fill:var(--ink);text-anchor:middle;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
 .dip{font-family:var(--f-mono);font-size:11.5px;fill:var(--ink-2);text-anchor:middle;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
