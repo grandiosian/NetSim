@@ -659,6 +659,159 @@
         }
       ],
       "ouvrir": "e3-5"
+    },
+    {
+      "id": "e2-0",
+      "titre": "Premier contact",
+      "niveau": "2nde",
+      "resume": "Donner une adresse à deux postes d’un switch, puis observer la trame ARP qui précède le premier ping.",
+      "duree": "20 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e2-0",
+          "titre": "Premier contact",
+          "total": 4,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e2-0"
+    },
+    {
+      "id": "e2-1",
+      "titre": "La table du switch",
+      "niveau": "2nde",
+      "resume": "Trois postes reliés à un switch : observer comment le switch apprend les adresses MAC.",
+      "duree": "25 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e2-1",
+          "titre": "La table du switch",
+          "total": 3,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e2-1"
+    },
+    {
+      "id": "e2-2",
+      "titre": "Le doublon",
+      "niveau": "2nde",
+      "resume": "Quatre postes dont deux portent la même adresse : trouver le doublon, le corriger, puis vérifier la communication.",
+      "duree": "30 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e2-2",
+          "titre": "Le doublon",
+          "total": 3,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e2-2"
+    },
+    {
+      "id": "e1-0",
+      "titre": "Une passerelle",
+      "niveau": "1re",
+      "resume": "Deux salles séparées par un routeur : donner la passerelle à chaque poste pour qu’ils se parlent.",
+      "duree": "25 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e1-0",
+          "titre": "Une passerelle",
+          "total": 4,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e1-0"
+    },
+    {
+      "id": "e1-1",
+      "titre": "Le bon masque",
+      "niveau": "1re",
+      "resume": "Deux postes d’une même salle ne se parlent pas : regarder le masque de sous-réseau de chacun.",
+      "duree": "25 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e1-1",
+          "titre": "Le bon masque",
+          "total": 4,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e1-1"
+    },
+    {
+      "id": "e1-2",
+      "titre": "Deux routeurs en chaîne",
+      "niveau": "1re",
+      "resume": "Ajouter les routes qui permettent à deux réseaux séparés par deux routeurs de communiquer.",
+      "duree": "40 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e1-2",
+          "titre": "Deux routeurs en chaîne",
+          "total": 5,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e1-2"
+    },
+    {
+      "id": "et-0",
+      "titre": "Le site du lycée",
+      "niveau": "tle",
+      "resume": "Un serveur héberge une page web : la demander avec le navigateur d’un poste.",
+      "duree": "20 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "et-0",
+          "titre": "Le site du lycée",
+          "total": 3,
+          "competences": []
+        }
+      ],
+      "ouvrir": "et-0"
+    },
+    {
+      "id": "et-1",
+      "titre": "Le nom du site",
+      "niveau": "tle",
+      "resume": "Un serveur DNS traduit le nom du site en adresse IP : configurer le serveur et le poste.",
+      "duree": "30 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "et-1",
+          "titre": "Le nom du site",
+          "total": 4,
+          "competences": []
+        }
+      ],
+      "ouvrir": "et-1"
+    },
+    {
+      "id": "et-2",
+      "titre": "Adresses automatiques",
+      "niveau": "tle",
+      "resume": "Un serveur DHCP distribue les adresses : régler la plage, puis vérifier qu’un poste la reçoit.",
+      "duree": "35 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "et-2",
+          "titre": "Adresses automatiques",
+          "total": 4,
+          "competences": []
+        }
+      ],
+      "ouvrir": "et-2"
     }
   ]
 }

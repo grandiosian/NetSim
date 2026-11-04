@@ -874,6 +874,186 @@
           "Quel est le port du serveur ? Et celui du client ?"
         ],
         "alertes": true
+      },
+      {
+        "id": "e2-0",
+        "titre": "Premier contact",
+        "groupe": "2nde · Débutant",
+        "total": 4,
+        "competences": [],
+        "classe": "2nde",
+        "niveau": 0,
+        "categorie": "reseau",
+        "categorie_titre": "Réseau local",
+        "resume": "Donner une adresse à deux postes d’un switch, puis observer la trame ARP qui précède le premier ping.",
+        "duree": "20 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Pourquoi PC 1 envoie-t-il d’abord une trame ARP ?",
+          "Que contient la réponse ARP ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e2-1",
+        "titre": "La table du switch",
+        "groupe": "2nde · Intermédiaire",
+        "total": 3,
+        "competences": [],
+        "classe": "2nde",
+        "niveau": 0,
+        "categorie": "reseau",
+        "categorie_titre": "Réseau local",
+        "resume": "Trois postes reliés à un switch : observer comment le switch apprend les adresses MAC.",
+        "duree": "25 min",
+        "etapes": 3,
+        "etapes_auto": 3,
+        "questions": [
+          "Pourquoi le switch n’envoie-t-il pas la trame à tous les ports une fois la table remplie ?",
+          "Que se passe-t-il si un poste est débranché ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e2-2",
+        "titre": "Le doublon",
+        "groupe": "2nde · Avancé",
+        "total": 3,
+        "competences": [],
+        "classe": "2nde",
+        "niveau": 0,
+        "categorie": "diag",
+        "categorie_titre": "Diagnostic",
+        "resume": "Quatre postes dont deux portent la même adresse : trouver le doublon, le corriger, puis vérifier la communication.",
+        "duree": "30 min",
+        "etapes": 3,
+        "etapes_auto": 3,
+        "questions": [
+          "Que répond un PC quand on lui demande une adresse déjà utilisée ?",
+          "Comment repérer rapidement un doublon dans une salle ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e1-0",
+        "titre": "Une passerelle",
+        "groupe": "1re · Débutant",
+        "total": 4,
+        "competences": [],
+        "classe": "1re",
+        "niveau": 1,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Deux salles séparées par un routeur : donner la passerelle à chaque poste pour qu’ils se parlent.",
+        "duree": "25 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Pourquoi PC 1 a-t-il besoin d’une passerelle ?",
+          "Quelle adresse de passerelle donner à un poste de la salle B ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e1-1",
+        "titre": "Le bon masque",
+        "groupe": "1re · Intermédiaire",
+        "total": 4,
+        "competences": [],
+        "classe": "1re",
+        "niveau": 1,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Deux postes d’une même salle ne se parlent pas : regarder le masque de sous-réseau de chacun.",
+        "duree": "25 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Quels postes se trouvent dans le même réseau avec un masque /25 ?",
+          "Pourquoi un masque différent empêche-t-il le ping ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e1-2",
+        "titre": "Deux routeurs en chaîne",
+        "groupe": "1re · Avancé",
+        "total": 5,
+        "competences": [],
+        "classe": "1re",
+        "niveau": 1,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Ajouter les routes qui permettent à deux réseaux séparés par deux routeurs de communiquer.",
+        "duree": "40 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Pourquoi faut-il une route aussi dans le sens du retour ?",
+          "Combien de routeurs sont traversés par le paquet ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "et-0",
+        "titre": "Le site du lycée",
+        "groupe": "Terminale · Débutant",
+        "total": 3,
+        "competences": [],
+        "classe": "tle",
+        "niveau": 2,
+        "categorie": "services",
+        "categorie_titre": "Services réseau",
+        "resume": "Un serveur héberge une page web : la demander avec le navigateur d’un poste.",
+        "duree": "20 min",
+        "etapes": 3,
+        "etapes_auto": 3,
+        "questions": [
+          "Quel protocole transporte la page web ?",
+          "Pourquoi le navigateur utilise-t-il l’adresse IP du serveur ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "et-1",
+        "titre": "Le nom du site",
+        "groupe": "Terminale · Intermédiaire",
+        "total": 4,
+        "competences": [],
+        "classe": "tle",
+        "niveau": 2,
+        "categorie": "services",
+        "categorie_titre": "Services réseau",
+        "resume": "Un serveur DNS traduit le nom du site en adresse IP : configurer le serveur et le poste.",
+        "duree": "30 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Quel protocole sert à traduire un nom en adresse ?",
+          "Que se passerait-il si le champ Serveur DNS était vide ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "et-2",
+        "titre": "Adresses automatiques",
+        "groupe": "Terminale · Avancé",
+        "total": 4,
+        "competences": [],
+        "classe": "tle",
+        "niveau": 2,
+        "categorie": "services",
+        "categorie_titre": "Services réseau",
+        "resume": "Un serveur DHCP distribue les adresses : régler la plage, puis vérifier qu’un poste la reçoit.",
+        "duree": "35 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Pourquoi un poste ne doit-il pas garder une adresse fixe dans une salle ?",
+          "Qu’est-ce qui se passe si la plage est épuisée ?"
+        ],
+        "alertes": true
       }
     ]
   },

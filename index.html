@@ -719,7 +719,8 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .wsinfo{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:6px}
 .wsinfo small{display:block;font-size:13px;color:var(--ink-3)}
 .wsuite .wgo{margin:0 0 0 auto;padding:12px 24px;font-size:16px;flex:none}
-.k5{--cl:#4cc584}.k4{--cl:#f5c518}.k3{--cl:#ff6b6b}
+.k5{--cl:#4cc584}.k4{--cl:#f5c518}.k3{--cl:#ff6b6b}.k2{--cl:#17b8c9}.k1{--cl:#1fa8e8}.kt{--cl:#d13cc0}
+.pfc.p2{background:#17b8c9;color:#1c3268}.pfc.p1{background:#1fa8e8;color:#1c3268}.pfc.pt{background:#d13cc0;color:#1c3268}
 .nv0,.nv1,.nv2{--mix:100%}
 .pnv.k5,.pnv.k4,.pnv.k3{border-top:3px solid color-mix(in srgb,var(--cl) var(--mix),#0b1f14)}
 .tpc.k5,.tpc.k4,.tpc.k3{border-top:4px solid color-mix(in srgb,var(--cl) var(--mix),#0b1f14)!important}
@@ -1298,9 +1299,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 <button type="button" data-ac="3e" aria-label="Classe 3ᵉ"><span class="pas p3">3</span><b>3ème</b></button>
 </div>
 <div class="acrow" id="acLycee" hidden>
-<button type="button" data-ac="lyc-2nde" aria-label="Seconde"><span class="pas" style="background:#17b8c9;color:#1c3268">2</span><b>2nde</b></button>
-<button type="button" data-ac="lyc-1re" aria-label="Première"><span class="pas" style="background:#1fa8e8;color:#1c3268">1</span><b>1re</b></button>
-<button type="button" data-ac="lyc-tle" aria-label="Terminale"><span class="pas" style="background:#d13cc0;color:#1c3268">T</span><b>Terminale</b></button>
+<button type="button" data-ac="2nde" aria-label="Seconde"><span class="pas" style="background:#17b8c9;color:#1c3268">2</span><b>2nde</b></button>
+<button type="button" data-ac="1re" aria-label="Première"><span class="pas" style="background:#1fa8e8;color:#1c3268">1</span><b>1re</b></button>
+<button type="button" data-ac="tle" aria-label="Terminale"><span class="pas" style="background:#d13cc0;color:#1c3268">T</span><b>Terminale</b></button>
 </div>
 <div class="acrow" id="acSup" hidden>
 <button type="button" data-ac="sup-bac1" aria-label="Bac+1"><span class="pas" style="background:#f06292;color:#1c3268">+1</span><b>Bac+1</b></button>
@@ -3014,12 +3015,17 @@ function salle4(h,name,ips,opt){
   if(opt.link!==false)ds.forEach(d=>h.link(d,sw));
   return {sw,ds};
 }
-const CLASSES={'5e':{t:'5ᵉ',lv:0},'4e':{t:'4ᵉ',lv:1},'3e':{t:'3ᵉ',lv:2}};
-const pas=c=>{const n={'5e':5,'4e':4,'3e':3}[c]||({0:5,1:4,2:3})[c];return n?`<span class="pas p${n}" aria-hidden="true">${n}</span>`:'';};
+const CLASSES={'5e':{t:'5ᵉ',lv:0},'4e':{t:'4ᵉ',lv:1},'3e':{t:'3ᵉ',lv:2},'2nde':{t:'2nde',lv:0},'1re':{t:'1re',lv:1},'tle':{t:'Terminale',lv:2}};
+/* Pastilles du lycée : couleur et lettre. */
+const LYC={'2nde':{c:'#17b8c9',l:'2'},'1re':{c:'#1fa8e8',l:'1'},'tle':{c:'#d13cc0',l:'T'}};
+const pas=c=>{if(LYC[c])return `<span class="pas" style="background:${LYC[c].c};color:#1c3268" aria-hidden="true">${LYC[c].l}</span>`;const n={'5e':5,'4e':4,'3e':3}[c]||({0:5,1:4,2:3})[c];return n?`<span class="pas p${n}" aria-hidden="true">${n}</span>`:'';};
 const barres=n=>`<span class="nvb" aria-label="Niveau ${n+1} sur 3">${[0,1,2].map(i=>`<i${i<=n?' class="on"':''}></i>`).join('')}</span>`;
 const CATS={
  '5e':[['premiers','Premiers pas','Un appareil, un câble, un premier ping.'],['cabler','Relier les appareils','Câbles, switch et liaison Wi-Fi.'],['adresses','Les adresses IP','Donner, vérifier et corriger des adresses.'],['services','Les services du réseau','Imprimer et consulter une page web.'],['passerelle','Deux salles, une passerelle','Relier deux salles par un routeur, pas à pas.'],['masque','Le masque de sous-réseau','Savoir si deux appareils sont dans le même réseau.']],
  '4e':[['salle','Le réseau de la salle','Relier, adresser et dépanner un petit réseau.'],['routeur','Routeur et passerelle','Faire communiquer deux réseaux.'],['dhcp','Adresses automatiques','Un serveur DHCP attribue les adresses aux appareils.'],['observer','Observer les échanges','ARP, adresses MAC et table du switch.'],['diag','Diagnostiquer une panne','Symptôme, hypothèse, test, correction.'],['iot','Objets connectés','Un capteur qui publie ses mesures.'],['nomsreseau','Noms et réseaux','Un nom ne fonctionne plus à travers le routeur.']],
+ '2nde':[['reseau','Réseau local','Adresses, switch et protocole ARP.'],['diag','Diagnostic','Trouver une panne dans un réseau local.']],
+ '1re':[['routage','Routage','Routeurs, passerelles et sous-réseaux.']],
+ 'tle':[['services','Services réseau','DNS, DHCP et serveur web.']],
  '3e':[['sousreseau','Sous-réseaux et masques','Découper et planifier les adresses.'],['routage','Routage','Routes statiques et durée de vie (TTL).'],['protocoles','Protocoles et encapsulation','Ethernet, IP, TCP, HTTP.'],['noms','Noms et adresses','Un serveur DNS traduit les noms en adresses IP.'],['messagerie','Messagerie de classe','Un serveur relaie les messages entre les postes.'],['imprimer','Imprimer dans la salle','Envoyer un document à l’imprimante et trouver la panne.'],['dhcprouteur','Adresses automatiques derrière un routeur','Un routeur distribue les adresses d’une autre salle.']]
 };
 const catName=(c,k)=>{const r=(CATS[c]||[]).find(x=>x[0]===k);return r?r[1]:'';};
@@ -3389,7 +3395,74 @@ const EXOS=[
    {t:'Recharge la page et clique sur une enveloppe PAGE pendant qu’elle circule.',h:'La simulation se met en pause : lis les 4 couches dans le détail, puis clique sur l’horloge pour reprendre.',c:()=>X.ev('frame',e=>e.proto==='HTTP')},
    {t:'Fais un ping, puis ouvre une trame ICMP et une trame ARP pour comparer.',c:()=>X.ev('frame',e=>e.proto==='ICMP')&&X.ev('frame',e=>e.proto==='ARP')}],
   q:['Pour chaque couche (Ethernet, IP, TCP, HTTP) : qui est l’expéditeur, qui est le destinataire, que transporte-t-elle ?','Pourquoi l’adresse MAC change-t-elle après le routeur alors que l’adresse IP reste la même ?','Quel est le port du serveur ? Et celui du client ?'],verif:'Le détail montre 4 couches emboîtées : Ethernet, IP, TCP et HTTP.',
-  build:h=>buildDeux(h)}
+  build:h=>buildDeux(h)},
+/* ----- Lycée : 2nde, 1re, Terminale (un atelier par niveau de difficulté) ----- */
+  {k:'e2-0',c:'2nde',niv:0,cat:'reseau',dur:'20 min',t:'Premier contact',p:'Donner une adresse à deux postes d’un switch, puis observer la trame ARP qui précède le premier ping.',
+    steps:[{t:'Donne 192.168.10.1 à PC 1 et 192.168.10.2 à PC 2.',h:'Clique sur un PC, puis écris son adresse dans le champ Adresse IP.',c:()=>X.in24('PC 1','192.168.10.')&&X.in24('PC 2','192.168.10.')&&X.uniq(['PC 1','PC 2'])},
+     SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.10.2`.',c:()=>X.ping('PC 1','192.168.10.2',true)},
+     {t:'Ouvre Trames échangées et repère une trame ARP : PC 1 demande l’adresse MAC de PC 2.',c:()=>X.ev('frame',e=>e.proto==='ARP')}],
+    q:['Pourquoi PC 1 envoie-t-il d’abord une trame ARP ?','Que contient la réponse ARP ?'],verif:'La trame ARP apparaît avant la réponse au ping.',
+    build:h=>{h.zone('Salle 2',0,0,520,440,'bleu');const sw=h.dev('switch',260,220);const a=h.host('pc',100,100,'',''),b=h.host('pc',420,100,'','');h.link(a,sw);h.link(b,sw);}},
+  {k:'e2-1',c:'2nde',niv:1,cat:'reseau',dur:'25 min',t:'La table du switch',p:'Trois postes reliés à un switch : observer comment le switch apprend les adresses MAC.',
+    steps:[SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.10.2`, puis `ping 192.168.10.3`.',c:()=>X.ping('PC 1','192.168.10.2',true)&&X.ping('PC 1','192.168.10.3',true)},
+     {t:'Clique sur le switch : sa table des adresses MAC contient maintenant PC 1, PC 2 et PC 3.',c:()=>X.ev('open',e=>e.dev==='Switch 1')}],
+    q:['Pourquoi le switch n’envoie-t-il pas la trame à tous les ports une fois la table remplie ?','Que se passe-t-il si un poste est débranché ?'],verif:'La table du switch liste les trois postes.',
+    build:h=>{h.zone('Salle 2',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'192.168.10.1',''),b=h.host('pc',320,100,'192.168.10.2',''),c=h.host('pc',530,100,'192.168.10.3','');[a,b,c].forEach(d=>h.link(d,sw));}},
+  {k:'e2-2',c:'2nde',niv:2,cat:'diag',dur:'30 min',t:'Le doublon',p:'Quatre postes dont deux portent la même adresse : trouver le doublon, le corriger, puis vérifier la communication.',
+    steps:[{t:'Repère les deux postes qui ont la même adresse et donne une adresse libre à l’un d’eux.',h:'Les adresses doivent être toutes différentes dans le réseau 192.168.10.0.',c:()=>X.uniq(['PC 1','PC 2','PC 3','PC 4'])&&X.in24('PC 3','192.168.10.')},
+     SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.10.4` : la réponse doit revenir.',c:()=>X.ping('PC 1','192.168.10.4',true)}],
+    q:['Que répond un PC quand on lui demande une adresse déjà utilisée ?','Comment repérer rapidement un doublon dans une salle ?'],verif:'Les quatre postes ont des adresses différentes et PC 1 répond au ping vers PC 4.',
+    build:h=>{h.zone('Salle 2',0,0,760,440,'bleu');const sw=h.dev('switch',380,220);const a=h.host('pc',90,100,'192.168.10.1',''),b=h.host('pc',260,100,'192.168.10.2',''),c=h.host('pc',440,100,'192.168.10.2',''),d=h.host('pc',620,100,'192.168.10.4','');[a,b,c,d].forEach(x=>h.link(x,sw));}},
+  {k:'e1-0',c:'1re',niv:0,cat:'routage',dur:'25 min',t:'Une passerelle',p:'Deux salles séparées par un routeur : donner la passerelle à chaque poste pour qu’ils se parlent.',
+    steps:[{t:'Donne à PC 1 la passerelle 192.168.1.254 (le routeur, côté salle A).',c:()=>X.gw('PC 1')==='192.168.1.254'},
+     {t:'Donne à PC 2 la passerelle 192.168.2.254 (côté salle B).',c:()=>X.gw('PC 2')==='192.168.2.254'},
+     SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.2.11`.',c:()=>X.ping('PC 1','192.168.2.11',true)}],
+    q:['Pourquoi PC 1 a-t-il besoin d’une passerelle ?','Quelle adresse de passerelle donner à un poste de la salle B ?'],verif:'PC 1 reçoit la réponse de PC 2 à travers le routeur.',
+    build:h=>{h.zone('Salle A',0,0,440,440,'bleu');h.zone('Salle B',880,0,440,440,'vert');const sa=h.dev('switch',220,240),sb=h.dev('switch',1100,240);
+      const a=h.host('pc',96,96,'192.168.1.11',''),b=h.host('pc',1224,96,'192.168.2.11','');const r=h.router(660,240,['192.168.1.254','192.168.2.254']);h.link(a,sa);h.link(sa,r);h.link(r,sb);h.link(b,sb);}},
+  {k:'e1-1',c:'1re',niv:1,cat:'routage',dur:'25 min',t:'Le bon masque',p:'Deux postes d’une même salle ne se parlent pas : regarder le masque de sous-réseau de chacun.',
+    steps:[SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.5.200` : la réponse ne revient pas.',c:()=>X.ping('PC 1','192.168.5.200')},
+     {t:'Clique sur PC 2 et donne-lui le masque 255.255.255.0.',h:'Les deux postes doivent avoir le même masque pour être dans le même réseau.',c:()=>X.mask('PC 2')==='255.255.255.0'},
+     {t:'Refais `ping 192.168.5.200` depuis PC 1 : la réponse revient.',c:()=>X.ping('PC 1','192.168.5.200',true)}],
+    q:['Quels postes se trouvent dans le même réseau avec un masque /25 ?','Pourquoi un masque différent empêche-t-il le ping ?'],verif:'Les deux postes ont le même masque et le ping réussit.',
+    build:h=>{h.zone('Salle 3',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'192.168.5.10',''),b=h.host('pc',530,100,'192.168.5.200','');a.mask='255.255.255.0';b.mask='255.255.255.128';[a,b].forEach(d=>h.link(d,sw));}},
+  {k:'e1-2',c:'1re',niv:2,cat:'routage',dur:'40 min',t:'Deux routeurs en chaîne',p:'Ajouter les routes qui permettent à deux réseaux séparés par deux routeurs de communiquer.',
+    steps:[SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.2.10` : Routeur 1 ne connaît pas le réseau 2.',c:()=>X.ping('PC 1','192.168.2.10')},
+     {t:'Dans Routeur 1, ajoute une route : réseau `192.168.2.0`, masque `255.255.255.0`, via `10.0.0.2`.',h:'Section « Routes statiques » du panneau du routeur.',c:()=>X.route('Routeur 1','192.168.2.0','10.0.0.2')},
+     {t:'Dans Routeur 2, ajoute la route du retour : vers `192.168.1.0`, via `10.0.0.1`.',c:()=>X.route('Routeur 2','192.168.1.0','10.0.0.1')},
+     {t:'Refais `ping 192.168.2.10` depuis PC 1 : la réponse revient.',c:()=>X.ping('PC 1','192.168.2.10',true)}],
+    q:['Pourquoi faut-il une route aussi dans le sens du retour ?','Combien de routeurs sont traversés par le paquet ?'],verif:'La réponse au ping passe par les deux routeurs.',
+    build:h=>{h.zone('Réseau A',0,0,440,480,'bleu');h.zone('Réseau B',880,0,440,480,'vert');const a=h.dev('switch',220,240),b=h.dev('switch',1100,240);
+      [h.host('pc',96,96,'192.168.1.11','192.168.1.254'),h.host('pc',344,96,'192.168.1.12','192.168.1.254')].forEach(d=>h.link(d,a));
+      const r1=h.router(560,240,['192.168.1.254','10.0.0.1']),r2=h.router(760,240,['10.0.0.2','192.168.2.254']);
+      const sv=h.host('server',976,96,'192.168.2.10','192.168.2.254');sv.web.page='Serveur du réseau B';
+      h.link(a,r1);h.link(r1,r2);h.link(r2,b);[sv,h.host('pc',1224,96,'192.168.2.11','192.168.2.254')].forEach(d=>h.link(d,b));}},
+  {k:'et-0',c:'tle',niv:0,cat:'services',dur:'20 min',t:'Le site du lycée',p:'Un serveur héberge une page web : la demander avec le navigateur d’un poste.',
+    steps:[{t:'Donne 192.168.20.11 à PC 1 et 192.168.20.5 au serveur.',c:()=>X.in24('PC 1','192.168.20.')&&X.in24('Serveur 1','192.168.20.')&&X.ip('Serveur 1')==='192.168.20.5'},
+     SIM,
+     {t:'Sur PC 1, ouvre le navigateur et demande `http://192.168.20.5`.',c:()=>X.http('PC 1','192.168.20.5',true)}],
+    q:['Quel protocole transporte la page web ?','Pourquoi le navigateur utilise-t-il l’adresse IP du serveur ?'],verif:'La page du serveur s’affiche dans le navigateur de PC 1.',
+    build:h=>{h.zone('Salle 4',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'',''),s=h.host('server',530,100,'','');s.web.page='Site du lycée\nBienvenue sur le site du lycée.';[a,s].forEach(d=>h.link(d,sw));}},
+  {k:'et-1',c:'tle',niv:1,cat:'services',dur:'30 min',t:'Le nom du site',p:'Un serveur DNS traduit le nom du site en adresse IP : configurer le serveur et le poste.',
+    steps:[{t:'Clique sur le serveur : coche « Serveur DNS » et écris dans la table `site.lycee 192.168.20.5`.',c:()=>S.devices.some(d=>d.name==='Serveur 1'&&d.dnsSrv&&d.dnsSrv.on&&d.dnsSrv.noms.includes('site.lycee'))},
+     {t:'Clique sur PC 1 et écris l’adresse du serveur DNS, `192.168.20.5`, dans le champ Serveur DNS.',h:'Le champ est dans le panneau Propriétés, sous l’adresse IP.',c:()=>(X.d('PC 1')||{}).dns==='192.168.20.5'},
+     SIM,
+     {t:'Sur PC 1, ouvre le navigateur et demande `http://site.lycee`.',c:()=>X.http('PC 1','site.lycee',true)}],
+    q:['Quel protocole sert à traduire un nom en adresse ?','Que se passerait-il si le champ Serveur DNS était vide ?'],verif:'Le navigateur affiche le site par son nom.',
+    build:h=>{h.zone('Salle 4',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'192.168.20.11',''),s=h.host('server',530,100,'192.168.20.5','');s.web.page='Site du lycée\nBienvenue sur le site du lycée.';s.dnsSrv={on:false,noms:''};[a,s].forEach(d=>h.link(d,sw));}},
+  {k:'et-2',c:'tle',niv:2,cat:'services',dur:'35 min',t:'Adresses automatiques',p:'Un serveur DHCP distribue les adresses : régler la plage, puis vérifier qu’un poste la reçoit.',
+    steps:[{t:'Clique sur le serveur : coche « Distribuer les adresses automatiquement » et écris la plage 192.168.30.100 à 192.168.30.150.',c:()=>{const s=(X.d('Serveur 1')||{}).dhcpSrv;return !!s&&s.on&&s.debut==='192.168.30.100'&&s.fin==='192.168.30.150';}},
+     {t:'Clique sur PC 1 et coche « Adresse obtenue par DHCP ».',c:()=>(X.d('PC 1')||{}).dhcp===true},
+     SIM,
+     {t:'Vérifie que l’adresse de PC 1 est dans la plage 192.168.30.100 à 192.168.30.150.',c:()=>X.in24('PC 1','192.168.30.')&&ip2n(X.ip('PC 1'))>=ip2n('192.168.30.100')&&ip2n(X.ip('PC 1'))<=ip2n('192.168.30.150')}],
+    q:['Pourquoi un poste ne doit-il pas garder une adresse fixe dans une salle ?','Qu’est-ce qui se passe si la plage est épuisée ?'],verif:'PC 1 a reçu une adresse dans la plage du serveur.',
+    build:h=>{h.zone('Salle 5',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'',''),s=h.host('server',530,100,'192.168.30.1','');s.dhcpSrv={on:false,debut:'',fin:''};[a,s].forEach(d=>h.link(d,sw));}},
 ];
 function panneFix(){return (X.gw('PC 2')==='192.168.1.254'?1:0)+(X.in24('Portable 1','192.168.1.')?1:0)+(X.linked('Routeur 1','Switch 2')?1:0);}
 function planHosts(){return S.devices.filter(d=>TYPES[d.type].host);}
@@ -3992,9 +4065,9 @@ $('#bTour').onclick=startTour;
    Mes TP : un parcours. Chaque TP regroupe les exercices d’une
    même catégorie ; on les fait dans l’ordre, étape par étape.
    ============================================================ */
-const TP_LABEL={premiers:'Atelier-Découverte',dhcp:'Atelier-DHCP',noms:'Atelier-Noms',salle:'Atelier-Salle',passerelle:'Atelier-Passerelle',masque:'Atelier-Masque',nomsreseau:'Atelier-NomsRéseau',imprimer:'Atelier-Impression',dhcprouteur:'Atelier-DHCPRouteur',messagerie:'Atelier-Messagerie',cabler:'Atelier-PremierReseau',adresses:'Atelier-Adresses',services:'Atelier-Services',routeur:'Atelier-Routeur',observer:'Atelier-Échanges',diag:'Atelier-Panne',iot:'Atelier-Objets',sousreseau:'Atelier-SousRéseaux',routage:'Atelier-Routage',protocoles:'Atelier-Protocoles'};
+const TP_LABEL={premiers:'Atelier-Découverte',dhcp:'Atelier-DHCP',noms:'Atelier-Noms',salle:'Atelier-Salle',passerelle:'Atelier-Passerelle',masque:'Atelier-Masque',nomsreseau:'Atelier-NomsRéseau',imprimer:'Atelier-Impression',dhcprouteur:'Atelier-DHCPRouteur',messagerie:'Atelier-Messagerie',cabler:'Atelier-PremierReseau',adresses:'Atelier-Adresses',services:'Atelier-Services',reseau:'Atelier-Réseau',routeur:'Atelier-Routeur',observer:'Atelier-Échanges',diag:'Atelier-Panne',iot:'Atelier-Objets',sousreseau:'Atelier-SousRéseaux',routage:'Atelier-Routage',protocoles:'Atelier-Protocoles'};
 /* Ordre du parcours : TP par TP, exercices dans leur ordre. */
-const CLASSES_PARC=[['5e','5ᵉ · Débutant'],['4e','4ᵉ · Intermédiaire'],['3e','3ᵉ · Avancé']];
+const CLASSES_PARC=[['5e','5ᵉ · Débutant'],['4e','4ᵉ · Intermédiaire'],['3e','3ᵉ · Avancé'],['2nde','2nde · Débutant'],['1re','1re · Intermédiaire'],['tle','Terminale · Avancé']];
 /* Parcours : classe, puis niveau de difficulté (débutant, intermédiaire, avancé), puis TP.
    Chaque exercice porte son niveau (x.niv) ; un niveau sans exercice affiche « Ateliers à venir ». */
 function tpsParc(){
@@ -4010,7 +4083,7 @@ function parcoursOrdre(){return tpsParc().flatMap(t=>t.exos);}
 const exoFait=x=>!!(PROG[x.k]||{}).done;
 const exoCommence=x=>!!(PROG[x.k]||{}).started;
 /* Accessible : le premier, ceux déjà commencés ou terminés, et celui qui suit un exercice terminé. */
-const RANG_CLASSE={'5e':0,'4e':1,'3e':2};
+const RANG_CLASSE={'5e':0,'4e':1,'3e':2,'2nde':3,'1re':4,'tle':5};
 /* Avec une classe et un niveau choisis (PREF.classe, PREF.niv), tout ce qui est avant est disponible :
    les classes précédentes, et les niveaux inférieurs de la même classe. */
 const classeDispo=x=>{if(!PREF.classe)return false;const r=RANG_CLASSE[x.c],c=RANG_CLASSE[PREF.classe];return r<c||(r===c&&x.niv<(PREF.niv||0));};
@@ -4298,7 +4371,7 @@ $('#accueil').addEventListener('click',e=>{
   if(v==='retour'){accueilEtape('classe');return;}
   if(v==='code'){$('#accueil').hidden=true;const bc=document.getElementById('bCentrale');if(bc)bc.click();else toast('Demande ton code à ton professeur, puis ouvre « Mon code ».');return;}
   if(v==='ratt'){$('#accueil').hidden=true;S.level=1;save();syncLevel();render();renderProps();openParc();document.getElementById('niv-ratt').scrollIntoView({block:'start'});return;}
-  if(v.startsWith('lyc-')||v.startsWith('sup-')){toast('Les ateliers de ce niveau arrivent bientôt. Choisis un niveau du collège pour continuer.');return;}
+  if(v.startsWith('sup-')){toast('Les ateliers de ce niveau arrivent bientôt. Choisis un niveau du collège pour continuer.');return;}
   classeAccueil=v;accueilEtape('niv');
 });
 
