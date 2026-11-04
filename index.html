@@ -3900,8 +3900,16 @@ function docSupprimer(ids){
   if(!confirm(q))return;
   const courant=docCourant();
   docsEcrire(l.filter(x=>!ids.includes(x.id)));ids.forEach(id=>docChoix.delete(id));
-  if(courant&&ids.includes(courant)){docFixer(null);$('#bNew').onclick();closeParc();return;}
+  if(courant&&ids.includes(courant)){docFixer(null);docRetourAtelier();return;}
   docsRafraichir();
+}
+/* Après la suppression du document en cours : retour à l’atelier le plus avancé ; sans atelier à faire, un nouveau document. */
+function docRetourAtelier(){
+  const t=tpsParc().find(u=>u.exos.some(x=>!exoFait(x)));
+  const x=t&&t.exos.find(e=>!exoFait(e));
+  closeParc();
+  if(x){loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);return;}
+  $('#bNew').onclick();
 }
 /* Redessine seulement la section des documents, sans fermer le menu. */
 function docsRafraichir(){
