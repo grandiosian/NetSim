@@ -2,9 +2,53 @@
   "format": "catalogue.ateliers",
   "version": 1,
   "app": "netsim",
-  "app_version": "1.7.0",
+  "app_version": "1.16.0",
   "referentiel": "technologie-c4-2024",
   "ateliers": [
+    {
+      "id": "e5-0a",
+      "titre": "L’écran et mon premier appareil",
+      "niveau": "5e",
+      "resume": "Découvrir l’écran pas à pas, puis placer deux ordinateurs et leur donner une adresse IP.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.5.1"
+      ],
+      "activites": [
+        {
+          "id": "e5-0a",
+          "titre": "L’écran et mon premier appareil",
+          "total": 9,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        }
+      ],
+      "ouvrir": "e5-0a"
+    },
+    {
+      "id": "e5-0b",
+      "titre": "Mon premier câble",
+      "niveau": "5e",
+      "resume": "Relier deux PC à un switch, puis vérifier qu’ils se parlent avec un ping.",
+      "duree": "15 min",
+      "competences": [
+        "SFC15.5.1",
+        "SFC15.5.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-0b",
+          "titre": "Mon premier câble",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1",
+            "SFC15.5.2"
+          ]
+        }
+      ],
+      "ouvrir": "e5-0b"
+    },
     {
       "id": "e5-1",
       "titre": "Brancher la salle",
@@ -153,6 +197,69 @@
       "ouvrir": "e5-7"
     },
     {
+      "id": "e5-8",
+      "titre": "Deux salles, une passerelle",
+      "niveau": "5e",
+      "resume": "Relier deux salles par un routeur, puis régler la passerelle de chaque poste.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.4.1"
+      ],
+      "activites": [
+        {
+          "id": "e5-8",
+          "titre": "Deux salles, une passerelle",
+          "total": 7,
+          "competences": [
+            "SFC15.4.1"
+          ]
+        }
+      ],
+      "ouvrir": "e5-8"
+    },
+    {
+      "id": "e5-9",
+      "titre": "Le masque change tout",
+      "niveau": "5e",
+      "resume": "Régler le masque de sous-réseau pour savoir quels appareils se trouvent dans le même réseau, puis corriger une adresse hors réseau.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-9",
+          "titre": "Le masque change tout",
+          "total": 7,
+          "competences": [
+            "SFC15.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e5-9"
+    },
+    {
+      "id": "e4-0",
+      "titre": "Le réseau de la salle",
+      "niveau": "4e",
+      "resume": "Relier les postes d’une salle, leur donner des adresses, puis trouver pourquoi un poste ne répond plus.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e4-0",
+          "titre": "Le réseau de la salle",
+          "total": 9,
+          "competences": [
+            "SFC15.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e4-0"
+    },
+    {
       "id": "e4-1",
       "titre": "Relier deux salles",
       "niveau": "4e",
@@ -283,6 +390,136 @@
       "ouvrir": "e4-6"
     },
     {
+      "id": "e4-7",
+      "titre": "Une adresse pour chacun",
+      "niveau": "4e",
+      "resume": "Configurer un serveur DHCP qui attribue les adresses IP automatiquement aux appareils de la salle.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.4.2",
+        "SFC15.4.3"
+      ],
+      "activites": [
+        {
+          "id": "e4-7",
+          "titre": "Une adresse pour chacun",
+          "total": 9,
+          "competences": [
+            "SFC15.4.2",
+            "SFC15.4.3"
+          ]
+        }
+      ],
+      "ouvrir": "e4-7"
+    },
+    {
+      "id": "e4-8",
+      "titre": "Le site introuvable",
+      "niveau": "4e",
+      "resume": "Le serveur DNS est dans l’autre salle : trouver pourquoi le nom du site ne fonctionne plus à travers le routeur.",
+      "duree": "35 min",
+      "competences": [
+        "SFC15.4.2",
+        "SFC15.3.1"
+      ],
+      "activites": [
+        {
+          "id": "e4-8",
+          "titre": "Le site introuvable",
+          "total": 8,
+          "competences": [
+            "SFC15.4.2",
+            "SFC15.3.1"
+          ]
+        }
+      ],
+      "ouvrir": "e4-8"
+    },
+    {
+      "id": "e3-6",
+      "titre": "Le nom du collège",
+      "niveau": "3e",
+      "resume": "Configurer un serveur DNS pour que les postes atteignent le site du collège par son nom, et comprendre ce que fait le navigateur avant d’afficher la page.",
+      "duree": "35 min",
+      "competences": [
+        "SFC15.3.1"
+      ],
+      "activites": [
+        {
+          "id": "e3-6",
+          "titre": "Le nom du collège",
+          "total": 9,
+          "competences": [
+            "SFC15.3.1"
+          ]
+        }
+      ],
+      "ouvrir": "e3-6"
+    },
+    {
+      "id": "e3-7",
+      "titre": "Une messagerie pour la classe",
+      "niveau": "3e",
+      "resume": "Mettre en place une messagerie de classe : un serveur range les messages, chacun les envoie et les relève. Puis observer ce qui circule sur le réseau.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.3.1"
+      ],
+      "activites": [
+        {
+          "id": "e3-7",
+          "titre": "Une messagerie pour la classe",
+          "total": 9,
+          "competences": [
+            "SFC15.3.1"
+          ]
+        }
+      ],
+      "ouvrir": "e3-7"
+    },
+    {
+      "id": "e3-0",
+      "titre": "Imprimer dans la salle",
+      "niveau": "3e",
+      "resume": "Envoyer un document à l’imprimante depuis plusieurs postes, puis trouver pourquoi l’un d’eux n’imprime pas.",
+      "duree": "25 min",
+      "competences": [
+        "SFC15.5.1"
+      ],
+      "activites": [
+        {
+          "id": "e3-0",
+          "titre": "Imprimer dans la salle",
+          "total": 8,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        }
+      ],
+      "ouvrir": "e3-0"
+    },
+    {
+      "id": "e3-8",
+      "titre": "Une adresse pour la deuxième salle",
+      "niveau": "3e",
+      "resume": "Le routeur distribue les adresses de la salle 2 : vérifier qu’un poste les reçoit et qu’il peut joindre la salle 1.",
+      "duree": "30 min",
+      "competences": [
+        "SFC15.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e3-8",
+          "titre": "Une adresse pour la deuxième salle",
+          "total": 8,
+          "competences": [
+            "SFC15.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e3-8"
+    },
+    {
       "id": "e3-1",
       "titre": "Couper un réseau en deux",
       "niveau": "3e",
@@ -367,6 +604,40 @@
         }
       ],
       "ouvrir": "e3-4"
+    },
+    {
+      "id": "e3-anneau",
+      "titre": "Un réseau en anneau",
+      "niveau": "3e",
+      "resume": "Quatre routeurs en boucle : ajouter les routes de Routeur 1 pour que chaque réseau reste joignable.",
+      "duree": "40 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e3-anneau",
+          "titre": "Un réseau en anneau",
+          "total": 6,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e3-anneau"
+    },
+    {
+      "id": "e3-maille",
+      "titre": "Un réseau maillé",
+      "niveau": "3e",
+      "resume": "Chaque routeur est relié à tous les autres. Une route directe, puis une route de secours quand un câble tombe.",
+      "duree": "40 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "e3-maille",
+          "titre": "Un réseau maillé",
+          "total": 8,
+          "competences": []
+        }
+      ],
+      "ouvrir": "e3-maille"
     },
     {
       "id": "e3-5",

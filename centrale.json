@@ -6,8 +6,8 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.7.0",
-    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, trames animées et 18 exercices guidés (5e, 4e, 3e).",
+    "version": "1.16.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, trames animées et 29 exercices guidés (5e, 4e, 3e).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
     "icone": "🌐",
@@ -80,6 +80,11 @@
     "categories": {
       "5e": [
         {
+          "id": "premiers",
+          "titre": "Premiers pas",
+          "description": "Un appareil, un câble, un premier ping."
+        },
+        {
           "id": "cabler",
           "titre": "Relier les appareils",
           "description": "Câbles, switch et liaison Wi-Fi."
@@ -93,13 +98,33 @@
           "id": "services",
           "titre": "Les services du réseau",
           "description": "Imprimer et consulter une page web."
+        },
+        {
+          "id": "passerelle",
+          "titre": "Deux salles, une passerelle",
+          "description": "Relier deux salles par un routeur, pas à pas."
+        },
+        {
+          "id": "masque",
+          "titre": "Le masque de sous-réseau",
+          "description": "Savoir si deux appareils sont dans le même réseau."
         }
       ],
       "4e": [
         {
+          "id": "salle",
+          "titre": "Le réseau de la salle",
+          "description": "Relier, adresser et dépanner un petit réseau."
+        },
+        {
           "id": "routeur",
           "titre": "Routeur et passerelle",
           "description": "Faire communiquer deux réseaux."
+        },
+        {
+          "id": "dhcp",
+          "titre": "Adresses automatiques",
+          "description": "Un serveur DHCP attribue les adresses aux appareils."
         },
         {
           "id": "observer",
@@ -115,6 +140,11 @@
           "id": "iot",
           "titre": "Objets connectés",
           "description": "Un capteur qui publie ses mesures."
+        },
+        {
+          "id": "nomsreseau",
+          "titre": "Noms et réseaux",
+          "description": "Un nom ne fonctionne plus à travers le routeur."
         }
       ],
       "3e": [
@@ -132,10 +162,75 @@
           "id": "protocoles",
           "titre": "Protocoles et encapsulation",
           "description": "Ethernet, IP, TCP, HTTP."
+        },
+        {
+          "id": "noms",
+          "titre": "Noms et adresses",
+          "description": "Un serveur DNS traduit les noms en adresses IP."
+        },
+        {
+          "id": "messagerie",
+          "titre": "Messagerie de classe",
+          "description": "Un serveur relaie les messages entre les postes."
+        },
+        {
+          "id": "imprimer",
+          "titre": "Imprimer dans la salle",
+          "description": "Envoyer un document à l’imprimante et trouver la panne."
+        },
+        {
+          "id": "dhcprouteur",
+          "titre": "Adresses automatiques derrière un routeur",
+          "description": "Un routeur distribue les adresses d’une autre salle."
         }
       ]
     },
     "liste": [
+      {
+        "id": "e5-0a",
+        "titre": "L’écran et mon premier appareil",
+        "groupe": "5ᵉ · Débutant",
+        "total": 9,
+        "competences": [
+          "SFC15.5.1"
+        ],
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "premiers",
+        "categorie_titre": "Premiers pas",
+        "resume": "Découvrir l’écran pas à pas, puis placer deux ordinateurs et leur donner une adresse IP.",
+        "duree": "25 min",
+        "etapes": 9,
+        "etapes_auto": 6,
+        "questions": [
+          "Quel est le nom de ton PC ?",
+          "Pourquoi un appareil a-t-il besoin d’une adresse IP ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e5-0b",
+        "titre": "Mon premier câble",
+        "groupe": "5ᵉ · Débutant",
+        "total": 5,
+        "competences": [
+          "SFC15.5.1",
+          "SFC15.5.2"
+        ],
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "premiers",
+        "categorie_titre": "Premiers pas",
+        "resume": "Relier deux PC à un switch, puis vérifier qu’ils se parlent avec un ping.",
+        "duree": "15 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "À quoi sert le switch ?",
+          "Que se passerait-il si PC 2 n’était pas relié au switch ?"
+        ],
+        "alertes": true
+      },
       {
         "id": "e5-1",
         "titre": "Brancher la salle",
@@ -290,6 +385,73 @@
         "alertes": true
       },
       {
+        "id": "e5-8",
+        "titre": "Deux salles, une passerelle",
+        "groupe": "5ᵉ · Intermédiaire",
+        "total": 7,
+        "competences": [
+          "SFC15.4.1"
+        ],
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "passerelle",
+        "categorie_titre": "Deux salles, une passerelle",
+        "resume": "Relier deux salles par un routeur, puis régler la passerelle de chaque poste.",
+        "duree": "25 min",
+        "etapes": 7,
+        "etapes_auto": 7,
+        "questions": [
+          "Pourquoi faut-il une passerelle pour sortir de sa salle ?",
+          "Pourquoi le routeur a-t-il deux adresses IP ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e5-9",
+        "titre": "Le masque change tout",
+        "groupe": "5ᵉ · Avancé",
+        "total": 7,
+        "competences": [
+          "SFC15.4.2"
+        ],
+        "classe": "5e",
+        "niveau": 0,
+        "categorie": "masque",
+        "categorie_titre": "Le masque de sous-réseau",
+        "resume": "Régler le masque de sous-réseau pour savoir quels appareils se trouvent dans le même réseau, puis corriger une adresse hors réseau.",
+        "duree": "25 min",
+        "etapes": 7,
+        "etapes_auto": 7,
+        "questions": [
+          "Pourquoi PC 1 ne peut-il pas joindre 192.168.1.100 ?",
+          "Combien d’adresses un réseau en 255.255.255.192 contient-il ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-0",
+        "titre": "Le réseau de la salle",
+        "groupe": "4ᵉ · Débutant",
+        "total": 9,
+        "competences": [
+          "SFC15.4.2"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "salle",
+        "categorie_titre": "Le réseau de la salle",
+        "resume": "Relier les postes d’une salle, leur donner des adresses, puis trouver pourquoi un poste ne répond plus.",
+        "duree": "25 min",
+        "etapes": 9,
+        "etapes_auto": 9,
+        "questions": [
+          "Pourquoi PC 1 ne pouvait-il pas joindre PC 3 avant la correction ?",
+          "Comment repérer une adresse fausse dans une salle ?",
+          "Pourquoi tous les postes doivent-ils commencer par les mêmes nombres ?"
+        ],
+        "alertes": true
+      },
+      {
         "id": "e4-1",
         "titre": "Relier deux salles",
         "groupe": "4ᵉ · Intermédiaire",
@@ -425,6 +587,143 @@
         "alertes": true
       },
       {
+        "id": "e4-7",
+        "titre": "Une adresse pour chacun",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 9,
+        "competences": [
+          "SFC15.4.2",
+          "SFC15.4.3"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "dhcp",
+        "categorie_titre": "Adresses automatiques",
+        "resume": "Configurer un serveur DHCP qui attribue les adresses IP automatiquement aux appareils de la salle.",
+        "duree": "30 min",
+        "etapes": 9,
+        "etapes_auto": 8,
+        "questions": [
+          "Pourquoi un appareil qui demande une adresse envoie-t-il DISCOVER à tout le réseau ?",
+          "Que se passe-t-il quand la plage est épuisée ?",
+          "Pourquoi le serveur DHCP doit-il avoir une adresse fixe ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-8",
+        "titre": "Le site introuvable",
+        "groupe": "4ᵉ · Avancé",
+        "total": 8,
+        "competences": [
+          "SFC15.4.2",
+          "SFC15.3.1"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "nomsreseau",
+        "categorie_titre": "Noms et réseaux",
+        "resume": "Le serveur DNS est dans l’autre salle : trouver pourquoi le nom du site ne fonctionne plus à travers le routeur.",
+        "duree": "35 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Pourquoi PC 1 n’a-t-il pas reçu la réponse du serveur DNS ?",
+          "Quels appareils doivent avoir une passerelle, et pourquoi ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-6",
+        "titre": "Le nom du collège",
+        "groupe": "3ᵉ · Avancé",
+        "total": 9,
+        "competences": [
+          "SFC15.3.1"
+        ],
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "noms",
+        "categorie_titre": "Noms et adresses",
+        "resume": "Configurer un serveur DNS pour que les postes atteignent le site du collège par son nom, et comprendre ce que fait le navigateur avant d’afficher la page.",
+        "duree": "35 min",
+        "etapes": 9,
+        "etapes_auto": 9,
+        "questions": [
+          "Pourquoi le navigateur ne peut-il pas aller directement chercher « intranet.college » sur le réseau ?",
+          "Que se passerait-il si PC 2 n’avait pas de serveur DNS réglé ?",
+          "Pourquoi la requête DNS passe-t-elle avant la requête web ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-7",
+        "titre": "Une messagerie pour la classe",
+        "groupe": "3ᵉ · Avancé",
+        "total": 9,
+        "competences": [
+          "SFC15.3.1"
+        ],
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "messagerie",
+        "categorie_titre": "Messagerie de classe",
+        "resume": "Mettre en place une messagerie de classe : un serveur range les messages, chacun les envoie et les relève. Puis observer ce qui circule sur le réseau.",
+        "duree": "30 min",
+        "etapes": 9,
+        "etapes_auto": 9,
+        "questions": [
+          "Pourquoi le message de PC 1 passe-t-il par le serveur au lieu d’aller directement vers PC 2 ?",
+          "Qui peut lire le texte d’un message qui circule sur le réseau ? Comment le protéger ?",
+          "Que se passe-t-il si PC 2 n’a pas encore relevé sa boîte ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-0",
+        "titre": "Imprimer dans la salle",
+        "groupe": "3ᵉ · Débutant",
+        "total": 8,
+        "competences": [
+          "SFC15.5.1"
+        ],
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "imprimer",
+        "categorie_titre": "Imprimer dans la salle",
+        "resume": "Envoyer un document à l’imprimante depuis plusieurs postes, puis trouver pourquoi l’un d’eux n’imprime pas.",
+        "duree": "25 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Pourquoi PC 2 ne pouvait-il pas imprimer ?",
+          "Que faut-il vérifier quand un appareil ne répond plus ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-8",
+        "titre": "Une adresse pour la deuxième salle",
+        "groupe": "3ᵉ · Intermédiaire",
+        "total": 8,
+        "competences": [
+          "SFC15.4.2"
+        ],
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "dhcprouteur",
+        "categorie_titre": "Adresses automatiques derrière un routeur",
+        "resume": "Le routeur distribue les adresses de la salle 2 : vérifier qu’un poste les reçoit et qu’il peut joindre la salle 1.",
+        "duree": "30 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Qui a choisi l’adresse de PC 3 ?",
+          "Pourquoi le routeur doit-il avoir une adresse dans la salle 2 pour servir PC 3 ?"
+        ],
+        "alertes": true
+      },
+      {
         "id": "e3-1",
         "titre": "Couper un réseau en deux",
         "groupe": "3ᵉ · Avancé",
@@ -512,6 +811,46 @@
           "À quoi sert le TTL ? Que se passerait-il sans lui ?"
         ],
         "alertes": false
+      },
+      {
+        "id": "e3-anneau",
+        "titre": "Un réseau en anneau",
+        "groupe": "3ᵉ · Avancé",
+        "total": 6,
+        "competences": [],
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Quatre routeurs en boucle : ajouter les routes de Routeur 1 pour que chaque réseau reste joignable.",
+        "duree": "40 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Combien de câbles faut-il pour relier quatre sites en anneau ?",
+          "Si le câble entre Routeur 1 et Routeur 2 est coupé, quelles routes faut-il changer ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e3-maille",
+        "titre": "Un réseau maillé",
+        "groupe": "3ᵉ · Avancé",
+        "total": 8,
+        "competences": [],
+        "classe": "3e",
+        "niveau": 2,
+        "categorie": "routage",
+        "categorie_titre": "Routage",
+        "resume": "Chaque routeur est relié à tous les autres. Une route directe, puis une route de secours quand un câble tombe.",
+        "duree": "40 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Combien de câbles faut-il pour relier quatre sites en maillage complet ?",
+          "Pourquoi le réseau reste-t-il joignable malgré le câble coupé ? Quel est le défaut du maillage ?"
+        ],
+        "alertes": true
       },
       {
         "id": "e3-5",
