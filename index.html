@@ -1549,14 +1549,15 @@ function alignerAppareils(){
 /* Symétrie : les appareils reliés seulement à un switch ou un routeur se rangent deux à deux de part et d’autre, en miroir.
    Les décalages restent des multiples de la grille, donc les positions restent sur les nœuds. */
 const PAIRES_SYM=[[-1,0],[1,0],[-1,1],[1,1],[-1,-1],[1,-1]];
-/* Deux appareils sont en conflit s’ils ne laissent pas une case de grille libre entre leurs socles (111 × 64 px). */
-const ECART_X=6*ISO_X,ECART_Y=6*ISO_Y;
+/* Deux appareils sont en conflit s’ils ne laissent pas assez de place entre leurs socles (111 × 64 px) :
+   une case de grille à l’horizontale (55 px), quatre cases à la verticale (4 × 32 px). */
+const ECART_X=6*ISO_X,ECART_Y=12*ISO_Y;
 function enConflit(p,q){return Math.abs(p.x-q.x)<ECART_X-0.5&&Math.abs(p.y-q.y)<ECART_Y-0.5;}
 /* Écarte les appareils en gardant les alignements : tous les points s’éloignent du centre du même facteur. */
 function espacer(){
   const ds=S.devices;
   const conflit=()=>{for(let i=0;i<ds.length;i++)for(let j=i+1;j<ds.length;j++)if(enConflit(ds[i],ds[j]))return true;return false;};
-  for(let it=0;it<8&&conflit();it++){
+  for(let it=0;it<12&&conflit();it++){
     const cx=ds.reduce((t,d)=>t+d.x,0)/ds.length,cy=ds.reduce((t,d)=>t+d.y,0)/ds.length;
     ds.forEach(d=>{const p=surGrilleIso(cx+(d.x-cx)*1.25,cy+(d.y-cy)*1.25);d.x=p.x;d.y=p.y;});
   }
@@ -1569,7 +1570,7 @@ function symetriserAutourDesConcentrateurs(){
     const feuilles=voisins(h).filter(v=>!concentrateurs.includes(v)&&voisins(v).length===1);
     if(feuilles.length<2||feuilles.length>PAIRES_SYM.length+1)return;
     const cibles=feuilles.length%2===0?PAIRES_SYM.slice(0,feuilles.length):[[0,1],...PAIRES_SYM].slice(0,feuilles.length);
-    const pos=cibles.map(([u,v])=>({x:h.x+u*6*ISO_X,y:h.y+v*6*ISO_Y}));
+    const pos=cibles.map(([u,v])=>({x:h.x+u*6*ISO_X,y:h.y+v*12*ISO_Y}));
     const libre=pos.every(p=>!ds.some(o=>!feuilles.includes(o)&&o!==h&&enConflit(o,p)));
     if(!libre)return;
     const anciens=feuilles.map(f=>({f,x:f.x,y:f.y}));
