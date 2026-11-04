@@ -3128,7 +3128,7 @@ const SIM={t:'Lance la simulation avec le bouton ▶ en haut de l’écran.',c:X
 /* gestes d’interface mémorisés pour les étapes guidées (menu ouvert, outil choisi) */
 const VU={};
 document.addEventListener('click',e=>{const bouton=e.target.closest('[data-tool]');setTimeout(()=>{
-  if(!$('#mFile').hidden)VU.fichier=true;
+  if(!$('#mFile').hidden||!$('#mMenu').hidden)VU.fichier=true;
   if(!$('#mSet').hidden)VU.reglages=true;
   if(bouton)VU['outil_'+bouton.dataset.tool]=true;
   if(S.exo)checkSoon();
@@ -3138,13 +3138,13 @@ const liensPCSwitch=()=>S.cables.filter(c=>{const A=D(c.a.d),B=D(c.b.d);return !
 const EXOS=[
   /* ===== 5e · Premiers pas : un geste à la fois ===== */
   {k:'e5-0a',c:'5e',cat:'premiers',dur:'25 min',t:'L’écran et mon premier appareil',p:'Découvrir l’écran pas à pas, puis placer deux ordinateurs et leur donner une adresse IP.',
-   steps:[{t:'Repère le bouton Fichier, en haut à gauche, et clique dessus.',h:'Le menu s’ouvre : il propose Nouveau schéma, Démos, Visite guidée, Importer et Exporter.',c:()=>!!VU.fichier},
-    {t:'Lis les lignes du menu, puis ferme-le : clique ailleurs sur l’écran, ou appuie sur Échap.',h:'Le menu Fichier sert à créer, ouvrir ou sauvegarder un schéma. Rien à modifier ici pour le moment.'},
-    {t:'Regarde la barre du haut, au centre : les pastilles 5, 4 et 3 sont les niveaux. Tu es sur la 5 : Débutant.',h:'Le niveau change ce qui est disponible. Ne touche pas aux autres pastilles pour le moment.'},
+   steps:[{t:'Clique sur le logo NetSim, en haut à gauche : un menu s’ouvre.',h:'Le menu propose Nouveau schéma vide, Démos, Importer et Exporter un schéma, puis Mes ateliers et la Visite de NetSim.',c:()=>!!VU.fichier},
+    {t:'Lis les lignes du menu, puis ferme-le : clique ailleurs sur l’écran, ou appuie sur Échap.',h:'Ce menu sert à créer, ouvrir ou sauvegarder un schéma. Rien à choisir pour le moment.',c:()=>!!VU.fichier&&$('#mMenu').hidden},
+    {t:'Regarde la barre du haut, au centre : la pastille 5 est ta classe (5ᵉ), puis viennent le code de l’atelier (5-1-1) et le nombre d’ateliers terminés.',h:'Plus tard, un clic sur cette barre ouvre Mes ateliers : tous les ateliers, classe par classe. Ne clique pas dessus pour le moment.'},
     {t:'Dans la boîte à outils, à gauche, clique sur l’outil Câble.',h:'Il est à droite de l’outil Sélection. Un câble relie deux appareils.',c:()=>!!VU.outil_cable},
     {t:'Clique sur l’outil Sélection pour revenir au mode où tu choisis et déplaces les appareils.',h:'Sélection est la flèche, en haut à gauche de la boîte à outils.',c:()=>!!VU.outil_select&&tool==='select'},
     {t:'Dans la section Appareils, clique sur PC (ou glisse-le sur la feuille blanche).',h:'Le PC apparaît au centre de la feuille, et il est sélectionné.',c:()=>S.devices.some(d=>d.type==='pc')},
-    {t:'Regarde le panneau Propriétés, à droite : repère le nom du PC (PC 1) et le champ Adresse IP.',h:'Le nom sert à reconnaître l’appareil. L’adresse IP est son numéro sur le réseau.'},
+    {t:'À droite, sous la consigne, le panneau de l’appareil s’est ouvert : repère le nom du PC (PC 1) et le champ Adresse IP.',h:'Le nom sert à reconnaître l’appareil. L’adresse IP est son numéro sur le réseau. Les messages orange disent ce qui manque encore.'},
     {t:'Dans le champ Adresse IP, écris `192.168.1.11`, puis appuie sur Entrée.',h:'Clique dans le champ, tape les quatre nombres séparés par des points, puis Entrée.',c:()=>S.devices.some(d=>d.type==='pc'&&(d.ip||'').trim()==='192.168.1.11')},
     {t:'Ajoute un deuxième PC et donne-lui l’adresse `192.168.1.12`.',h:'Même méthode : glisse un PC, puis écris son adresse dans le champ Adresse IP.',c:()=>S.devices.some(d=>d.type==='pc'&&(d.ip||'').trim()==='192.168.1.11')&&S.devices.some(d=>d.type==='pc'&&(d.ip||'').trim()==='192.168.1.12')}],
    q:['Quel est le nom de ton PC ?','Pourquoi un appareil a-t-il besoin d’une adresse IP ?'],verif:'Tu as découvert l’écran, et deux PC ont chacun une adresse IP : PC 1 (192.168.1.11) et PC 2 (192.168.1.12).',
@@ -3245,7 +3245,7 @@ const EXOS=[
     {t:'Donne à PC 2 l’adresse 192.168.1.12. PC 3 a déjà une adresse : ne la change pas pour l’instant.',h:'Tous les postes de la salle commencent par 192.168.1. C’est ce qui permet de les joindre.',c:()=>X.ip('PC 2')==='192.168.1.12'},
     SIM,
     {t:'Depuis PC 1, fais un ping vers PC 2 : écris la commande `ping 192.168.1.12` dans son invite de commandes.',h:'Si la réponse arrive, les deux postes se trouvent dans le même réseau et se parlent.',c:()=>X.ping('PC 1','192.168.1.12',true)},
-    {t:'Depuis PC 1, fais un ping vers PC 3 : `ping 192.168.2.13`. Que se passe-t-il ?',h:'Il n’y a pas de réponse. Regarde l’adresse de PC 3 dans son panneau Propriétés.',c:()=>X.ev('ping',e=>e.from==='PC 1'&&e.dst==='192.168.2.13'&&!e.ok)},
+    {t:'Depuis PC 1, fais un ping vers PC 3 : `ping 192.168.2.13`. Que se passe-t-il ?',h:'Il n’y a pas de réponse. Regarde l’adresse de PC 3 dans son panneau, à droite.',c:()=>X.ev('ping',e=>e.from==='PC 1'&&e.dst==='192.168.2.13'&&!e.ok)},
     {t:'Reviens en conception (bouton ⏸), puis corrige l’adresse de PC 3 : 192.168.1.13.',h:'PC 3 était dans le réseau 192.168.2. Il doit être dans le même réseau que les autres postes.',c:()=>X.ip('PC 3')==='192.168.1.13'},
     {t:'Relance la simulation et refais le ping vers PC 3 : `ping 192.168.1.13`.',h:'Maintenant, la réponse arrive : l’adresse était la seule erreur.',c:()=>X.ping('PC 1','192.168.1.13',true)},
     {t:'Depuis PC 3, ouvre le navigateur et tape `http://192.168.1.10` pour voir le site de la salle.',h:'Le serveur répond avec sa page, comme pour un ping, mais avec le service web.',c:()=>X.http('PC 3','192.168.1.10',true)}],
@@ -3313,7 +3313,7 @@ const EXOS=[
  /* ===== 3e ===== */
  {k:'e4-7',c:'4e',cat:'dhcp',dur:'30 min',t:'Une adresse pour chacun',p:'Configurer un serveur DHCP qui attribue les adresses IP automatiquement aux appareils de la salle.',
    steps:[{t:'Place un switch, un serveur, PC 1, PC 2 et Portable 1 sur la feuille, puis relie-les tous au switch avec l’outil Câble.',h:'Le serveur et les trois appareils se branchent chacun sur le switch. Tu n’as pas besoin de leur donner d’adresse : c’est le DHCP qui le fera.',c:()=>S.cables.length>=4},
-    {t:'Clique sur le serveur. Dans le panneau Propriétés, coche « Distribuer les adresses automatiquement ».',h:'La section Serveur DHCP se trouve dans le panneau de droite, quand le serveur est sélectionné.',c:()=>S.devices.some(d=>d.type==='server'&&d.dhcpSrv&&d.dhcpSrv.on)},
+    {t:'Clique sur le serveur. Dans le panneau de droite, coche « Distribuer les adresses automatiquement ».',h:'La section Serveur DHCP se trouve dans le panneau de droite, quand le serveur est sélectionné.',c:()=>S.devices.some(d=>d.type==='server'&&d.dhcpSrv&&d.dhcpSrv.on)},
     {t:'Écris la plage du serveur : de 192.168.1.100 à 192.168.1.150.',h:'Première adresse : 192.168.1.100. Dernière adresse : 192.168.1.150. Une adresse ne sert qu’à un seul appareil.',c:()=>S.devices.some(d=>d.type==='server'&&d.dhcpSrv&&d.dhcpSrv.on&&d.dhcpSrv.debut.startsWith('192.168.1.')&&ip2n(d.dhcpSrv.fin)>=ip2n(d.dhcpSrv.debut)&&ip2n(d.dhcpSrv.debut)!==null)},
     {t:'Clique sur PC 1, PC 2 et Portable 1 : dans leur panneau, coche « Adresse obtenue par DHCP ».',h:'Un appareil qui coche cette case n’a pas besoin d’adresse écrite à la main : il la demande au serveur.',c:()=>['PC 1','PC 2','Portable 1'].every(n=>(X.d(n)||{}).dhcp)},
     SIM,
@@ -3341,7 +3341,7 @@ const EXOS=[
     {t:'Règle le serveur en 192.168.1.10, PC 1 en 192.168.1.11 et PC 2 en 192.168.1.12.',h:'Clique sur chaque appareil et écris son adresse dans le champ Adresse IP.',c:()=>X.in24('PC 1','192.168.1.')&&X.in24('PC 2','192.168.1.')&&X.ip('Serveur 1')==='192.168.1.10'&&X.uniq(['PC 1','PC 2','Serveur 1'])},
     {t:'Depuis PC 1, ouvre le navigateur et tape `http://intranet.college`. Lis le message qui apparaît.',h:'Le navigateur ne connaît pas « intranet.college » : il lui faut l’adresse IP d’un serveur DNS. Ce message est normal.',c:()=>X.ev('dns',e=>e.from==='PC 1'&&e.nom==='intranet.college')},
     {t:'Clique sur le serveur : coche « Serveur DNS » et écris dans la table : `intranet.college 192.168.1.10`.',h:'La table associe un nom à une adresse IP, une ligne par nom. Le nom doit être écrit exactement comme dans le navigateur.',c:()=>S.devices.some(d=>d.type==='server'&&d.dnsSrv&&d.dnsSrv.on&&d.dnsSrv.noms.includes('intranet.college'))},
-    {t:'Clique sur PC 1 et écris l’adresse du serveur DNS, `192.168.1.10`, dans le champ Serveur DNS.',h:'Le champ Serveur DNS est dans le panneau Propriétés, sous l’adresse IP.',c:()=>(X.d('PC 1')||{}).dns==='192.168.1.10'},
+    {t:'Clique sur PC 1 et écris l’adresse du serveur DNS, `192.168.1.10`, dans le champ Serveur DNS.',h:'Le champ Serveur DNS est dans le panneau de l’appareil, à droite, sous l’adresse IP.',c:()=>(X.d('PC 1')||{}).dns==='192.168.1.10'},
     SIM,
     {t:'Depuis PC 1, tape à nouveau `http://intranet.college` dans le navigateur.',c:()=>X.ev('dns',e=>e.from==='PC 1'&&e.nom==='intranet.college'&&e.ok)&&X.http('PC 1','192.168.1.10',true)},
     {t:'Dans Trames échangées, repère la requête « REQ DNS » et la réponse « RÉP. DNS », puis la requête web.',h:'La réponse DNS arrive avant la page : le navigateur a d’abord trouvé l’adresse IP du nom, puis il a demandé la page.',c:()=>LOG.some(e=>e.fr.ip&&e.fr.ip.proto==='DNS'&&e.fr.ip.dns.kind==='r')},
@@ -3353,7 +3353,7 @@ const EXOS=[
    steps:[{t:'Relie le serveur et les trois PC au switch.',h:'Chaque appareil se branche sur un port du switch.',c:()=>S.cables.length>=4},
     {t:'Règle le serveur en 192.168.1.10, PC 1 en 192.168.1.11, PC 2 en 192.168.1.12 et PC 3 en 192.168.1.13.',h:'Clique sur chaque appareil et écris son adresse dans le champ Adresse IP.',c:()=>X.ip('Serveur 1')==='192.168.1.10'&&X.in24('PC 1','192.168.1.')&&X.in24('PC 2','192.168.1.')&&X.in24('PC 3','192.168.1.')&&X.uniq(['Serveur 1','PC 1','PC 2','PC 3'])},
     {t:'Clique sur le serveur : coche « Serveur de messagerie ».',h:'Le serveur range chaque message dans la boîte du destinataire, en attendant qu’il la relève.',c:()=>S.devices.some(d=>d.type==='server'&&d.msgSrv&&d.msgSrv.on)},
-    {t:'Clique sur PC 1, PC 2 et PC 3 : écris `192.168.1.10` dans le champ Serveur de messagerie.',h:'Ce champ indique au poste où envoyer et relever ses messages. Il est dans le panneau Propriétés, sous l’adresse IP.',c:()=>['PC 1','PC 2','PC 3'].every(n=>((X.d(n)||{}).mailSrv||'').trim()==='192.168.1.10')},
+    {t:'Clique sur PC 1, PC 2 et PC 3 : écris `192.168.1.10` dans le champ Serveur de messagerie.',h:'Ce champ indique au poste où envoyer et relever ses messages. Il est dans le panneau de l’appareil, à droite, sous l’adresse IP.',c:()=>['PC 1','PC 2','PC 3'].every(n=>((X.d(n)||{}).mailSrv||'').trim()==='192.168.1.10')},
     SIM,
     {t:'Depuis PC 1, ouvre la Messagerie depuis le menu Démarrer, choisis PC 2 et envoie-lui « Bonjour ! ».',h:'Le message part d’abord vers le serveur. Il ne va pas directement à PC 2.',c:()=>X.ev('mail',e=>e.from==='PC 1'&&e.to==='PC 2'&&e.ok)},
     {t:'Depuis PC 2, ouvre la Messagerie et clique sur « Relever les messages ».',h:'Le poste demande au serveur ce qui est arrivé dans sa boîte.',c:()=>X.ev('relever',e=>e.from==='PC 2'&&e.n>=1)},
@@ -3369,7 +3369,7 @@ const EXOS=[
     SIM,
     {t:'Depuis PC 1, tape `imprimer 192.168.1.20` dans l’invite de commandes.',c:()=>LOG.some(e=>e.fromName==='PC 1'&&e.fr.ip&&e.fr.ip.proto==='HTTP'&&e.fr.ip.http.path==='/imprimer')},
     {t:'Clique sur l’imprimante : le document est-il arrivé ?',c:()=>((rt(X.d('Imprimante 1'))||{}).jobs||[]).length>=1},
-    {t:'Depuis PC 2, fais un ping vers l’imprimante : `ping 192.168.1.20`.',h:'Pas de réponse ? Regarde l’adresse de PC 2 dans son panneau Propriétés.',c:()=>X.ev('ping',e=>e.from==='PC 2'&&e.dst==='192.168.1.20'&&!e.ok)},
+    {t:'Depuis PC 2, fais un ping vers l’imprimante : `ping 192.168.1.20`.',h:'Pas de réponse ? Regarde l’adresse de PC 2 dans son panneau, à droite.',c:()=>X.ev('ping',e=>e.from==='PC 2'&&e.dst==='192.168.1.20'&&!e.ok)},
     {t:'Reviens en conception (⏸) et corrige l’adresse de PC 2 : `192.168.1.12`.',c:()=>X.ip('PC 2')==='192.168.1.12'},
     {t:'Relance la simulation et imprime depuis PC 2 : `imprimer 192.168.1.20`.',c:()=>LOG.some(e=>e.fromName==='PC 2'&&e.fr.ip&&e.fr.ip.proto==='HTTP'&&e.fr.ip.http.path==='/imprimer')}],
    q:['Pourquoi PC 2 ne pouvait-il pas imprimer ?','Que faut-il vérifier quand un appareil ne répond plus ?'],verif:'Un appareil doit être dans le même réseau que celui avec lequel il veut communiquer. Une adresse mal réglée suffit à rendre l’imprimante inaccessible.',
@@ -3409,7 +3409,7 @@ const EXOS=[
    {t:'Configure les quatre ports du routeur, puis la passerelle de chaque appareil.',h:'Plus aucun triangle orange ne doit rester.',c:()=>X.d('Routeur 1').ifs.every(f=>(f.ip||'').trim())&&planHosts().every(d=>(d.gw||'').trim()&&diag(d).length===0)&&diag(X.d('Routeur 1')).length===0},
    {t:'Lance la simulation : depuis PC 1 (Salle 101), fais un ping vers le serveur.',c:()=>X.ping('PC 1',X.ip('Serveur 1'),true)},
    {t:'Depuis la Salle 102, envoie un document à l’imprimante du CDI avec `imprimer`.',c:()=>X.ev('print',e=>e.ok&&(e.from==='Portable 1'||e.from==='PC 3'))},
-   {t:'Exporte ton schéma (Fichier → Exporter) et échange-le avec un autre groupe.',c:()=>X.ev('export')}],
+   {t:'Exporte ton schéma (logo NetSim → Exporter le schéma…) et échange-le avec un autre groupe.',c:()=>X.ev('export')}],
   q:['Combien d’appareils peut-on adresser dans chaque réseau avec ton masque ?','Pourquoi chaque lieu a-t-il besoin de sa propre passerelle ?'],verif:'Depuis chaque lieu, le ping vers le serveur et l’impression au CDI réussissent.',
   build:h=>{const L=[['Salle 101',0,0,'bleu',['pc','pc']],['Salle 102',0,500,'violet',['laptop','pc']],['CDI',1040,0,'orange',['pc','printer']],['Salle serveurs',1040,500,'vert',['server','rpi']]];
     L.forEach(([n,x,y,c,t])=>{h.zone(n,x,y,560,420,c);h.dev('switch',x+280,y+290);h.host(t[0],x+104,y+100);h.host(t[1],x+456,y+100);});h.router(800,460,[]);}},
@@ -3521,7 +3521,7 @@ const EXOS=[
     build:h=>{h.zone('Salle 4',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'',''),s=h.host('server',530,100,'','');s.web.page='Site du lycée\nBienvenue sur le site du lycée.';[a,s].forEach(d=>h.link(d,sw));}},
   {k:'et-1',c:'tle',niv:1,cat:'services',dur:'30 min',t:'Le nom du site',p:'Un serveur DNS traduit le nom du site en adresse IP : configurer le serveur et le poste.',
     steps:[{t:'Clique sur le serveur : coche « Serveur DNS » et écris dans la table `site.lycee 192.168.20.5`.',c:()=>S.devices.some(d=>d.name==='Serveur 1'&&d.dnsSrv&&d.dnsSrv.on&&d.dnsSrv.noms.includes('site.lycee'))},
-     {t:'Clique sur PC 1 et écris l’adresse du serveur DNS, `192.168.20.5`, dans le champ Serveur DNS.',h:'Le champ est dans le panneau Propriétés, sous l’adresse IP.',c:()=>(X.d('PC 1')||{}).dns==='192.168.20.5'},
+     {t:'Clique sur PC 1 et écris l’adresse du serveur DNS, `192.168.20.5`, dans le champ Serveur DNS.',h:'Le champ est dans le panneau de l’appareil, à droite, sous l’adresse IP.',c:()=>(X.d('PC 1')||{}).dns==='192.168.20.5'},
      SIM,
      {t:'Sur PC 1, ouvre le navigateur et demande `http://site.lycee`.',c:()=>X.http('PC 1','site.lycee',true)}],
     q:['Quel protocole sert à traduire un nom en adresse ?','Que se passerait-il si le champ Serveur DNS était vide ?'],verif:'Le navigateur affiche le site par son nom.',
@@ -3817,7 +3817,7 @@ function howTo(type,c,t){
     case 'pause':return ['Clique sur le bouton vert ⏸ en haut de l’écran.','Tu reviens en conception : tu peux à nouveau modifier les appareils et les câbles.'];
     case 'play':return ['Clique sur le bouton rond ▶ en haut de l’écran.','Il devient vert ⏸ : les appareils sont allumés et on peut les utiliser.'];
     case 'settings':return ['Clique sur l’engrenage ⚙ en haut à droite.',/Vider/.test(t)?'Dans le menu, clique sur **Vider les tables ARP et MAC**.':'Dans le menu, déplace le curseur **Vitesse**.'];
-    case 'export':return ['Ouvre le menu **Fichier** en haut à gauche.','Clique sur **Exporter le schéma…**, puis sur **Copier le texte**.'];
+    case 'export':return ['Clique sur le logo **NetSim**, en haut à gauche : le menu s’ouvre.','Clique sur **Exporter le schéma…**, puis sur **Enregistrer le fichier**.'];
     case 'erase':return ['Dans la boîte à outils, choisis l’outil **Gomme**.','Clique sur le câble à supprimer : il disparaît.'];
     case 'cable':return ['Dans la boîte à outils (à gauche), clique sur l’outil **Câble**.',`Clique sur ${nm(c.a)}, puis sur ${nm(c.b)}.`,'Un trait apparaît entre les deux : ils sont reliés. Pour un smartphone, le trait est en pointillés (Wi-Fi).'];
     case 'routerport':return ['Avec l’outil **Sélection**, clique sur le **routeur**.','Dans le panneau de droite, chaque port (eth0, eth1…) indique à quel switch il est relié.','Écris l’adresse dans le champ du bon port, puis appuie sur Entrée.'];
@@ -3850,7 +3850,7 @@ function shot(type,c,t){
       return `<div class="shot">${sdev(r)}${SAR}<span class="s-panel"><b>${esc(r?r.name:'Routeur')}</b><small><b class="mono">eth0</b> · ${esc(sw?sw.name:'Switch')}</small><span class="s-inp">${esc(c.val||'192.168.1.254')}<i class="caret"></i></span></span></div>`;}
     case 'route':{const bt=[...t.matchAll(/`([^`]+)`/g)].map(m=>m[1]);return `<div class="shot"><span class="s-panel wide"><b>Routes statiques</b><span class="s-row3"><span class="s-inp">${esc(bt[0]||'192.168.2.0')}</span><span class="s-inp">${esc(bt[1]&&/^255/.test(bt[1])?bt[1]:'255.255.255.0')}</span><span class="s-inp">${esc(bt.find(x=>/^10\./.test(x))||'10.0.0.2')}</span></span><span class="s-add">+ Ajouter une route</span></span></div>`;}
     case 'settings':return `<div class="shot"><span class="s-btn gear">${I('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>')}${SCUR}</span>${SAR}<span class="s-menu"><small>SIMULATION</small>${/Vider/.test(t)?'<span class="s-mi on">Vider les tables ARP et MAC</span>':'<span class="s-mi on">Vitesse <i class="s-slider"></i></span>'}</span></div>`;
-    case 'export':return `<div class="shot"><span class="s-tool">Fichier ▾</span>${SAR}<span class="s-menu"><span class="s-mi">Importer un schéma…</span><span class="s-mi on">Exporter le schéma…</span></span></div>`;
+    case 'export':return `<div class="shot"><span class="s-tool">NetSim ▾</span>${SAR}<span class="s-menu"><span class="s-mi">Importer un schéma…</span><span class="s-mi on">Exporter le schéma…</span></span></div>`;
     case 'opendev':{const d=c.ord.find(x=>!TYPES[x.type].host||x.type==='printer'||x.type==='esp32')||c.a;return `<div class="shot"><span class="s-pair">${sdev(d)}${SCUR}</span>${SAR}<span class="s-win"><span class="s-wbar">${esc(d?d.name:'')}</span><span class="s-lines"><i></i><i></i><i></i></span></span></div>`;}
     case 'frames':return `<div class="shot col"><span class="s-pill">${I('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>')}Trames échangées ▲</span><span class="s-rows"><span><b class="ptag2 c-arp">ARP</b> Qui a l’adresse… ?</span><span class="on"><b class="ptag2 c-icmp">ICMP</b> Ping n°1 : es-tu là ?${SCUR}</span><span><b class="ptag2 c-http">HTTP</b> GET / : demande de la page</span></span></div>`;
     case 'terminal':{const res=/^ping (\S+)/.exec(c.cmd||'');const out=res?`Réponse de ${res[1]} ✓`:/^tracert/.test(c.cmd||'')?'1   192.168.1.254   (routeur)':/^imprimer/.test(c.cmd||'')?'✓ Document imprimé':/^arp/.test(c.cmd||'')?'192.168.1.12   02:4C:…':'';
@@ -4030,7 +4030,7 @@ async function demoCable(){
   await clic(devEl(p2));
   await clic(devEl(sw),()=>{connect(p2,sw,true);render();});
   await clic(outil('select'),()=>setTool('select'));
-  await legende('Clique sur PC 1 : son panneau Propriétés s’ouvre à droite.');
+  await legende('Clique sur PC 1 : son panneau s’ouvre à droite.');
   await clic(devEl(p1),()=>{sel={kind:'dev',id:p1.id};renderProps();});
   await legende('Écris son adresse IP dans le champ Adresse IP.');
   const ip1=document.querySelector('#props [data-f="ip"]');
@@ -4253,8 +4253,9 @@ function guideDebutant(){
    ============================================================ */
 const TOUR=[
   {t:'Bienvenue dans NetSim !',p:'Tu vas construire un petit réseau informatique, comme dans une salle de classe. On découvre l’écran un élément après l’autre.'},
-  {sel:'#bFile',t:'Le menu Fichier',p:'Il permet de créer un schéma vide, d’ouvrir les ateliers, et d’importer ou d’exporter ton travail dans un fichier .json.'},
-  {sel:'.lvl',t:'Le niveau',p:'Au niveau Débutant (5ᵉ), seules les adresses IP sont utilisées. Les autres niveaux ajoutent de nouvelles notions, au fil des ateliers.'},
+  {sel:'.topbar .brand',t:'Le menu NetSim',p:'Un clic sur le logo ouvre le menu : créer un schéma vide, lancer une démo, importer ou exporter ton travail dans un fichier .json, ouvrir tes ateliers.'},
+  {sel:'#bCentrale',t:'Visiteur',p:'Pour te connecter avec le code donné par ton professeur, ou changer de classe. Sans connexion, ton travail reste enregistré dans le navigateur.'},
+  {sel:'#bResume',t:'L’atelier en cours',p:'La pastille donne ta classe, puis le code de l’atelier et le nombre d’ateliers terminés. Un clic ouvre Mes ateliers : tous les ateliers et tes documents.'},
   {sel:'[data-tool="select"]',t:'L’outil Sélection',p:'Il sert à cliquer sur un appareil pour le choisir, et à le déplacer en le faisant glisser.'},
   {sel:'[data-tool="cable"]',t:'L’outil Câble',p:'Clique sur un appareil, puis sur un autre : un câble les relie. Un trait en pointillés représente une liaison Wi-Fi.'},
   {sel:'#bUndo',t:'Annuler',p:'Revient en arrière si tu t’es trompé. Raccourci clavier : Ctrl + Z (⌘ + Z sur Mac).'},
@@ -4262,9 +4263,9 @@ const TOUR=[
   {sel:'#stage',t:'La feuille de travail',p:'C’est ici que tu construis ton réseau. La molette de la souris, ou les boutons + et − en bas à droite, permettent de zoomer.'},
   {sel:'#cMini',t:'Le bouton ▶ : la simulation',p:'Il lance la simulation : les appareils s’allument et s’envoient des messages. Le bouton ⏸ revient à la conception.'},
   {sel:'#exoBox',t:'Le guide',p:'Il affiche les consignes des ateliers, une étape à la fois. Sans atelier ouvert, il donne les premières indications.'},
-  {sel:'#propsBox',t:'Les propriétés',p:'Clique sur un appareil : son nom et son adresse IP apparaissent ici, et tu peux les modifier. Ce panneau n’apparaît que lorsqu’un appareil est sélectionné.'},
-  {sel:'#bSet',t:'Les réglages',p:'L’engrenage ouvre les réglages : la vitesse de la simulation et les alertes qui signalent un problème de configuration.'},
-  {t:'Ta première mission',p:'Tu connais maintenant chaque élément. Ouvre les ateliers et commence par « Mon premier appareil », étape par étape.'}
+  {sel:'#propsBox',t:'Le panneau de l’appareil',p:'Clique sur un appareil : son panneau s’ouvre à droite, sous la consigne. Tu y modifies son nom et son adresse IP. Il n’apparaît que lorsqu’un appareil est sélectionné.'},
+  {sel:'#bSet',t:'Les réglages',p:'L’engrenage ouvre les réglages : la vitesse de la simulation, les alertes qui signalent un problème de configuration, le thème clair ou sombre.'},
+  {t:'Ta première mission',p:'Tu connais maintenant chaque élément. Ouvre Mes ateliers et commence par « L’écran et mon premier appareil », étape par étape.'}
 ];
 let tourI=0;
 const TOUR_VU='netsim-visite-vue';
