@@ -2697,7 +2697,12 @@ function majResume(){
   const f=t.exos.filter(exoFait).length;
   b.className='tbres k'+t.c[0];
   b.innerHTML=`${pas(t.c)}<span class="tpcn">${code}</span><span class="tpnom">${TP_LABEL[t.k]}</span>${barres(t.niv)}<span class="tbpct">${f}/${t.exos.length}</span>`;
-  b.onclick=()=>openParc();
+  b.onclick=basculerParc;
+}
+/* La pastille alterne entre l’atelier en cours et le menu de sélection des ateliers. */
+function basculerParc(){
+  if(!$('#parc').hidden){closeParc();return;}
+  openParc();
 }
 /* Menu du logo : ouvre, ferme, et délègue aux boutons existants. */
 document.addEventListener('click',e=>{
