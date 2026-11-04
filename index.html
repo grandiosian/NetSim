@@ -906,6 +906,8 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .docrow .docbtns{flex-direction:column;align-items:stretch;flex:none;width:116px;margin-left:auto}
 .docrow .docbtns .btn{justify-content:center}
 .doclist{margin-top:4px}
+.demobar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:97;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18);font-weight:700;font-size:13px;white-space:nowrap}
+.demobar[hidden]{display:none}
 /* Menu des ateliers : Mes documents à gauche et Mes ateliers à droite quand la fenêtre est assez large. */
 .parcgrille{display:block}
 .parcth{font-family:var(--f-disp);font-weight:800;font-size:16px;margin:0 0 8px}
@@ -1155,7 +1157,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
   <div class="menu glass" id="mMenu" hidden>
     <div class="mh">Fichier</div>
     <button class="mi" data-click="bNew" type="button">Nouveau schéma vide</button>
-    <button class="mi" data-click="bExamples" type="button">Exemples et ateliers…</button>
+    <button class="mi" data-click="bExamples" type="button">Démos…</button>
     <button class="mi" data-click="bImport" type="button">Importer un schéma…</button>
     <button class="mi" data-click="bExport" type="button">Exporter le schéma…</button>
     <div class="msep"></div>
@@ -1167,7 +1169,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
     <div class="menuwrap" hidden><button class="btn flat" id="bFile" type="button" aria-haspopup="true" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span class="ftxt">Fichier</span><svg class="i chev2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
       <div class="menu glass" id="mFile" hidden>
         <button class="mi" id="bNew" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nouveau schéma vide</button>
-        <button class="mi" id="bExamples" type="button"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Exemples et ateliers…</button>
+        <button class="mi" id="bExamples" type="button"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Démos…</button>
         <button class="mi" id="bTour" type="button"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17.2v.1"/></svg>Visite guidée de l’écran</button>
         <div class="msep"></div>
         <button class="mi" id="bImport" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Importer un schéma…</button>
@@ -2942,7 +2944,7 @@ const liensPCSwitch=()=>S.cables.filter(c=>{const A=D(c.a.d),B=D(c.b.d);return !
 const EXOS=[
   /* ===== 5e · Premiers pas : un geste à la fois ===== */
   {k:'e5-0a',c:'5e',cat:'premiers',dur:'25 min',t:'L’écran et mon premier appareil',p:'Découvrir l’écran pas à pas, puis placer deux ordinateurs et leur donner une adresse IP.',
-   steps:[{t:'Repère le bouton Fichier, en haut à gauche, et clique dessus.',h:'Le menu s’ouvre : il propose Nouveau schéma, Exemples et ateliers, Visite guidée, Importer et Exporter.',c:()=>!!VU.fichier},
+   steps:[{t:'Repère le bouton Fichier, en haut à gauche, et clique dessus.',h:'Le menu s’ouvre : il propose Nouveau schéma, Démos, Visite guidée, Importer et Exporter.',c:()=>!!VU.fichier},
     {t:'Lis les lignes du menu, puis ferme-le : clique ailleurs sur l’écran, ou appuie sur Échap.',h:'Le menu Fichier sert à créer, ouvrir ou sauvegarder un schéma. Rien à modifier ici pour le moment.'},
     {t:'Regarde la barre du haut, au centre : les pastilles 5, 4 et 3 sont les niveaux. Tu es sur la 5 : Débutant.',h:'Le niveau change ce qui est disponible. Ne touche pas aux autres pastilles pour le moment.'},
     {t:'Dans la boîte à outils, à gauche, clique sur l’outil Câble.',h:'Il est à droite de l’outil Sélection. Un câble relie deux appareils.',c:()=>!!VU.outil_cable},
@@ -3476,27 +3478,73 @@ $('#exo').addEventListener('click',e=>{
   if(a==='openex')openParc();
   if(a==='tour')startTour();
 });
-let exTab=null;
-function exModal(){
-  const cnt=c=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="tcnt">${xs.filter(x=>(PROG[x.k]||{}).done).length}/${xs.length}</span>`;};
-  const tabs=[['5e',pas('5e')+'5ᵉ · Débutant'+cnt('5e')],['4e',pas('4e')+'4ᵉ · Intermédiaire'+cnt('4e')],['3e',pas('3e')+'3ᵉ · Avancé'+cnt('3e')],['demo','Démos']];
-  if(!exTab)exTab=['5e','4e','3e'][lv()];
-  const card=x=>{const pr=PROG[x.k]||{},dn=!!pr.done,st=dn?'Terminé':pr.started?`Commencé · ${Math.min(pr.best||0,x.steps.length)}/${x.steps.length}`:'À faire';return `<div class="excard ${dn?'st-done':'st-todo'}"><div class="meta"><span class="lvl">${pas(x.c)}Pas à pas · ${x.steps.length} étapes</span><span class="dur">${x.dur}</span></div><div class="stline"><span class="stbox${dn?' on':''}" aria-hidden="true">${dn?'✓':''}</span><span>${st}</span></div><h3>${x.t}</h3><p>${x.p}</p><button class="btn small primary" data-exo="${x.k}" type="button">${dn?'Refaire l’atelier':'Ouvrir l’atelier'}</button></div>`;};
-  const list=exTab==='demo'?`<div class="exlist">${EXAMPLES.map(x=>`<div class="excard"><div class="meta"><span class="lvl">${x.lv==null?'Libre':pas(x.lv)+LV_NAMES[x.lv]}</span></div><h3>${x.t}</h3><p>${x.p}</p><button class="btn small primary" data-ex="${x.k}" type="button">Ouvrir</button></div>`).join('')}</div>`
-    :CATS[exTab].map(([k,t,d])=>{const xs=EXOS.filter(x=>x.c===exTab&&x.cat===k);return xs.length?`<section class="catsec"><div class="cath"><h3>${t}</h3><span>${d}</span></div><div class="exlist">${xs.map(card).join('')}</div></section>`:'';}).join('');
-  openModal(`<div class="mhead"><h2>Exemples et ateliers</h2><button class="wbtn wx" data-close type="button" aria-label="Fermer">×</button></div>
-<div class="seg extabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" data-tab="${k}" class="${k===exTab?'on':''}">${l}</button>`).join('')}</div>
-<p class="small muted" style="margin:0">${exTab==='demo'?'Des réseaux complets pour faire une démonstration.':'Chaque atelier s’ouvre au bon niveau et guide l’élève étape par étape : la plupart des étapes se valident toutes seules.'} Le schéma actuel sera remplacé : Annuler (Ctrl + Z) permet de le récupérer.</p>
-${list}
-${exTab!=='demo'?'<div class="row" style="justify-content:flex-end"><button class="btn small" data-act="resetprog" type="button">Effacer ma progression</button></div>':''}`);
+/* ---------- Démos : réseaux prêts à l’emploi, démo guidée et démos en boucle ---------- */
+const DEMOS=[
+  {k:'cable',t:'Mon premier câble',p:'Deux PC et un switch : la démo pose les appareils, relie les câbles, donne les adresses et lance un ping.',boucle:false},
+  {k:'salle',t:'Ping dans la salle',p:'Les PC d’une salle se pingent en boucle : les trames circulent dans les câbles.',boucle:true,ex:'salle',paires:[['PC 1','192.168.0.12']]},
+  {k:'deux',t:'Le paquet traverse le routeur',p:'Deux salles reliées par un routeur : le ping de PC 1 vers PC 3 se répète en boucle.',boucle:true,ex:'deux',paires:[['PC 1','192.168.2.11']]},
+  {k:'anneau',t:'Le paquet fait le tour de l’anneau',p:'Quatre routeurs en boucle : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'anneau',paires:[['PC 1','192.168.3.11']]},
+  {k:'maille',t:'Le maillage',p:'Chaque routeur relié aux autres : le ping de PC 1 vers PC 3 se répète.',boucle:true,ex:'maille',paires:[['PC 1','192.168.3.11']]}
+];
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+let demoEnCours=null;
+function pingP(de,vers){return new Promise(res=>{const d=S.devices.find(x=>x.name===de);if(!d)return res();doPing(d,vers,()=>{},res);});}
+function montrerExemple(k){setMode('design');snap();buildExample(k);sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();}
+function barreDemo(nom,c){
+  let b=$('#demoBar');
+  if(!b){
+    b=document.createElement('div');b.id='demoBar';b.className='demobar';
+    b.innerHTML='<span id="demoNom"></span><button class="btn small" id="demoStop" type="button">Arrêter la démo</button>';
+    document.body.appendChild(b);
+    $('#demoStop').onclick=()=>{if(demoEnCours)demoEnCours.arret=true;};
+  }
+  $('#demoNom').textContent=nom;b.hidden=false;
 }
-$('#bExamples').onclick=()=>{exModal();
+/* Une démo guidée joue les gestes un par un : chaque appareil, chaque câble, chaque adresse. */
+async function demoCable(c){
+  const geste=async(f,ms=900)=>{if(c.arret)throw 'arret';f();render();renderProps();await pause(ms);};
+  montrerExemple('vide');await pause(500);
+  let sw,a,b;
+  await geste(()=>{sw=newDevice('switch',300,240);fitView();});
+  await geste(()=>{a=newDevice('pc',120,160);});
+  await geste(()=>{b=newDevice('pc',480,160);});
+  await geste(()=>{connect(a,sw,true);});
+  await geste(()=>{connect(b,sw,true);});
+  await geste(()=>{a.ip='192.168.1.11';b.ip='192.168.1.12';});
+  await geste(()=>{setMode('sim');if(sim.paused){sim.paused=false;updPause();}},600);
+  await pingP(a.name,b.ip);
+  toast('Démo terminée : les deux PC se parlent.');
+}
+async function lancerDemo(k){
+  const d=DEMOS.find(x=>x.k===k);if(!d)return;
+  if(demoEnCours){demoEnCours.arret=true;await new Promise(r=>{const t=setInterval(()=>{if(!demoEnCours){clearInterval(t);r();}},100);});}   // une seule démo à la fois
+  const c={arret:false};demoEnCours=c;barreDemo(d.t,c);
+  try{
+    if(d.boucle){
+      montrerExemple(d.ex);await pause(600);
+      setMode('sim');if(sim.paused){sim.paused=false;updPause();}
+      await pause(400);
+      while(!c.arret){for(const [de,vers] of d.paires){if(c.arret)break;await pingP(de,vers);await pause(1600);}}
+    }else await demoCable(c);
+  }catch(_){}
+  finally{if(demoEnCours===c)demoEnCours=null;$('#demoBar').hidden=true;}
+}
+function demosModal(){
+  const carte=(x,titre,bouton)=>`<div class="excard"><div class="meta"><span class="lvl">${titre}</span></div><h3>${x.t}</h3><p>${x.p}</p>${bouton}</div>`;
+  const reseaux=EXAMPLES.filter(x=>x.lv!=null).map(x=>carte(x,pas(x.lv)+LV_NAMES[x.lv],`<button class="btn small primary" data-ex="${x.k}" type="button">Ouvrir le réseau</button>`)).join('');
+  const lance=d=>carte(d,d.boucle?'En boucle':'Guidée',`<button class="btn small primary" data-demo="${d.k}" type="button">Lancer</button>`);
+  openModal(`<div class="mhead"><h2>Démos</h2><button class="wbtn wx" data-close type="button" aria-label="Fermer">×</button></div>
+<p class="small muted" style="margin:0">Le schéma actuel sera remplacé : Annuler (Ctrl + Z) permet de le récupérer.</p>
+<section class="catsec"><div class="cath"><h3>Réseaux d’exemple</h3><span>Un réseau prêt à explorer.</span></div><div class="exlist">${reseaux}</div></section>
+<section class="catsec"><div class="cath"><h3>Démo guidée</h3><span>Les gestes sont joués automatiquement, une fois.</span></div><div class="exlist">${DEMOS.filter(d=>!d.boucle).map(lance).join('')}</div></section>
+<section class="catsec"><div class="cath"><h3>Démos en boucle</h3><span>Pour une porte ouverte : elles tournent jusqu’à ce qu’on les arrête.</span></div><div class="exlist">${DEMOS.filter(d=>d.boucle).map(lance).join('')}</div></section>`);
+}
+$('#bExamples').onclick=()=>{demosModal();
   $('#mbox').onclick=e=>{
     if(e.target.closest('[data-close]'))return closeModal();
-    const t=e.target.closest('[data-tab]');if(t){exTab=t.dataset.tab;exModal();return;}
-    const rp=e.target.closest('[data-act="resetprog"]');if(rp){if(rp.dataset.ok){PROG={};saveProg();exModal();toast('Progression effacée.');}else{rp.dataset.ok='1';rp.textContent='Confirmer l’effacement ?';rp.classList.add('danger');}return;}
-    const x=e.target.closest('[data-exo]');if(x){const ex=EXOS.find(o=>o.k===x.dataset.exo);closeModal();loadExo(ex);toast(`Atelier « ${ex.t} » : suis les étapes de la consigne.`);return;}
-    const b=e.target.closest('[data-ex]');if(!b)return;setMode('design');snap();buildExample(b.dataset.ex);closeModal();sel=null;$('#helpChk').checked=S.help;syncLevel();render();renderProps();save();fitView();};
+    const dm=e.target.closest('[data-demo]');if(dm){closeModal();lancerDemo(dm.dataset.demo);return;}
+    const b=e.target.closest('[data-ex]');if(b){closeModal();montrerExemple(b.dataset.ex);return;}
+  };
 };
 /* ---------- Sauvegarde de secours : fichier + dépôt Nuage (avec ou sans Centrale) ---------- */
 const CLE_NUAGE='netsim-nuage';
@@ -3841,7 +3889,7 @@ function parcoursHTML(){
 <div class="pniv${PF!=='all'?' k'+PF[0]:''}" role="group" aria-label="Filtrer par niveau">${[['all','Tous niveaux'],['0','Débutant'],['1','Intermédiaire'],['2','Avancé']].map(([v,l])=>`<button type="button" class="pn${PN===v?' on':''}" data-pn="${v}" aria-pressed="${PN===v}">${v==='all'?'':barres(+v)}${l}</button>`).join('')}</div></div>`;
   return `${widget}
 ${filtres}
-${cartes}`;
+${cartes}<div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn small" data-act="resetprog" type="button">Effacer ma progression</button></div>`;
 }
 function openParc(){closeMenus();$('#parcBody').innerHTML='<div class="parcgrille"><div class="parcdocs">'+docsHTML()+'</div><div class="parcat"><h3 class="parcth">Mes ateliers</h3>'+parcoursHTML()+'</div></div>'+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
 function closeParc(){$('#parc').hidden=true;}
@@ -3979,6 +4027,7 @@ $('#parc').addEventListener('focusout',e=>{if(e.target.classList&&e.target.class
 $('#parc').addEventListener('change',e=>{if(e.target.id==='docFichier'&&e.target.files[0]){docImporter(e.target.files[0]);e.target.value='';}});
 $('#parc').addEventListener('click',e=>{
   const dc=e.target.closest('[data-doc]');if(dc){docAction(dc.dataset.doc,dc.dataset.id,dc);return;}
+  const rp=e.target.closest('[data-act="resetprog"]');if(rp){if(confirm('Effacer toute ta progression dans les ateliers ?')){PROG={};saveProg();openParc();toast('Progression effacée.');}return;}
   const pn=e.target.closest('[data-pn]');if(pn){PREF.pn=pn.dataset.pn;savePref();openParc();return;}
   const pf=e.target.closest('[data-pf]');if(pf){PREF.pf=pf.dataset.pf;savePref();openParc();return;}
   const o=e.target.closest('[data-tpopen]');if(o){$('#tpbody').innerHTML=PARC_DETAIL[o.dataset.tpopen]||'';$('#tpmodal').hidden=false;$('#tpbody').scrollTop=0;return;}
