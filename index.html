@@ -896,9 +896,10 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .tbres .tbpct{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);flex:none}
 .tbres .nvb{flex:none}
 .docsec{margin:0 0 14px}
-.docrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.docrow{display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:8px 12px;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 .docrow.on{border-color:var(--accent)}
-.docnom{display:flex;flex-direction:column;min-width:0}
+.docnom{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;cursor:text}
+.docbtns{margin-left:auto}
 .docbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .doclist{margin-top:4px}
 .docbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
@@ -3924,12 +3925,13 @@ function docsHTML(){
   const cur=docCourant(),l=[...docsLire()].sort((a,b)=>b.date-a.date);
   docChoix=new Set([...docChoix].filter(id=>l.some(d=>d.id===id)));
   const n=docChoix.size,date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="rename" data-id="${d.id}" type="button">Renommer</button><button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
+  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom" data-id="${d.id}" title="Double-clic pour renommer"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="rename" data-id="${d.id}" type="button">Renommer</button><button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
   return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div>`
     +`<div class="docbar"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button><button class="btn small" data-doc="import" type="button">Importer…</button>${cur?'<button class="btn small" data-doc="save" type="button">Enregistrer maintenant</button>':''}`
     +(l.length?`<span class="docsep"></span><label class="doccase docall"><input type="checkbox" data-doc="selAll" aria-label="Tout sélectionner"${n&&n===l.length?' checked':''}></label><span class="small muted">${n?n+' sélectionné'+(n>1?'s':''):'Sélection'}</span>${n?`<button class="btn small" data-doc="exporterSel" type="button">Exporter la sélection</button><button class="btn small danger" data-doc="supprimerSel" type="button">Supprimer la sélection</button>`:''}`:'')
     +`</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div><input type="file" id="docFichier" accept=".json,application/json" hidden></section>`;
 }
+$('#parc').addEventListener('dblclick',e=>{const n=e.target.closest('.docnom');if(n)docRenommer(n.dataset.id);});
 $('#parc').addEventListener('change',e=>{if(e.target.id==='docFichier'&&e.target.files[0]){docImporter(e.target.files[0]);e.target.value='';}});
 $('#parc').addEventListener('click',e=>{
   const dc=e.target.closest('[data-doc]');if(dc){docAction(dc.dataset.doc,dc.dataset.id,dc);return;}
