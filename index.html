@@ -1063,9 +1063,8 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .acrow button{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;padding:14px 10px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
 .acrow button:hover{border-color:var(--accent)}
 .acrow .pas{width:52px;height:52px;font-size:24px}
-#acLycee{flex-wrap:wrap;gap:8px}
-#acLycee button{min-width:0;width:84px;padding:12px 6px}
-#acLycee .pas{width:44px;height:44px;font-size:20px}
+/* Même taille de pastille et de bouton du collège au supérieur ; les rangées passent à la ligne si besoin. */
+#acLycee,#acSup{flex-wrap:wrap;gap:12px}
 .acOnglets{margin:0 auto 10px}
 .acniv .pas{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;font-size:15px;line-height:1;padding:0}
 .acsep{margin:14px 0;color:var(--ink-3);font-size:13px}
@@ -1294,9 +1293,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 <p id="acSous">Quelle est ta classe ?</p>
 <div class="seg acOnglets" role="tablist" id="acOnglets"><button type="button" data-onglet="college" class="on" role="tab">Collège</button><button type="button" data-onglet="lycee" role="tab">Lycée</button><button type="button" data-onglet="superieur" role="tab">Supérieur</button></div>
 <div class="acrow" id="acClasses">
-<button type="button" data-ac="5e" aria-label="Classe 5ᵉ"><span class="pas p5">5</span></button>
-<button type="button" data-ac="4e" aria-label="Classe 4ᵉ"><span class="pas p4">4</span></button>
-<button type="button" data-ac="3e" aria-label="Classe 3ᵉ"><span class="pas p3">3</span></button>
+<button type="button" data-ac="5e" aria-label="Classe 5ᵉ"><span class="pas p5">5</span><b>5ᵉ</b></button>
+<button type="button" data-ac="4e" aria-label="Classe 4ᵉ"><span class="pas p4">4</span><b>4ᵉ</b></button>
+<button type="button" data-ac="3e" aria-label="Classe 3ᵉ"><span class="pas p3">3</span><b>3ᵉ</b></button>
 </div>
 <div class="acrow" id="acLycee" hidden>
 <button type="button" data-ac="lyc-2nde" aria-label="Seconde"><span class="pas" style="background:#17b8c9;color:#1c3268">2</span><b>2nde</b></button>
