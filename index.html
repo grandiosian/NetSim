@@ -3982,10 +3982,10 @@ $('#parc').addEventListener('click',e=>{
   const b=e.target.closest('[data-parc-act]');if(!b)return;
   if(b.dataset.parcAct==='libre'){const niveau=lv();closeParc();setMode('design');snap();buildExample('vide');S.level=niveau;sel=null;syncLevel();render();renderProps();save();fitView();toast('Feuille vide. Annuler (Ctrl + Z) pour revenir au précédent.');}
   else if(b.dataset.parcAct==='visite'){closeParc();startTour();}
-  else if(b.dataset.parcAct==='classe'){closeParc();$('#accueil').hidden=false;accueilEtape('classe');}
+  else if(b.dataset.parcAct==='classe'){closeParc();accueilRetour=true;$('#accueil').hidden=false;accueilEtape('classe');}
 });
 $('#bParc').onclick=openParc;
-let classeAccueil='';
+let classeAccueil='',accueilRetour=false;   // accueilRetour : rouvrir le menu des ateliers après le choix
 function accueilEtape(etape){
   $('#acClasses').hidden=etape!=='classe';$('#acNiv').hidden=etape!=='niv';
   $('#acSep').hidden=etape!=='classe';$('#acCode').hidden=etape!=='classe';
@@ -4002,8 +4002,7 @@ $('#accueil').addEventListener('click',e=>{
     const cible=tpsParc().find(t=>t.c===classeAccueil&&t.niv===niv);
     const x=cible&&(cible.exos.find(e=>!exoFait(e))||cible.exos[0]);
     if(S.exo&&x&&(!cur||cur.c!==classeAccueil||cur.niv!==niv)){docCreer(S.exo.t||'Atelier');loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);return;}
-    openParc();
-    const el=document.getElementById(`niv-${classeAccueil}-${niv}`);if(el)el.scrollIntoView({block:'start'});
+    if(accueilRetour){openParc();const el=document.getElementById(`niv-${classeAccueil}-${niv}`);if(el)el.scrollIntoView({block:'start'});}
     return;
   }
   if(!b)return;
@@ -4023,7 +4022,7 @@ $('#accueil').addEventListener('click',e=>{
   applyPrefs();syncLevel();updPause();placeAll();setHint();render();renderProps();fillDevSelect();renderFrames();
   requestAnimationFrame(fitView);
   const premiere=!loaded&&!Object.keys(PROG).some(k=>k!=='__seen');
-  if(premiere&&!location.hash)$('#accueil').hidden=false;else openParc();
+  if(premiere&&!location.hash){accueilRetour=true;$('#accueil').hidden=false;}else openParc();
   window.addEventListener('resize',()=>{});
 })();
 /* Ouverture directe d'un exercice par l'adresse (#activite=e5-1), sans la Centrale. Depuis le portail
@@ -4106,7 +4105,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
         if(it.dataset.profil==='connexion'){
           if(!window.Centrale){toast('La Centrale est injoignable pour le moment : NetSim fonctionne sans connexion.');return;}
           ouvrirFenetre();
-        }else{$('#accueil').hidden=false;accueilEtape('classe');}
+        }else{accueilRetour=!$('#parc').hidden;$('#accueil').hidden=false;accueilEtape('classe');}
       });
       document.body.appendChild(profil);
       document.addEventListener('click',e=>{if(!profil.hidden&&!profil.contains(e.target)&&!bouton.contains(e.target))profil.hidden=true;});
