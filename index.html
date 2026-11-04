@@ -889,6 +889,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .menuwrap[hidden]{display:none}
 #mMenu{position:fixed;top:58px;left:14px;z-index:80;min-width:260px}
 #mMenu .mh{margin-top:4px}
+#profilMenu{position:fixed;z-index:95;min-width:240px}
 .tbres{display:inline-flex;align-items:center;gap:8px;max-width:min(560px,60vw);padding:6px 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .tbres:hover{border-color:var(--accent)}
 .tbres .tpcn{background:var(--cl,var(--accent));color:#1c3268;border:1px solid var(--cl,var(--accent));flex:none}
@@ -1148,7 +1149,6 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
     <div class="msep"></div>
     <div class="mh">Parcours</div>
     <button class="mi" id="bParc" type="button">Mes ateliers</button>
-    <button class="mi" data-pa="classe" type="button">Changer de classe</button>
     <button class="mi" data-pa="visite" type="button">Visite de NetSim</button>
   </div>
     <div class="brand"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 20L14 7l7 13z" fill="none" stroke="var(--ink-3)" stroke-width="2"/><circle cx="14" cy="7" r="4" fill="var(--accent)"/><circle cx="7" cy="20" r="4" fill="var(--http)"/><circle cx="21" cy="20" r="4" fill="var(--arp)"/></svg><span>Net<b>Sim</b></span></div>
@@ -4073,19 +4073,38 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     const logo=document.querySelector('.topbar .brand');
     bouton=document.createElement('button');
     bouton.className='tbres';bouton.type='button';bouton.id='bCentrale';
-    bouton.onclick=()=>{
-      if(!window.Centrale){toast('La Centrale est injoignable pour le moment : NetSim fonctionne sans connexion.');return;}
-      if(Centrale.connecte()){
-        const s=Centrale.session();
-        if(confirm(`Connecté : ${s.classe} · élève ${s.eleve}.\nTon travail est enregistré automatiquement.\n\nSe déconnecter ?`)){
-          Centrale.deconnexion();pret=false;majBouton();toast('Déconnecté. NetSim enregistre de nouveau dans ce navigateur seulement.');
-        }
-        return;
+    bouton.onclick=e=>{
+      e.stopPropagation();
+      if(!(window.Centrale&&Centrale.connecte())){basculerProfil();return;}
+      const s=Centrale.session();
+      if(confirm(`Connecté : ${s.classe} · élève ${s.eleve}.\nTon travail est enregistré automatiquement.\n\nSe déconnecter ?`)){
+        Centrale.deconnexion();pret=false;majBouton();toast('Déconnecté. NetSim enregistre de nouveau dans ce navigateur seulement.');
       }
-      ouvrirFenetre();
     };
     if(logo)logo.after(bouton);else document.querySelector('.topbar').prepend(bouton);
     majBouton();
+  }
+  /* Menu du widget hors connexion : se connecter avec son code, ou changer de classe. */
+  let profil=null;
+  function basculerProfil(){
+    if(!profil){
+      profil=document.createElement('div');
+      profil.id='profilMenu';profil.className='menu glass';profil.hidden=true;
+      profil.innerHTML='<button class="mi" data-profil="connexion" type="button">Se connecter avec mon code</button><button class="mi" data-profil="classe" type="button">Changer de classe</button>';
+      profil.addEventListener('click',e=>{
+        const it=e.target.closest('[data-profil]');if(!it)return;
+        profil.hidden=true;
+        if(it.dataset.profil==='connexion'){
+          if(!window.Centrale){toast('La Centrale est injoignable pour le moment : NetSim fonctionne sans connexion.');return;}
+          ouvrirFenetre();
+        }else document.querySelector('[data-parc-act="classe"]').click();
+      });
+      document.body.appendChild(profil);
+      document.addEventListener('click',e=>{if(!profil.hidden&&!profil.contains(e.target)&&!bouton.contains(e.target))profil.hidden=true;});
+    }
+    const ouvre=profil.hidden;
+    if(ouvre){closeMenus();const r=bouton.getBoundingClientRect();profil.style.left=r.left+'px';profil.style.top=(r.bottom+6)+'px';}
+    profil.hidden=!ouvre;
   }
   function majBouton(){
     if(!bouton)return;
