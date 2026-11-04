@@ -901,6 +901,15 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 #profilMenu{position:fixed;z-index:95;min-width:240px}
 .tbres{display:inline-flex;align-items:center;gap:8px;max-width:min(560px,60vw);padding:6px 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .tbres:hover{border-color:var(--accent)}
+/* Widget Centrale : « ← Tous les ateliers » (retour au portail) et l’identifiant, dans une seule pastille. */
+.tbid{padding:0;gap:0;cursor:default}
+.tbid>button{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;border-radius:999px;white-space:nowrap}
+.tbid>button:hover{color:var(--accent)}
+.tbid>button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tbid .tbid-ret{font-weight:700;padding-right:12px}
+.tbid .tbid-ret+#bCentrale{border-left:1px solid var(--line);border-radius:0 999px 999px 0;padding-left:12px}
+.tbid #bCentrale span{font-family:var(--f-mono);font-size:12px}
+@media (max-width:700px){.tbid .tbid-ret .tbid-txt{display:none}}
 .tbres .tpcn{background:var(--cl,var(--accent));color:#1c3268;border:1px solid var(--cl,var(--accent));flex:none}
 .tbres .tpnom{font-weight:700;overflow:hidden;text-overflow:ellipsis}
 .tbres .tbpct{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);flex:none}
@@ -986,6 +995,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .parc{top:53px;inset:53px 0 0 0;width:auto;border-right:0;box-shadow:none}
 /* Résumé du TP : centré exactement au milieu de la barre, quels que soient les boutons des deux côtés. */
 .topbar #bResume{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(520px,44vw)}
+/* Ouvert depuis la Centrale, le widget s’allonge (« ← Tous les ateliers ») : sur un écran moyen, la pastille centrale reprend sa place dans la ligne pour ne pas le recouvrir. */
+@media (max-width:1180px){.topbar:has(#bRetourCentrale){flex-wrap:nowrap}.topbar:has(#bRetourCentrale) #bResume{position:static;transform:none;margin-inline:auto;min-width:0;flex:0 1 auto}}
+.tbid{flex:none}
 .prochain{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:16px;background:var(--accent-soft);border:1px solid var(--accent);margin-bottom:6px}
 .prochain.fin{background:var(--surface-2);border-color:var(--ok)}
 .prochain .kick{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
@@ -4669,7 +4681,9 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   const miroir=/^https?:$/.test(location.protocol)&&location.pathname.match(/^(.*?\/)miroir\/[^/]+\//);
   const SERVEUR=window.CENTRALE_URL||(miroir?location.origin+miroir[1]:'https://technoversailles.alwaysdata.net/');
   const avecJeton=/(^|[#&])centrale=/.test(location.hash);
-  let pret=false,bouton=null,fenetre=null;
+  let pret=false,bouton=null,widget=null,fenetre=null;
+  /* Adresse du portail quand NetSim a été ouvert depuis la Centrale (#…&retour=…, gardée par le client). */
+  const adresseRetour=()=>{try{return sessionStorage.getItem('centrale-retour');}catch(_){return null;}};
 
   /* Le widget existe dès l’ouverture : « Visiteur » tant que la Centrale n’est pas connectée ou joignable. */
   creerBouton();
@@ -4686,6 +4700,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       app:'netsim',
       // Liste des exercices : colonnes du tableau de suivi de l'enseignant
       activites:NetSim.activites(),
+      boutonRetour:false,   // « ← Tous les ateliers » est dans le widget de la barre du haut
       surDeconnexion:()=>{pret=false;majBouton();toast('Session terminée : reconnecte-toi pour enregistrer ton travail.');}
     });
     majBouton();
@@ -4695,8 +4710,11 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   /* ---------- Widget dans la barre du haut : « Visiteur », ou le code de l’élève une fois connecté ---------- */
   function creerBouton(){
     const logo=document.querySelector('.topbar .brand');
+    widget=document.createElement('div');
+    widget.className='tbres tbid';widget.id='widgetCentrale';
     bouton=document.createElement('button');
-    bouton.className='tbres';bouton.type='button';bouton.id='bCentrale';
+    bouton.type='button';bouton.id='bCentrale';
+    widget.appendChild(bouton);
     bouton.onclick=e=>{
       e.stopPropagation();
       if(!(window.Centrale&&Centrale.connecte())){basculerProfil();return;}
@@ -4705,7 +4723,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
         Centrale.deconnexion();pret=false;majBouton();toast('Déconnecté. NetSim enregistre de nouveau dans ce navigateur seulement.');
       }
     };
-    if(logo)logo.after(bouton);else document.querySelector('.topbar').prepend(bouton);
+    if(logo)logo.after(widget);else document.querySelector('.topbar').prepend(widget);
     majBouton();
   }
   /* Menu du widget hors connexion : se connecter avec son code, ou changer de classe. */
@@ -4735,6 +4753,16 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     const s=window.Centrale&&Centrale.connecte()&&Centrale.session();
     bouton.innerHTML=`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>${esc(s?(s.identifiant||s.eleve):'Visiteur')}</span>`;
     bouton.title=s?'Connecté : ton travail est enregistré sur le serveur de la classe':'Visiteur : clique pour te connecter avec ton code et enregistrer ton travail';
+    let ret=document.getElementById('bRetourCentrale');
+    const adresse=adresseRetour();
+    if(!adresse){if(ret)ret.remove();return;}
+    if(!ret){
+      ret=document.createElement('button');ret.type='button';ret.id='bRetourCentrale';ret.className='tbid-ret';
+      ret.innerHTML='<span aria-hidden="true">←</span><span class="tbid-txt">Tous les ateliers</span>';
+      ret.title='Revenir à tous tes ateliers sur la Centrale (ton travail est enregistré)';ret.setAttribute('aria-label','Tous les ateliers');
+      ret.onclick=e=>{e.stopPropagation();if(!(window.Centrale&&Centrale.retour()))location.href=adresse;};
+      widget.prepend(ret);
+    }
   }
 
   /* ---------- Fenêtre de connexion ---------- */
