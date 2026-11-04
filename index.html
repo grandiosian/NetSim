@@ -1292,7 +1292,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 <div class="accueil" id="accueil" hidden><div class="acbox" role="dialog" aria-modal="true" aria-labelledby="acTitre">
 <h2 id="acTitre">Collège</h2>
 <p id="acSous">Quelle est ta classe ?</p>
-<div class="seg acOnglets" role="tablist" id="acOnglets"><button type="button" data-onglet="college" class="on" role="tab">Collège</button><button type="button" data-onglet="lycee" role="tab">Lycée</button></div>
+<div class="seg acOnglets" role="tablist" id="acOnglets"><button type="button" data-onglet="college" class="on" role="tab">Collège</button><button type="button" data-onglet="lycee" role="tab">Lycée</button><button type="button" data-onglet="superieur" role="tab">Supérieur</button></div>
 <div class="acrow" id="acClasses">
 <button type="button" data-ac="5e" aria-label="Classe 5ᵉ"><span class="pas p5">5</span></button>
 <button type="button" data-ac="4e" aria-label="Classe 4ᵉ"><span class="pas p4">4</span></button>
@@ -1302,8 +1302,10 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 <button type="button" data-ac="lyc-2nde" aria-label="Seconde"><span class="pas" style="background:#17b8c9;color:#fff">2</span><b>2nde</b></button>
 <button type="button" data-ac="lyc-1re" aria-label="Première"><span class="pas" style="background:#1fa8e8;color:#fff">1</span><b>1re</b></button>
 <button type="button" data-ac="lyc-tle" aria-label="Terminale"><span class="pas" style="background:#d13cc0;color:#fff">T</span><b>Terminale</b></button>
-<button type="button" data-ac="lyc-bac1" aria-label="Bac+1"><span class="pas" style="background:#f06292;color:#fff">+1</span><b>Bac+1</b></button>
-<button type="button" data-ac="lyc-bac2" aria-label="Bac+2"><span class="pas" style="background:#e0394f;color:#fff">+2</span><b>Bac+2</b></button>
+</div>
+<div class="acrow" id="acSup" hidden>
+<button type="button" data-ac="sup-bac1" aria-label="Bac+1"><span class="pas" style="background:#f06292;color:#fff">+1</span><b>Bac+1</b></button>
+<button type="button" data-ac="sup-bac2" aria-label="Bac+2"><span class="pas" style="background:#e0394f;color:#fff">+2</span><b>Bac+2</b></button>
 </div>
 <div class="acniv" id="acNiv" hidden>
 <button type="button" data-niv="0"><span class="acnum">1</span><span><b>Débutant</b></span></button>
@@ -4272,9 +4274,9 @@ $('#bParc').onclick=openParc;
 let classeAccueil='',accueilRetour=false;   // accueilRetour : rouvrir le menu des ateliers après le choix
 let acOnglet='college';
 function accueilEtape(etape){
-  $('#acClasses').hidden=etape!=='classe'||acOnglet!=='college';$('#acLycee').hidden=etape!=='classe'||acOnglet!=='lycee';$('#acOnglets').hidden=etape!=='classe';$('#acNiv').hidden=etape!=='niv';
+  $('#acClasses').hidden=etape!=='classe'||acOnglet!=='college';$('#acLycee').hidden=etape!=='classe'||acOnglet!=='lycee';$('#acSup').hidden=etape!=='classe'||acOnglet!=='superieur';$('#acOnglets').hidden=etape!=='classe';$('#acNiv').hidden=etape!=='niv';
   $('#acSep').hidden=etape!=='classe';$('#acCode').hidden=etape!=='classe';
-  $('#acTitre').textContent=acOnglet==='lycee'?'Lycée':'Collège';
+  $('#acTitre').textContent={college:'Collège',lycee:'Lycée',superieur:'Supérieur'}[acOnglet];
   $('#acSous').textContent=etape==='classe'?'Quelle est ta classe ?':`Classe ${CLASSES[classeAccueil].t} : quel niveau de difficulté ?`;
 }
 $('#accueil').addEventListener('click',e=>{
@@ -4297,7 +4299,7 @@ $('#accueil').addEventListener('click',e=>{
   if(v==='retour'){accueilEtape('classe');return;}
   if(v==='code'){$('#accueil').hidden=true;const bc=document.getElementById('bCentrale');if(bc)bc.click();else toast('Demande ton code à ton professeur, puis ouvre « Mon code ».');return;}
   if(v==='ratt'){$('#accueil').hidden=true;S.level=1;save();syncLevel();render();renderProps();openParc();document.getElementById('niv-ratt').scrollIntoView({block:'start'});return;}
-  if(v.startsWith('lyc-')){toast('Les ateliers du lycée arrivent bientôt. Choisis un niveau du collège pour continuer.');return;}
+  if(v.startsWith('lyc-')||v.startsWith('sup-')){toast('Les ateliers de ce niveau arrivent bientôt. Choisis un niveau du collège pour continuer.');return;}
   classeAccueil=v;accueilEtape('niv');
 });
 
