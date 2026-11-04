@@ -1463,7 +1463,7 @@ function renderDevices(){
     const srv=(d.web&&d.web.on)||(d.sensor&&d.sensor.on);
     const last=mode==='sim'?((RT[d.id]&&RT[d.id].last)||'idle'):'';
     return `<g class="dev t-${d.type}${isSel?' sel':''}${pend?' pend':''}" data-dev="${d.id}" transform="translate(${d.x},${d.y})">
-<rect class="hitbox" x="${-50*Math.max(1,LF*.9)}" y="-46" width="${100*Math.max(1,LF*.9)}" height="${(ipl?128:114)+(LF-1)*32}" rx="12"/>
+<path class="hitbox" d="M-48 22L0 -2L48 22L0 46Z"/>
 <path class="tile" d="M-48 22L0 -2L48 22L0 46Z"/>
 <circle class="halo" id="halo-${d.id}" r="40"/>
 <use href="#ic-${d.type}" x="-50" y="-48" width="100" height="78"/>
@@ -1521,6 +1521,14 @@ const PREF={grid:true,snap:true,theme:'auto',cfold:false,cpos:null,prof:false};
 try{Object.assign(PREF,JSON.parse(localStorage.getItem('netsim-prefs')||localStorage.getItem('atelier-reseau-prefs')||'{}'));}catch(_){}
 function savePref(){try{localStorage.setItem('netsim-prefs',JSON.stringify(PREF));}catch(_){}}
 const snapv=v=>PREF.snap?Math.round(v/8)*8:Math.round(v);
+/* Grille isométrique : les nœuds sont à 27,7 px horizontalement et 16 px verticalement, avec a et b de même parité. */
+const ISO_X=55.4256/2,ISO_Y=16;
+function snapIso(x,y){
+  if(!PREF.snap)return {x:Math.round(x),y:Math.round(y)};
+  let a=Math.round(x/ISO_X),b=Math.round(y/ISO_Y);
+  if(((a-b)%2+2)%2!==0)b+=(y/ISO_Y>b?1:-1);
+  return {x:a*ISO_X,y:b*ISO_Y};
+}
 let drag=null;
 let groupe=new Set();   // appareils cumulés (Maj+clic) ou choisis au rectangle (Ctrl+glisser)
 function hitOf(t){return {dev:t.closest('[data-dev]'),cab:t.closest('[data-cable]'),grab:t.closest('[data-zone-grab]'),rs:t.closest('[data-zone-resize]'),pkt:t.closest('[data-pkt]'),zone:t.closest('[data-zone]')};}
@@ -1558,8 +1566,8 @@ function moveDrag(dr,e,w){
   const dx=w.x-dr.w0.x,dy=w.y-dr.w0.y;
   switch(dr.kind){
     case 'pan':view.x=dr.vx+(e.clientX-dr.sx);view.y=dr.vy+(e.clientY-dr.sy);applyView();break;
-    case 'move':dr.d.x=snapv(dr.d0.x+dx);dr.d.y=snapv(dr.d0.y+dy);render();break;
-    case 'gmove':dr.g.forEach(o=>{o.d.x=snapv(o.x+dx);o.d.y=snapv(o.y+dy);});render();break;
+    case 'move':{const p=snapIso(dr.d0.x+dx,dr.d0.y+dy);dr.d.x=p.x;dr.d.y=p.y;render();break;}
+    case 'gmove':{const p=snapIso(dr.g[0].x+dx,dr.g[0].y+dy),ddx=p.x-dr.g[0].x,ddy=p.y-dr.g[0].y;dr.g.forEach(o=>{o.d.x=o.x+ddx;o.d.y=o.y+ddy;});render();break;}
     case 'lasso':{const x=Math.min(dr.w0.x,w.x),y=Math.min(dr.w0.y,w.y);gTemp.innerHTML=`<rect x="${x}" y="${y}" width="${Math.abs(dx)}" height="${Math.abs(dy)}" fill="rgba(60,110,200,.12)" stroke="#3c6ec8" stroke-width="1.5" stroke-dasharray="6 4"/>`;break;}
     case 'zmove':{dr.z.x=snapv(dr.z0.x+dx);dr.z.y=snapv(dr.z0.y+dy);const ax=dr.z.x-dr.z0.x,ay=dr.z.y-dr.z0.y;dr.inside.forEach(o=>{o.d.x=o.x+ax;o.d.y=o.y+ay;});render();break;}
     case 'resize':dr.z.w=Math.max(140,snapv(dr.z0.w+dx));dr.z.h=Math.max(110,snapv(dr.z0.h+dy));render();break;
@@ -1742,7 +1750,7 @@ window.addEventListener('pointerup',e=>{
   let w=null;
   if(p.moved){const el=document.elementFromPoint(e.clientX,e.clientY);if(!el||!svg.contains(el))return;w=toWorld(e);}
   else{const r=svg.getBoundingClientRect(),n=S.devices.length%6;w={x:(r.width/2-view.x)/view.k+n*24-60,y:(r.height/2-view.y)/view.k+n*16-40};}
-  snap();const d=newDevice(p.type,snapv(w.x),snapv(w.y));sel={kind:'dev',id:d.id};afterEdit();
+  snap();const q=snapIso(w.x,w.y),d=newDevice(p.type,q.x,q.y);sel={kind:'dev',id:d.id};afterEdit();
 });
 window.addEventListener('pointercancel',()=>{if(pdrag&&pdrag.ghost)pdrag.ghost.remove();pdrag=null;});
 $$('.tool[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
