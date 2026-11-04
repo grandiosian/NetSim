@@ -1063,6 +1063,10 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .acrow button{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;padding:14px 10px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
 .acrow button:hover{border-color:var(--accent)}
 .acrow .pas{width:52px;height:52px;font-size:24px}
+#acLycee{flex-wrap:wrap;gap:8px}
+#acLycee button{min-width:0;width:84px;padding:12px 6px}
+#acLycee .pas{width:44px;height:44px;font-size:20px}
+.acOnglets{margin:0 auto 10px}
 .acniv .pas{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;font-size:15px;line-height:1;padding:0}
 .acsep{margin:14px 0;color:var(--ink-3);font-size:13px}
 .acnum{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800}
@@ -1288,10 +1292,18 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 <div class="accueil" id="accueil" hidden><div class="acbox" role="dialog" aria-modal="true" aria-labelledby="acTitre">
 <h2 id="acTitre">Collège</h2>
 <p id="acSous">Quelle est ta classe ?</p>
+<div class="seg acOnglets" role="tablist" id="acOnglets"><button type="button" data-onglet="college" class="on" role="tab">Collège</button><button type="button" data-onglet="lycee" role="tab">Lycée</button></div>
 <div class="acrow" id="acClasses">
 <button type="button" data-ac="5e" aria-label="Classe 5ᵉ"><span class="pas p5">5</span></button>
 <button type="button" data-ac="4e" aria-label="Classe 4ᵉ"><span class="pas p4">4</span></button>
 <button type="button" data-ac="3e" aria-label="Classe 3ᵉ"><span class="pas p3">3</span></button>
+</div>
+<div class="acrow" id="acLycee" hidden>
+<button type="button" data-ac="lyc-2nde" aria-label="Seconde"><span class="pas" style="background:#17b8c9;color:#fff">2</span><b>2nde</b></button>
+<button type="button" data-ac="lyc-1re" aria-label="Première"><span class="pas" style="background:#1fa8e8;color:#fff">1</span><b>1re</b></button>
+<button type="button" data-ac="lyc-tle" aria-label="Terminale"><span class="pas" style="background:#d13cc0;color:#fff">T</span><b>Terminale</b></button>
+<button type="button" data-ac="lyc-bac1" aria-label="Bac+1"><span class="pas" style="background:#f06292;color:#fff">+1</span><b>Bac+1</b></button>
+<button type="button" data-ac="lyc-bac2" aria-label="Bac+2"><span class="pas" style="background:#e0394f;color:#fff">+2</span><b>Bac+2</b></button>
 </div>
 <div class="acniv" id="acNiv" hidden>
 <button type="button" data-niv="0"><span class="acnum">1</span><span><b>Débutant</b></span></button>
@@ -4258,12 +4270,15 @@ $('#parc').addEventListener('click',e=>{
 });
 $('#bParc').onclick=openParc;
 let classeAccueil='',accueilRetour=false;   // accueilRetour : rouvrir le menu des ateliers après le choix
+let acOnglet='college';
 function accueilEtape(etape){
-  $('#acClasses').hidden=etape!=='classe';$('#acNiv').hidden=etape!=='niv';
+  $('#acClasses').hidden=etape!=='classe'||acOnglet!=='college';$('#acLycee').hidden=etape!=='classe'||acOnglet!=='lycee';$('#acOnglets').hidden=etape!=='classe';$('#acNiv').hidden=etape!=='niv';
   $('#acSep').hidden=etape!=='classe';$('#acCode').hidden=etape!=='classe';
+  $('#acTitre').textContent=acOnglet==='lycee'?'Lycée':'Collège';
   $('#acSous').textContent=etape==='classe'?'Quelle est ta classe ?':`Classe ${CLASSES[classeAccueil].t} : quel niveau de difficulté ?`;
 }
 $('#accueil').addEventListener('click',e=>{
+  const o=e.target.closest('[data-onglet]');if(o){acOnglet=o.dataset.onglet;$$('#acOnglets [data-onglet]').forEach(x=>x.classList.toggle('on',x===o));accueilEtape('classe');return;}
   const n=e.target.closest('[data-niv]'),b=e.target.closest('[data-ac]');
   if(n){
     const niv=+n.dataset.niv;
@@ -4282,6 +4297,7 @@ $('#accueil').addEventListener('click',e=>{
   if(v==='retour'){accueilEtape('classe');return;}
   if(v==='code'){$('#accueil').hidden=true;const bc=document.getElementById('bCentrale');if(bc)bc.click();else toast('Demande ton code à ton professeur, puis ouvre « Mon code ».');return;}
   if(v==='ratt'){$('#accueil').hidden=true;S.level=1;save();syncLevel();render();renderProps();openParc();document.getElementById('niv-ratt').scrollIntoView({block:'start'});return;}
+  if(v.startsWith('lyc-')){toast('Les ateliers du lycée arrivent bientôt. Choisis un niveau du collège pour continuer.');return;}
   classeAccueil=v;accueilEtape('niv');
 });
 
