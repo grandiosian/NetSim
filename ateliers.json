@@ -2,7 +2,7 @@
   "format": "catalogue.ateliers",
   "version": 1,
   "app": "netsim",
-  "app_version": "1.16.0",
+  "app_version": "1.17.0",
   "referentiel": "technologie-c4-2024",
   "ateliers": [
     {
@@ -817,103 +817,205 @@
       "id": "sb1-0",
       "titre": "Le serveur de messagerie",
       "niveau": "bac1",
-      "resume": "Un serveur range les messages de la classe : configurer le serveur, les postes, puis envoyer un message.",
-      "duree": "25 min",
+      "resume": "Configurer un serveur de messagerie et deux clients, envoyer puis relever un message, et lire dans les trames qui parle à qui.",
+      "duree": "30 min",
       "competences": [],
       "activites": [
         {
           "id": "sb1-0",
           "titre": "Le serveur de messagerie",
-          "total": 5,
+          "total": 7,
           "competences": []
         }
       ],
       "ouvrir": "sb1-0"
     },
     {
+      "id": "sb1-3",
+      "titre": "ARP, passerelle et TTL",
+      "niveau": "bac1",
+      "resume": "Un ping traverse un routeur : lire la table ARP du poste, les trames ARP et ICMP, et expliquer la valeur du TTL reçu.",
+      "duree": "30 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb1-3",
+          "titre": "ARP, passerelle et TTL",
+          "total": 6,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb1-3"
+    },
+    {
       "id": "sb1-1",
       "titre": "Deux sous-réseaux",
       "niveau": "bac1",
-      "resume": "Le masque définit le réseau de chaque poste : donner le bon masque à chaque groupe de postes.",
-      "duree": "30 min",
+      "resume": "Découper 192.168.7.0/24 : la salle A prend la première moitié, la salle B le bloc 192.168.7.128/26. Calculer masques, adresses et passerelles.",
+      "duree": "35 min",
       "competences": [],
       "activites": [
         {
           "id": "sb1-1",
           "titre": "Deux sous-réseaux",
-          "total": 4,
+          "total": 5,
           "competences": []
         }
       ],
       "ouvrir": "sb1-1"
     },
     {
+      "id": "sb1-4",
+      "titre": "Le ping à sens unique",
+      "niveau": "bac1",
+      "resume": "Dans une salle, un poste reçoit les pings mais ne répond jamais. Mener le diagnostic sans changer aucune adresse IP.",
+      "duree": "30 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb1-4",
+          "titre": "Le ping à sens unique",
+          "total": 8,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb1-4"
+    },
+    {
       "id": "sb1-2",
       "titre": "Une route fausse",
       "niveau": "bac1",
-      "resume": "Une route pointe vers une adresse inconnue : trouver la route fautive, la corriger et rétablir la communication.",
-      "duree": "35 min",
+      "resume": "Le réseau B est injoignable. Localiser la panne avec tracert, corriger la route fautive, puis la route de retour manquante.",
+      "duree": "40 min",
       "competences": [],
       "activites": [
         {
           "id": "sb1-2",
           "titre": "Une route fausse",
-          "total": 5,
+          "total": 9,
           "competences": []
         }
       ],
       "ouvrir": "sb1-2"
     },
     {
+      "id": "sb1-5",
+      "titre": "Route par défaut et agrégation",
+      "niveau": "bac1",
+      "resume": "Relier deux bâtiments à Internet : lien /30, route par défaut, route agrégée chez le fournisseur… et la boucle de routage qui en découle.",
+      "duree": "40 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb1-5",
+          "titre": "Route par défaut et agrégation",
+          "total": 6,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb1-5"
+    },
+    {
       "id": "sb2-0",
-      "titre": "Plan d’adressage",
+      "titre": "Plan d’adressage VLSM",
       "niveau": "bac2",
-      "resume": "Deux réseaux séparés par un routeur : établir le plan d’adressage, puis régler les passerelles.",
-      "duree": "30 min",
+      "resume": "Découper 172.16.10.0/24 au plus juste pour trois services (50, 25 et 10 appareils), puis configurer le routeur et les postes.",
+      "duree": "45 min",
       "competences": [],
       "activites": [
         {
           "id": "sb2-0",
-          "titre": "Plan d’adressage",
-          "total": 5,
+          "titre": "Plan d’adressage VLSM",
+          "total": 6,
           "competences": []
         }
       ],
       "ouvrir": "sb2-0"
     },
     {
-      "id": "sb2-1",
-      "titre": "DHCP et DNS",
+      "id": "sb2-3",
+      "titre": "Dépanner le DNS",
       "niveau": "bac2",
-      "resume": "Un serveur distribue les adresses et traduit le nom du campus : configurer les deux services.",
+      "resume": "Le site www.campus ne s’affiche pas alors que le serveur web fonctionne. Interroger le DNS avec nslookup, corriger la zone, ajouter un alias.",
+      "duree": "35 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb2-3",
+          "titre": "Dépanner le DNS",
+          "total": 8,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb2-3"
+    },
+    {
+      "id": "sb2-1",
+      "titre": "DHCP et DNS du campus",
+      "niveau": "bac2",
+      "resume": "Un serveur distribue adresse, passerelle et DNS aux postes ; ceux-ci joignent le portail d’un autre réseau par son nom.",
       "duree": "35 min",
       "competences": [],
       "activites": [
         {
           "id": "sb2-1",
-          "titre": "DHCP et DNS",
-          "total": 5,
+          "titre": "DHCP et DNS du campus",
+          "total": 6,
           "competences": []
         }
       ],
       "ouvrir": "sb2-1"
     },
     {
-      "id": "sb2-2",
-      "titre": "Réseau d’entreprise",
+      "id": "sb2-4",
+      "titre": "Filtrer avec un pare-feu",
       "niveau": "bac2",
-      "resume": "Deux réseaux routés : un routeur distribue les adresses du réseau B, puis le poste reçoit son adresse et joint le réseau A.",
+      "resume": "Les élèves voient le serveur de notes. Écrire les règles de pare-feu du routeur : le site web reste ouvert, les notes réservées au personnel.",
       "duree": "40 min",
       "competences": [],
       "activites": [
         {
+          "id": "sb2-4",
+          "titre": "Filtrer avec un pare-feu",
+          "total": 8,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb2-4"
+    },
+    {
+      "id": "sb2-2",
+      "titre": "Réseau multi-sites",
+      "niveau": "bac2",
+      "resume": "Trois sites reliés en triangle par des liens /30 : écrire les routes statiques, puis rerouter à la main quand un lien tombe.",
+      "duree": "50 min",
+      "competences": [],
+      "activites": [
+        {
           "id": "sb2-2",
-          "titre": "Réseau d’entreprise",
-          "total": 5,
+          "titre": "Réseau multi-sites",
+          "total": 9,
           "competences": []
         }
       ],
       "ouvrir": "sb2-2"
+    },
+    {
+      "id": "sb2-5",
+      "titre": "La DMZ",
+      "niveau": "bac2",
+      "resume": "Un routeur pare-feu sépare le réseau interne, une DMZ (web et DNS publics) et Internet. Écrire la politique de filtrage complète et la tester depuis chaque zone.",
+      "duree": "50 min",
+      "competences": [],
+      "activites": [
+        {
+          "id": "sb2-5",
+          "titre": "La DMZ",
+          "total": 9,
+          "competences": []
+        }
+      ],
+      "ouvrir": "sb2-5"
     }
   ]
 }

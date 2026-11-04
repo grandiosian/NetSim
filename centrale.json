@@ -6,8 +6,8 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.16.0",
-    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, trames animées et 29 exercices guidés (5e, 4e, 3e).",
+    "version": "1.17.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 52 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
     "icone": "🌐",
@@ -16,7 +16,12 @@
     "classes": [
       "5e",
       "4e",
-      "3e"
+      "3e",
+      "2nde",
+      "1re",
+      "tle",
+      "bac1",
+      "bac2"
     ],
     "parametres": {
       "#activite=<id>": "ouvre directement l’exercice <id> (e5-1…), même sans connexion à la Centrale"
@@ -75,7 +80,12 @@
     "groupes": [
       "5ᵉ · Débutant",
       "4ᵉ · Intermédiaire",
-      "3ᵉ · Avancé"
+      "3ᵉ · Avancé",
+      "2nde · Débutant",
+      "1re · Intermédiaire",
+      "Terminale · Avancé",
+      "Bac+1 · Intermédiaire",
+      "Bac+2 · Avancé"
     ],
     "categories": {
       "5e": [
@@ -182,6 +192,71 @@
           "id": "dhcprouteur",
           "titre": "Adresses automatiques derrière un routeur",
           "description": "Un routeur distribue les adresses d’une autre salle."
+        }
+      ],
+      "2nde": [
+        {
+          "id": "reseau",
+          "titre": "Réseau local",
+          "description": "Adresses, switch et protocole ARP."
+        },
+        {
+          "id": "diag",
+          "titre": "Diagnostic",
+          "description": "Trouver une panne dans un réseau local."
+        }
+      ],
+      "1re": [
+        {
+          "id": "routage",
+          "titre": "Routage",
+          "description": "Routeurs, passerelles et sous-réseaux."
+        }
+      ],
+      "tle": [
+        {
+          "id": "services",
+          "titre": "Services réseau",
+          "description": "DNS, DHCP et serveur web."
+        }
+      ],
+      "bac1": [
+        {
+          "id": "client",
+          "titre": "Client-serveur",
+          "description": "Un serveur relaie et range les messages."
+        },
+        {
+          "id": "analyse",
+          "titre": "Analyse de trames",
+          "description": "ARP, ICMP et TTL observés trame par trame."
+        },
+        {
+          "id": "adressage",
+          "titre": "Adressage IPv4",
+          "description": "Masques, sous-réseaux et pannes d’adressage."
+        },
+        {
+          "id": "routage",
+          "titre": "Routage statique",
+          "description": "Routes, route par défaut, agrégation et diagnostic."
+        }
+      ],
+      "bac2": [
+        {
+          "id": "conception",
+          "titre": "Conception de réseau",
+          "description": "Plan d’adressage VLSM et réseau multi-sites."
+        },
+        {
+          "id": "services",
+          "titre": "Services d’infrastructure",
+          "description": "DHCP, DNS et résolution de noms."
+        },
+        {
+          "id": "securite",
+          "titre": "Sécurité",
+          "description": "Pare-feu, filtrage et DMZ."
         }
       ]
     },
@@ -1059,19 +1134,41 @@
         "id": "sb1-0",
         "titre": "Le serveur de messagerie",
         "groupe": "Bac+1 · Débutant",
-        "total": 5,
+        "total": 7,
         "competences": [],
         "classe": "bac1",
         "niveau": 1,
         "categorie": "client",
         "categorie_titre": "Client-serveur",
-        "resume": "Un serveur range les messages de la classe : configurer le serveur, les postes, puis envoyer un message.",
-        "duree": "25 min",
-        "etapes": 5,
-        "etapes_auto": 5,
+        "resume": "Configurer un serveur de messagerie et deux clients, envoyer puis relever un message, et lire dans les trames qui parle à qui.",
+        "duree": "30 min",
+        "etapes": 7,
+        "etapes_auto": 7,
         "questions": [
-          "Pourquoi le message ne va-t-il pas directement de PC 1 à PC 2 ?",
-          "Quel protocole sert à envoyer un message et lequel à le relever ?"
+          "La trame MAIL envoyée par PC 1 a pour destination 192.168.1.10 : pourquoi pas l’adresse de PC 2 ?",
+          "PC 2 est éteint quand PC 1 envoie son message : le message est-il perdu ? Et si c’est le serveur qui est arrêté ?",
+          "Dans la réalité, quels protocoles servent à envoyer et à relever un message ? Sur quels ports ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb1-3",
+        "titre": "ARP, passerelle et TTL",
+        "groupe": "Bac+1 · Débutant",
+        "total": 6,
+        "competences": [],
+        "classe": "bac1",
+        "niveau": 1,
+        "categorie": "analyse",
+        "categorie_titre": "Analyse de trames",
+        "resume": "Un ping traverse un routeur : lire la table ARP du poste, les trames ARP et ICMP, et expliquer la valeur du TTL reçu.",
+        "duree": "30 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Pourquoi PC 1 demande-t-il l’adresse MAC de 192.168.1.254 et non celle du serveur ?",
+          "Les réponses arrivent avec TTL=63 : expliquez cette valeur.",
+          "Quand le paquet traverse le routeur, qu’est-ce qui change : les adresses MAC, les adresses IP, les deux ?"
         ],
         "alertes": true
       },
@@ -1079,99 +1176,209 @@
         "id": "sb1-1",
         "titre": "Deux sous-réseaux",
         "groupe": "Bac+1 · Intermédiaire",
-        "total": 4,
+        "total": 5,
         "competences": [],
         "classe": "bac1",
         "niveau": 1,
         "categorie": "adressage",
-        "categorie_titre": "Adressage avancé",
-        "resume": "Le masque définit le réseau de chaque poste : donner le bon masque à chaque groupe de postes.",
-        "duree": "30 min",
-        "etapes": 4,
-        "etapes_auto": 4,
+        "categorie_titre": "Adressage IPv4",
+        "resume": "Découper 192.168.7.0/24 : la salle A prend la première moitié, la salle B le bloc 192.168.7.128/26. Calculer masques, adresses et passerelles.",
+        "duree": "35 min",
+        "etapes": 5,
+        "etapes_auto": 5,
         "questions": [
-          "Combien d’adresses utilisables offre un masque /25 ?",
-          "Pourquoi PC 1 ne peut-il pas joindre PC 3 directement ?"
+          "Combien d’adresses utilisables dans 192.168.7.0/25 ? Et dans 192.168.7.128/26 ?",
+          "Donnez l’adresse de diffusion de chaque sous-réseau.",
+          "Quel bloc de 192.168.7.0/24 reste libre ? Proposez le sous-réseau d’une troisième salle de 25 postes."
         ],
         "alertes": true
+      },
+      {
+        "id": "sb1-4",
+        "titre": "Le ping à sens unique",
+        "groupe": "Bac+1 · Intermédiaire",
+        "total": 8,
+        "competences": [],
+        "classe": "bac1",
+        "niveau": 1,
+        "categorie": "adressage",
+        "categorie_titre": "Adressage IPv4",
+        "resume": "Dans une salle, un poste reçoit les pings mais ne répond jamais. Mener le diagnostic sans changer aucune adresse IP.",
+        "duree": "30 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Expliquez pourquoi la demande arrive à PC 3 mais que la réponse ne repart pas.",
+          "Pourquoi le message d’erreur affiché par PC 3 n’est-il pas le même que celui de PC 1 ?",
+          "Avec le masque d’origine de PC 3, quels appareils de la salle pouvait-il encore joindre ?"
+        ],
+        "alertes": false
       },
       {
         "id": "sb1-2",
         "titre": "Une route fausse",
         "groupe": "Bac+1 · Avancé",
-        "total": 5,
+        "total": 9,
         "competences": [],
         "classe": "bac1",
         "niveau": 1,
-        "categorie": "adressage",
-        "categorie_titre": "Adressage avancé",
-        "resume": "Une route pointe vers une adresse inconnue : trouver la route fautive, la corriger et rétablir la communication.",
-        "duree": "35 min",
-        "etapes": 5,
-        "etapes_auto": 5,
+        "categorie": "routage",
+        "categorie_titre": "Routage statique",
+        "resume": "Le réseau B est injoignable. Localiser la panne avec tracert, corriger la route fautive, puis la route de retour manquante.",
+        "duree": "40 min",
+        "etapes": 9,
+        "etapes_auto": 9,
         "questions": [
-          "Pourquoi une route vers une adresse inconnue fait-elle échouer tout le trajet ?",
-          "Comment vérifier le chemin suivi par un paquet ?"
+          "Pourquoi tracert s’arrête-t-il après Routeur 1 avant la correction ?",
+          "Pourquoi faut-il une route dans les deux sens ?",
+          "Combien de sauts tracert affiche-t-il à la fin, et pourquoi ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb1-5",
+        "titre": "Route par défaut et agrégation",
+        "groupe": "Bac+1 · Avancé",
+        "total": 6,
+        "competences": [],
+        "classe": "bac1",
+        "niveau": 1,
+        "categorie": "routage",
+        "categorie_titre": "Routage statique",
+        "resume": "Relier deux bâtiments à Internet : lien /30, route par défaut, route agrégée chez le fournisseur… et la boucle de routage qui en découle.",
+        "duree": "40 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Pourquoi une route par défaut suffit-elle à Routeur 1 ?",
+          "Quelle est la route agrégée la plus précise couvrant 10.1.1.0/24 et 10.1.2.0/24 ?",
+          "Expliquez la boucle observée vers 10.1.3.5. Que faudrait-il ajouter sur Routeur 1 pour l’éviter ?"
         ],
         "alertes": true
       },
       {
         "id": "sb2-0",
-        "titre": "Plan d’adressage",
+        "titre": "Plan d’adressage VLSM",
         "groupe": "Bac+2 · Débutant",
-        "total": 5,
+        "total": 6,
         "competences": [],
         "classe": "bac2",
         "niveau": 2,
         "categorie": "conception",
-        "categorie_titre": "Conception",
-        "resume": "Deux réseaux séparés par un routeur : établir le plan d’adressage, puis régler les passerelles.",
-        "duree": "30 min",
-        "etapes": 5,
-        "etapes_auto": 5,
+        "categorie_titre": "Conception de réseau",
+        "resume": "Découper 172.16.10.0/24 au plus juste pour trois services (50, 25 et 10 appareils), puis configurer le routeur et les postes.",
+        "duree": "45 min",
+        "etapes": 6,
+        "etapes_auto": 6,
         "questions": [
-          "Pourquoi chaque réseau a-t-il sa propre plage d’adresses ?",
-          "Quelle est l’adresse de passerelle d’un poste du réseau B ?"
+          "Pourquoi commence-t-on le découpage par le plus grand réseau ?",
+          "Pour chaque réseau : adresse, masque, première et dernière adresse utilisable, diffusion.",
+          "Combien d’adresses restent libres dans 172.16.10.0/24, et quel est le plus grand bloc encore disponible ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb2-3",
+        "titre": "Dépanner le DNS",
+        "groupe": "Bac+2 · Débutant",
+        "total": 8,
+        "competences": [],
+        "classe": "bac2",
+        "niveau": 2,
+        "categorie": "services",
+        "categorie_titre": "Services d’infrastructure",
+        "resume": "Le site www.campus ne s’affiche pas alors que le serveur web fonctionne. Interroger le DNS avec nslookup, corriger la zone, ajouter un alias.",
+        "duree": "35 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Quel protocole de transport et quel port utilise une requête DNS ?",
+          "Le serveur web fonctionnait : pourquoi le navigateur affichait-il une erreur ?",
+          "Quel type d’enregistrement permet, dans un vrai DNS, de donner un second nom à un serveur (A, CNAME, MX…) ?"
         ],
         "alertes": true
       },
       {
         "id": "sb2-1",
-        "titre": "DHCP et DNS",
+        "titre": "DHCP et DNS du campus",
         "groupe": "Bac+2 · Intermédiaire",
-        "total": 5,
+        "total": 6,
         "competences": [],
         "classe": "bac2",
         "niveau": 2,
-        "categorie": "conception",
-        "categorie_titre": "Conception",
-        "resume": "Un serveur distribue les adresses et traduit le nom du campus : configurer les deux services.",
+        "categorie": "services",
+        "categorie_titre": "Services d’infrastructure",
+        "resume": "Un serveur distribue adresse, passerelle et DNS aux postes ; ceux-ci joignent le portail d’un autre réseau par son nom.",
         "duree": "35 min",
-        "etapes": 5,
-        "etapes_auto": 5,
+        "etapes": 6,
+        "etapes_auto": 6,
         "questions": [
-          "Pourquoi le DNS et le DHCP sont-ils souvent sur le même serveur ?",
-          "Que se passe-t-il si la plage DHCP est épuisée ?"
+          "Quels sont les quatre messages de l’échange DHCP ? Lesquels sont envoyés en diffusion ?",
+          "Que se passerait-il si le serveur DHCP n’annonçait pas de passerelle ?",
+          "Le serveur DHCP est dans le réseau des postes. Que faudrait-il sur le routeur pour servir aussi un autre réseau ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb2-4",
+        "titre": "Filtrer avec un pare-feu",
+        "groupe": "Bac+2 · Intermédiaire",
+        "total": 8,
+        "competences": [],
+        "classe": "bac2",
+        "niveau": 2,
+        "categorie": "securite",
+        "categorie_titre": "Sécurité",
+        "resume": "Les élèves voient le serveur de notes. Écrire les règles de pare-feu du routeur : le site web reste ouvert, les notes réservées au personnel.",
+        "duree": "40 min",
+        "etapes": 8,
+        "etapes_auto": 8,
+        "questions": [
+          "Dans quel ordre le pare-feu lit-il les règles ? Donnez un exemple où inverser deux règles change le résultat.",
+          "Aucune règle n’autorise le serveur web à répondre aux élèves : pourquoi la page arrive-t-elle quand même ?",
+          "Politique par défaut « tout autoriser » ou « tout refuser » : laquelle est la plus sûre, et pourquoi ?"
         ],
         "alertes": true
       },
       {
         "id": "sb2-2",
-        "titre": "Réseau d’entreprise",
+        "titre": "Réseau multi-sites",
         "groupe": "Bac+2 · Avancé",
-        "total": 5,
+        "total": 9,
         "competences": [],
         "classe": "bac2",
         "niveau": 2,
         "categorie": "conception",
-        "categorie_titre": "Conception",
-        "resume": "Deux réseaux routés : un routeur distribue les adresses du réseau B, puis le poste reçoit son adresse et joint le réseau A.",
-        "duree": "40 min",
-        "etapes": 5,
-        "etapes_auto": 5,
+        "categorie_titre": "Conception de réseau",
+        "resume": "Trois sites reliés en triangle par des liens /30 : écrire les routes statiques, puis rerouter à la main quand un lien tombe.",
+        "duree": "50 min",
+        "etapes": 9,
+        "etapes_auto": 9,
         "questions": [
-          "Pourquoi le routeur doit-il avoir une adresse dans chaque réseau ?",
-          "Quelle différence entre une adresse donnée à la main et une adresse DHCP ?"
+          "Combien de routes statiques faut-il pour 3 sites en triangle ? Pour 10 sites tous reliés entre eux ?",
+          "Pourquoi les routes ne se sont-elles pas adaptées seules à la panne ?",
+          "Quel protocole de routage dynamique ferait ce travail (RIP, OSPF…) et sur quel critère choisit-il le chemin ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "sb2-5",
+        "titre": "La DMZ",
+        "groupe": "Bac+2 · Avancé",
+        "total": 9,
+        "competences": [],
+        "classe": "bac2",
+        "niveau": 2,
+        "categorie": "securite",
+        "categorie_titre": "Sécurité",
+        "resume": "Un routeur pare-feu sépare le réseau interne, une DMZ (web et DNS publics) et Internet. Écrire la politique de filtrage complète et la tester depuis chaque zone.",
+        "duree": "50 min",
+        "etapes": 9,
+        "etapes_auto": 9,
+        "questions": [
+          "Pourquoi placer les serveurs publics dans une DMZ plutôt que dans le réseau interne ?",
+          "Les réponses du serveur web vers Internet n’ont pas de règle : pourquoi passent-elles ?",
+          "Un attaquant prend le contrôle du serveur web : que peut-il atteindre avec vos règles ? Et sans DMZ ?"
         ],
         "alertes": true
       }

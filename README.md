@@ -9,7 +9,8 @@ Aucune installation : une seule page HTML (`index.html`). Le travail de chaque �
 ## Ce qu’on peut faire
 
 - **Concevoir** un réseau : PC, portable, smartphone, Raspberry Pi, serveur, imprimante, ESP32, switch et routeur ; câblage ; adresses IP, masque et passerelle ; salles et sous-réseaux. Sélection multiple : Maj + clic, Ctrl + glisser sur le fond pour un rectangle, puis déplacement du groupe.
-- **Simuler** : chaque appareil ouvre son écran (bureau, invite de commandes avec `ping`, `ipconfig`, `tracert`, `arp`, `route`, `imprimer`), un navigateur web, un serveur web modifiable, une messagerie et une file d’impression.
+- **Simuler** : chaque appareil ouvre son écran (bureau, invite de commandes avec `ping`, `ipconfig`, `tracert`, `arp`, `route`, `nslookup`, `imprimer`), un navigateur web, un serveur web modifiable, une messagerie et une file d’impression.
+- **Filtrer** : chaque routeur a un pare-feu (politique par défaut, règles lues dans l’ordre par service, source et destination). Seules les demandes sont filtrées : les réponses passent, comme sur un pare-feu à états.
 - **Voir les données circuler** : enveloppes animées sur les câbles, tiroir « Trames échangées » avec le détail de l’encapsulation (Ethernet, IP, TCP, HTTP).
 
 ## Classes et niveaux de difficulté
@@ -20,7 +21,7 @@ Le choix de classe se fait avec **Changer de classe**, dans le widget « Visiteu
 |---|---|---|
 | Collège | 5ème, 4ème, 3ème | 31 |
 | Lycée | 2nde, 1re, Terminale | 9 |
-| Supérieur | Bac+1, Bac+2 | 6 |
+| Supérieur | Bac+1, Bac+2 | 12 |
 
 Chaque classe propose des ateliers aux niveaux **Débutant**, **Intermédiaire** et **Avancé**. Au collège, le niveau de l’atelier suit sa classe (5ème : Débutant, 4ème : Intermédiaire, 3ème : Avancé). Pastilles : vert, jaune et rouge pour le collège, turquoise, cyan et magenta pour le lycée, rose et rose-rouge pour le supérieur.
 
@@ -39,7 +40,11 @@ Thèmes principaux :
 - **Collège 4ème** : réseau de salle, routeur et passerelle, ARP et table du switch, diagnostic, capteur connecté, DHCP, noms de réseau.
 - **Collège 3ème** : sous-réseaux et masques, routage (routes statiques, TTL), messagerie, DNS, DHCP, encapsulation.
 - **Lycée** : 2nde (réseau local, table du switch, doublon) ; 1re (passerelle, masque, deux routeurs en chaîne) ; Terminale (page web, DNS, DHCP).
-- **Supérieur** : Bac+1 (serveur de messagerie, deux sous-réseaux, route fausse) ; Bac+2 (plan d’adressage, DHCP et DNS, réseau d’entreprise).
+- **Supérieur** (deux ateliers par niveau de difficulté ; les consignes donnent l’objectif, pas la valeur à recopier) :
+  - Bac+1 : serveur de messagerie ; ARP, passerelle et TTL ; découpage en sous-réseaux ; le ping à sens unique (masque incohérent) ; une route fausse localisée avec `tracert` ; route par défaut, agrégation et boucle de routage.
+  - Bac+2 : plan d’adressage VLSM ; dépannage DNS avec `nslookup` ; DHCP qui annonce passerelle et DNS ; pare-feu (filtrage) ; réseau multi-sites en triangle avec reroutage après une panne ; DMZ.
+
+Au lycée et dans le supérieur, tous les outils de la simulation sont disponibles quelle que soit la difficulté de l’atelier (masque, routes, DNS, messagerie, pare-feu).
 
 ## Mes documents
 
@@ -78,7 +83,7 @@ Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"
 
 ### Passerelle avec la Centrale
 
-Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 46 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 46 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
+Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 52 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 52 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
 
 **Règle :** toute modification d’un atelier (titre, résumé, nombre d’étapes, catégorie, classe, niveau) doit être reportée dans `ateliers.json` et `centrale.json`, puis vérifiée avec le verifier.
 

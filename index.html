@@ -371,6 +371,11 @@ button{cursor:pointer}
 .row2{display:grid;grid-template-columns:1.25fr 1fr;gap:6px}
 .row4{display:grid;grid-template-columns:1fr 1fr 1fr 28px;gap:4px;align-items:center}
 .row4 .inp{height:32px;font-size:12px;padding:0 6px}
+.fwr{display:flex;flex-direction:column;gap:4px;padding:6px;border:1px solid var(--line);border-radius:8px}
+.fwr>div{display:grid;grid-template-columns:1fr 1fr 28px;gap:4px;align-items:center}
+.fwr>div.ad{grid-template-columns:1fr 14px 1fr}
+.fwr .inp{height:32px;font-size:12px;padding:0 6px;min-width:0}
+.fwr .fl{font-size:11px;color:var(--ink-3);text-align:center}
 .xbtn{border:0;background:transparent;color:var(--ink-3);font-size:18px;height:28px;border-radius:6px}
 .xbtn:hover{color:var(--err);background:var(--surface-2)}
 .small{font-size:12px;line-height:1.45}
@@ -1604,10 +1609,14 @@ function symetriserAutourDesConcentrateurs(){
     if(!ok)anciens.forEach(({f,x,y})=>{f.x=x;f.y=y;});
   });
 }
-/* Une salle contient entièrement les appareils qui s’y trouvent, étiquettes comprises. */
-function ajusterSalles(){
+/* Une salle contient entièrement les appareils qui s’y trouvent, étiquettes comprises.
+   membres (facultatif) : appareils de chaque salle avant le placement ; si l’écartement en a sorti un,
+   la salle suit le déplacement moyen de ses appareils avant de s’agrandir. */
+function ajusterSalles(membres){
   S.zones.forEach(z=>{
-    const dedans=S.devices.filter(d=>inZone(z,d));if(!dedans.length)return;
+    const m=membres&&membres.get(z.id);
+    if(m&&m.length&&m.some(o=>!inZone(z,o.d))){const dx=m.reduce((t,o)=>t+o.d.x-o.x,0)/m.length,dy=m.reduce((t,o)=>t+o.d.y-o.y,0)/m.length;z.x+=dx;z.y+=dy;}
+    const dedans=m?m.map(o=>o.d):S.devices.filter(d=>inZone(z,d));if(!dedans.length)return;
     const x0=Math.min(...dedans.map(d=>d.x-70))-16,x1=Math.max(...dedans.map(d=>d.x+70))+16,y0=Math.min(...dedans.map(d=>d.y-60))-16,y1=Math.max(...dedans.map(d=>d.y+110))+16;
     const r=Math.max(z.x+z.w,x1),b=Math.max(z.y+z.h,y1);
     z.x=Math.min(z.x,x0);z.y=Math.min(z.y,y0);z.w=r-z.x;z.h=b-z.y;
@@ -1907,6 +1916,12 @@ a+=`<div class="calc" id="calc"></div>`;
       if(d.routes.length)r+=`<div class="row4 small muted" style="font-weight:700"><span>Réseau</span><span>Masque</span><span>Via</span><span></span></div>`+d.routes.map((x,i)=>`<div class="row4"><input class="inp" id="f-r${i}-net" data-f="routes.${i}.net" value="${esc(x.net)}" placeholder="10.0.0.0" aria-label="Réseau"><input class="inp" id="f-r${i}-mask" data-f="routes.${i}.mask" value="${esc(x.mask)}" placeholder="255.0.0.0" aria-label="Masque"><input class="inp" id="f-r${i}-via" data-f="routes.${i}.via" value="${esc(x.via)}" placeholder="passerelle" aria-label="Passerelle"><button class="xbtn" data-act="delroute" data-i="${i}" aria-label="Supprimer la route" type="button">×</button></div>`).join('');
       r+=`<button class="btn small" data-act="addroute" type="button">+ Ajouter une route</button>`;
       h+=sec('routes','Routes statiques',r,d.routes.length>0);
+      const fw=fwDe(d),opt=(v,l,cur)=>`<option value="${v}"${v===cur?' selected':''}>${l}</option>`;
+      let w=`<p class="small muted" style="margin:0">Les règles sont lues dans l’ordre : la première qui correspond s’applique, sinon la politique par défaut. Seules les demandes sont filtrées : la réponse à une demande autorisée passe toujours. Source et destination : vide = toute adresse, une adresse (192.168.1.10) ou un réseau (192.168.1.0/24).</p>
+<div class="field"><label for="f-fw-pol">Politique par défaut</label><select class="inp" id="f-fw-pol" data-f="fw.pol">${opt('autoriser','Tout autoriser',fw.pol)}${opt('refuser','Tout refuser',fw.pol)}</select></div>`;
+      w+=fw.regles.map((x,i)=>`<div class="fwr"><div><select class="inp" data-f="fw.regles.${i}.act" aria-label="Action de la règle ${i+1}">${opt('autoriser','Autoriser',x.act)}${opt('refuser','Refuser',x.act)}</select><select class="inp" data-f="fw.regles.${i}.proto" aria-label="Service de la règle ${i+1}">${FW_PROTOS.map(([v,l])=>opt(v,l,x.proto)).join('')}</select><button class="xbtn" data-act="delregle" data-i="${i}" aria-label="Supprimer la règle ${i+1}" type="button">×</button></div><div class="ad"><input class="inp" data-f="fw.regles.${i}.src" value="${esc(x.src)}" placeholder="source : toute" aria-label="Source de la règle ${i+1}"><span class="fl" aria-hidden="true">→</span><input class="inp" data-f="fw.regles.${i}.dst" value="${esc(x.dst)}" placeholder="destination : toute" aria-label="Destination de la règle ${i+1}"></div></div>`).join('');
+      w+=`<button class="btn small" data-act="addregle" type="button">+ Ajouter une règle</button>`;
+      h+=sec('fw','Pare-feu (filtrage)',w,fw.regles.length>0||fw.pol==='refuser');
     }
   }else{
     const used=[...Array(t.ports).keys()].filter(p=>cableAt(d.id,p));
@@ -1918,6 +1933,7 @@ a+=`<div class="calc" id="calc"></div>`;
     h+=sec('dhcpsrv','Serveur DHCP',`<label class="chk"><input type="checkbox" data-f="dhcpSrv.on" ${s.on?'checked':''}> Distribuer les adresses automatiquement</label>
 <div class="field"><label for="f-dhcp-debut">Première adresse</label><input class="inp" id="f-dhcp-debut" data-f="dhcpSrv.debut" value="${esc(s.debut)}" placeholder="192.168.1.100"></div>
 <div class="field"><label for="f-dhcp-fin">Dernière adresse</label><input class="inp" id="f-dhcp-fin" data-f="dhcpSrv.fin" value="${esc(s.fin)}" placeholder="192.168.1.150"></div>
+${L>=2&&d.type==='server'?`<div class="field"><label for="f-dhcp-gw">Passerelle annoncée</label><input class="inp" id="f-dhcp-gw" data-f="dhcpSrv.passerelle" value="${esc(s.passerelle||'')}" placeholder="192.168.1.254"></div>`:''}${L>=2?`<div class="field"><label for="f-dhcp-dns">Serveur DNS annoncé</label><input class="inp" id="f-dhcp-dns" data-f="dhcpSrv.dns" value="${esc(s.dns||'')}" placeholder="192.168.1.10"></div>`:''}
 <p class="small muted" style="margin:0">La plage doit être dans le réseau de l’appareil. Chaque adresse ne sert qu’à un seul appareil.</p>`,s.on);
   }
     if(L>=2&&d.type==='server'){
@@ -1961,6 +1977,7 @@ function updateLive(){
       else if(ip!==null&&hostMaskOk(m)){const net=netOf(ip,m),bc=(net|((~m)>>>0))>>>0;calc.innerHTML=`Réseau <b>${n2ip(net)}/${prefix(m)}</b><br>Adresses possibles ${n2ip(net+1)} → ${n2ip(bc-1)}<br>Diffusion ${n2ip(bc)}`;}
       else calc.innerHTML='Le réseau sera calculé à partir de l’adresse IP et du masque.';}
     $$('#props [data-f]').forEach(inp=>{const f=inp.dataset.f;if(!/(^ip$|^gw$|\.ip$|\.via$|\.net$)/.test(f))return;const v=inp.value.trim();inp.classList.toggle('bad',!!v&&ip2n(v)===null);});
+    $$('#props [data-f^="fw.regles"][data-f$="src"],#props [data-f^="fw.regles"][data-f$="dst"]').forEach(inp=>{const v=inp.value.trim();inp.classList.toggle('bad',!!v&&fwAdresse(v)===null);});
     $$('#props [data-f$="mask"]').forEach(inp=>{const v=inp.value.trim();const isRoute=inp.dataset.f.startsWith('routes');inp.classList.toggle('bad',!!v&&!(isRoute?maskOk(ip2n(v)):hostMaskOk(ip2n(v))));});
   }else if(sel.kind==='zone'){
     const z=Z(sel.id),zc=$('#zcalc');if(!z||!zc)return;const info=zoneInfo(z);
@@ -1984,6 +2001,7 @@ P.addEventListener('change',e=>{
   const f=e.target.dataset.f;if(!f||e.target.type==='checkbox')return;const o=selObj();if(!o)return;
   let v=e.target.value.trim();
   if(/(^ip$|\.ip$)/.test(f)&&v.includes('/')){const [a,b]=v.split('/');const p=parseInt(b,10);v=a.trim();if(p>=1&&p<=30)setPath(o,f.replace(/ip$/,'mask'),n2ip(maskOf(p)));}
+  if(/^routes\.\d+\.net$/.test(f)&&v.includes('/')){const [a,b]=v.split('/');const p=parseInt(b,10);v=a.trim();if(p>=0&&p<=32)setPath(o,f.replace(/net$/,'mask'),n2ip(maskOf(p)));}
   if(/mask$/.test(f)){const m=/^\/?(\d{1,2})$/.exec(v);if(m&&+m[1]<=32)v=n2ip(maskOf(+m[1]));}
   if(f==='name'&&!v)v=sel.kind==='zone'?'Salle':uniqueName(o.type);
   setPath(o,f,v);
@@ -1997,6 +2015,8 @@ P.addEventListener('click',e=>{
   if(a==='del'){if(sel.kind==='dev')delDevice(o);else if(sel.kind==='zone')delZone(o);else delCable(o);}
   if(a==='addroute'){snap();o.routes.push({net:'',mask:'255.255.255.0',via:''});renderProps();save();}
   if(a==='delroute'){snap();o.routes.splice(+b.dataset.i,1);renderProps();save();}
+  if(a==='addregle'){snap();fwDe(o).regles.push({act:'refuser',proto:'tout',src:'',dst:''});renderProps();save();}
+  if(a==='delregle'){snap();fwDe(o).regles.splice(+b.dataset.i,1);renderProps();save();}
 });
 
 /* ============================================================
@@ -2096,6 +2116,7 @@ function l3Rx(d,port,fr){
   const pk=fr.ip;
   if(ifs.some(x=>x.ip===pk.dst))return l3Deliver(d,pk);
   if(d.type!=='router')return;
+  if(!fwPasse(d,pk)){rt(d).filtres=(rt(d).filtres||0)+1;fx(d,'fail','Filtré');rec('filtre',{r:d.name,proto:pk.proto,src:n2ip(pk.src),dst:n2ip(pk.dst)});return;}
   if(pk.ttl<=1){icmpErr(d,f,pk,'ttl');return;}
   const res=sendIP(d,Object.assign({},pk,{ttl:pk.ttl-1}));
   if(!res.ok){icmpErr(d,f,pk,'unreach');fx(d,'fail','Réseau inconnu');}
@@ -2103,6 +2124,20 @@ function l3Rx(d,port,fr){
 function icmpErr(d,f,pk,kind){
   if(pk.proto==='ICMP'&&pk.icmp.kind!=='req'&&pk.icmp.kind!=='rep')return;
   sendIP(d,{src:f.ip,dst:pk.src,ttl:64,proto:'ICMP',icmp:{kind,orig:{proto:pk.proto,dst:pk.dst,src:pk.src,icmp:pk.icmp,http:pk.http}}});
+}
+/* ---------- pare-feu du routeur (filtrage à états, simplifié) ----------
+   Les règles portent sur les demandes (ping, page web, DNS, messagerie) qui traversent le routeur ;
+   les réponses et les messages d’erreur ICMP passent toujours, comme sur un pare-feu à états. */
+const FW_PROTOS=[['tout','Tout'],['ICMP','Ping (ICMP)'],['HTTP','Web (HTTP)'],['DNS','DNS'],['MSG','Messagerie']];
+function fwDe(d){const f=d.fw||(d.fw={pol:'autoriser',regles:[]});f.regles=f.regles||[];return f;}
+function fwAdresse(v){v=String(v||'').trim();if(!v||v==='*'||/^(tout|toute|any)$/i.test(v))return {net:0,mask:0};
+  const [a,b]=v.split('/'),ip=ip2n(a);if(ip===null)return null;const p=b==null?32:parseInt(b,10);if(!(p>=0&&p<=32))return null;const m=maskOf(p);return {net:netOf(ip,m),mask:m};}
+const fwDans=(ip,v)=>{const a=fwAdresse(v);return !!a&&sameNet(ip,a.net,a.mask);};
+function fwDemande(pk){return (pk.proto==='ICMP'&&pk.icmp.kind==='req')||(pk.proto==='HTTP'&&pk.http.kind==='get')||(pk.proto==='DNS'&&pk.dns.kind==='q')||(pk.proto==='MSG'&&(pk.msg.kind==='envoi'||pk.msg.kind==='relever'));}
+function fwPasse(d,pk){
+  if(!d.fw||!fwDemande(pk))return true;
+  const r=(d.fw.regles||[]).find(x=>(x.proto==='tout'||x.proto===pk.proto)&&fwDans(pk.src,x.src)&&fwDans(pk.dst,x.dst));
+  return (r?r.act:d.fw.pol)!=='refuser';
 }
 function route(d,dst){
   const ifs=l3(d);
@@ -2202,21 +2237,21 @@ function dhcpRx(d,port,fr){
       }
       if(ip===undefined){fx(d,'fail','Plus d’adresse libre');return;}
       r.leases.set(m.chaddr,ip);
-      const gw=d.type==='router'?f.ip:ip2n(srv.passerelle||'');
-      dhcpSend(d,port,f.mac,f.ip,'offer',{chaddr:m.chaddr,yiaddr:ip,mask:f.mask,gw});
+      const gw=d.type==='router'?f.ip:ip2n(srv.passerelle||''),dns=ip2n(srv.dns||'');
+      dhcpSend(d,port,f.mac,f.ip,'offer',{chaddr:m.chaddr,yiaddr:ip,mask:f.mask,gw,dns});
       return;
     }
     if(m.kind==='request'){
-      if(r.leases&&r.leases.get(m.chaddr)===m.yiaddr)dhcpSend(d,port,f.mac,f.ip,'ack',{chaddr:m.chaddr,yiaddr:m.yiaddr,mask:m.mask,gw:m.gw});
+      if(r.leases&&r.leases.get(m.chaddr)===m.yiaddr)dhcpSend(d,port,f.mac,f.ip,'ack',{chaddr:m.chaddr,yiaddr:m.yiaddr,mask:m.mask,gw:m.gw,dns:m.dns});
       return;
     }
     return;
   }
   /* côté client : seulement les messages qui lui sont destinés */
   if(!d.dhcp||!TYPES[d.type].host||m.chaddr!==d.mac)return;
-  if(m.kind==='offer'&&d.dhcpEtat==='attente'){dhcpSend(d,0,d.mac,0,'request',{chaddr:d.mac,yiaddr:m.yiaddr,mask:m.mask,gw:m.gw});return;}
+  if(m.kind==='offer'&&d.dhcpEtat==='attente'){dhcpSend(d,0,d.mac,0,'request',{chaddr:d.mac,yiaddr:m.yiaddr,mask:m.mask,gw:m.gw,dns:m.dns});return;}
   if(m.kind==='ack'&&d.dhcpEtat!=='ok'){
-    d.ip=n2ip(m.yiaddr);d.mask=n2ip(m.mask);d.gw=m.gw==null?'':n2ip(m.gw);d.dhcpEtat='ok';
+    d.ip=n2ip(m.yiaddr);d.mask=n2ip(m.mask);d.gw=m.gw==null?'':n2ip(m.gw);if(m.dns!=null)d.dns=n2ip(m.dns);d.dhcpEtat='ok';
     fx(d,'ok','Adresse reçue : '+d.ip);render();renderProps();checkSoon();
   }
 }
@@ -2233,7 +2268,7 @@ function dnsResolve(d,nom,cb){
   const r=rt(d),id=++UID;
   r.dns=r.dns||new Map();
   let fin=false;
-  const finish=res=>{if(fin)return;fin=true;rec('dns',{from:d.name,nom,ok:res.ip!=null});if(res.ip!=null)fx(d,'ok');else fx(d,'fail',res.err==='timeout'?'Pas de réponse DNS':'Nom inconnu');cb(res);};
+  const finish=res=>{if(fin)return;fin=true;rec('dns',{from:d.name,nom,ok:res.ip!=null,ip:res.ip!=null?n2ip(res.ip):''});if(res.ip!=null)fx(d,'ok');else fx(d,'fail',res.err==='timeout'?'Pas de réponse DNS':'Nom inconnu');cb(res);};
   r.dns.set(id,finish);
   const s=sendIP(d,{dst:dns,ttl:64,proto:'DNS',dns:{kind:'q',id,name:nom.toLowerCase()}});
   if(!s.ok){r.dns.delete(id);fin=true;fx(d,'fail','Pas de route');return cb({err:'route',titre:'Serveur DNS injoignable',msg:`Le serveur DNS ${d.dns} n’est pas atteignable depuis ce poste.`});}
@@ -2303,7 +2338,7 @@ function doTrace(d,dstStr,out,done){
     const finish=res=>{
       if(fin)return;fin=true;const n=String(ttl).padStart(3,' ');
       if(res.local){out(ERRMSG[res.local],'err');fx(d,'fail','Pas de route');return done();}
-      if(res.ok){tev.ok=true;checkSoon();out(`${n}   ${n2ip(res.from)}   destination atteinte`,'ok');fx(d,'ok');out('Itinéraire terminé.');return done();}
+      if(res.ok){tev.ok=true;tev.sauts=ttl;checkSoon();out(`${n}   ${n2ip(res.from)}   destination atteinte`,'ok');fx(d,'ok');out('Itinéraire terminé.');return done();}
       if(res.kind==='ttl'){out(`${n}   ${n2ip(res.from)}   (routeur)`);schedule(.3,step);return;}
       if(res.kind==='unreach'){out(`${n}   ${n2ip(res.from)}   réseau de destination inaccessible`,'err');fx(d,'fail','Inaccessible');return done();}
       out(`${n}   *   pas de réponse`,'err');fx(d,'fail','Pas de réponse');return done();
@@ -2315,9 +2350,9 @@ function doTrace(d,dstStr,out,done){
   };
   step();
 }
-function doHttp(d,dstStr,cb,path){
+function doHttp(d,dstStr,cb,path,nom){
   path=path||'/';
-  {const _cb=cb;cb=res=>{rec(path==='/imprimer'?'print':'http',{from:d.name,dst:String(dstStr).trim(),ok:!!res.ok,err:res.err});_cb(res);};}
+  {const _cb=cb;cb=res=>{rec(path==='/imprimer'?'print':'http',{from:d.name,dst:String(dstStr).trim(),nom:nom||'',ok:!!res.ok,err:res.err});_cb(res);};}
   const dst=ip2n(dstStr);if(dst===null)return cb({err:'addr'});
   if(!l3(d).length){fx(d,'fail','Pas d’adresse IP');return cb({err:'noip'});}
   if(isLocal(d,dst)){
@@ -2574,7 +2609,7 @@ function openApp(W,a){
   ({term:appTerm,web:appWeb,server:appServer,sensor:appSensor,net:appNet,print:appPrint,mail:appMail,msgsrv:appMsgSrv})[a](W);assistant('app-'+a);
 }
 function promptOf(d){const h=d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-');return d.type==='rpi'?`pi@${h}:~$`:d.type==='esp32'?'>':d.type==='phone'?'$':'C:\\>';}
-const CMDS=[['ipconfig','affiche la configuration réseau',0],['ping <adresse IP>','vérifie si un appareil répond',0],['imprimer <adresse>','envoie un document à une imprimante',0],['tracert <adresse>','montre les routeurs traversés',1],['arp','affiche la table ARP (IP ↔ MAC)',1],['route','affiche les routes et la passerelle',2],['hostname','affiche le nom de l’appareil',0],['effacer','efface l’écran',0]];
+const CMDS=[['ipconfig','affiche la configuration réseau',0],['ping <adresse IP>','vérifie si un appareil répond',0],['imprimer <adresse>','envoie un document à une imprimante',0],['tracert <adresse>','montre les routeurs traversés',1],['arp','affiche la table ARP (IP ↔ MAC)',1],['route','affiche les routes et la passerelle',2],['nslookup <nom>','demande au DNS l’adresse d’un nom',2],['hostname','affiche le nom de l’appareil',0],['effacer','efface l’écran',0]];
 const helpText=()=>'Commandes disponibles :\n'+CMDS.filter(c=>c[2]<=lv()).map(c=>'  '+c[0].padEnd(20)+c[1]).join('\n');
 const nameOf=ip=>{const o=S.devices.find(x=>ipsOf(x).includes(ip));return o?o.name:'';};
 function appTerm(W){
@@ -2603,8 +2638,9 @@ function appTerm(W){
 function runCmd(d,cmd,out,done){
   const parts=cmd.split(/\s+/),c=parts[0].toLowerCase(),args=parts.slice(1).filter(a=>!a.startsWith('-'));
   const r=rt(d);
-  const need={tracert:1,traceroute:1,arp:1,route:2};
+  const need={tracert:1,traceroute:1,arp:1,route:2,nslookup:2};
   if(need[c]!=null&&lv()<need[c]){out(`La commande « ${c} » est disponible au niveau ${LV_CLASSE[need[c]]}.`,'err');return done();}
+  if(['ipconfig','ifconfig','ip','arp','route','nslookup','hostname'].includes(c))rec('cmd',{c:c==='ifconfig'||c==='ip'?'ipconfig':c,from:d.name});
   switch(c){
     case 'aide':case 'help':case '?':out(helpText(),'dim');return done();
     case 'ipconfig':case 'ifconfig':case 'ip':{
@@ -2614,12 +2650,11 @@ function runCmd(d,cmd,out,done){
   Adresse MAC ........ ${d.mac}
   Adresse IP ......... ${(d.ip||'').trim()||'(aucune)'}${lv()>=2?`
   Masque ............. ${d.mask||'(aucun)'}${hostMaskOk(m)?`  (/${prefix(m)})`:''}`:''}
-  Passerelle ......... ${(d.gw||'').trim()||'(aucune)'}${ip!==null&&hostMaskOk(m)?`\n  Réseau ............. ${netLabel(ip,m)}`:''}`);
+  Passerelle ......... ${(d.gw||'').trim()||'(aucune)'}${lv()>=2?`\n  Serveur DNS ........ ${(d.dns||'').trim()||'(aucun)'}`:''}${d.dhcp?`\n  DHCP ............... ${d.dhcpEtat==='ok'?'adresse reçue':'en attente'}`:''}${ip!==null&&hostMaskOk(m)?`\n  Réseau ............. ${netLabel(ip,m)}`:''}`);
       return done();}
     case 'ping':if(!args[0]){out('Utilisation : ping 192.168.1.10','err');return done();}return doPing(d,args[args.length-1],out,done);
     case 'tracert':case 'traceroute':if(!args[0]){out('Utilisation : tracert 192.168.2.10','err');return done();}return doTrace(d,args[args.length-1],out,done);
     case 'arp':
-      rec('cmd',{c:'arp',from:d.name});
       if(!r.arp.size)out('Table ARP vide : aucun échange récent.\n(Fais un ping, puis relance « arp ».)');
       else out('Adresse IP          Adresse MAC\n'+[...r.arp.entries()].map(([ip,mac])=>`${n2ip(ip).padEnd(20)}${mac}`).join('\n'));
       return done();
@@ -2636,6 +2671,13 @@ ${'0.0.0.0/0 (le reste)'.padEnd(21)}${(d.gw||'').trim()||'(aucune passerelle)'}`
         if(res.ok)out('✓ '+res.body.split('\n')[0],'ok');
         else out({refused:'Cet appareil n’est pas une imprimante (connexion refusée).',timeout:'Aucune réponse : vérifie l’adresse, les câbles et la passerelle.',unreach:'Réseau de destination inaccessible.',addr:'Adresse IP non valide.'}[res.err]||ERRMSG[res.err]||'Échec de l’envoi.','err');
         done();},'/imprimer');
+    case 'nslookup':
+      if(!args[0]){out('Utilisation : nslookup intranet.campus','err');return done();}
+      out(`Serveur DNS : ${(d.dns||'').trim()||'(aucun)'}`);
+      return dnsResolve(d,args[0],res=>{
+        if(res.ip!=null)out(`Nom ....... ${args[0].toLowerCase()}\nAdresse ... ${n2ip(res.ip)}`,'ok');
+        else out(`${res.titre} : ${res.msg}`,'err');
+        done();});
     case 'hostname':out(d.name);return done();
     case 'effacer':case 'clear':case 'cls':r.term.lines=[];if(r.term.out)r.term.out.innerHTML='';return done();
     default:out(`Commande inconnue : ${parts[0]}. Tape « aide » pour la liste.`,'err');return done();
@@ -2663,7 +2705,7 @@ function appWeb(W){
       else{const M={refused:['Connexion refusée',`L’appareil ${host} répond, mais aucun serveur web n’y est démarré.`],timeout:['Délai dépassé',`Aucune réponse de ${host}. Vérifie les câbles, les adresses IP et les passerelles.`],unreach:['Réseau inaccessible',`Un routeur (${res.from?n2ip(res.from):'?'}) ne connaît pas le chemin vers ${host}.`],ttl:['Boucle de routage','Le paquet a tourné en rond jusqu’à épuiser son TTL.'],addr:['Adresse non valide','Écris une adresse IP.'],noip:['Pas d’adresse IP','Cet appareil n’a pas d’adresse IP valide.'],nogw:['Pas de passerelle',`${host} est dans un autre réseau et aucune passerelle n’est configurée.`],noroute:['Pas de route','Aucune route vers ce réseau.'],gw:['Passerelle incorrecte','La passerelle n’est pas dans le même réseau que l’appareil.'],nocable:['Câble débranché','Cet appareil n’est relié à rien.']}[res.err]||['Erreur','Échec de la connexion.'];
         r.browser.page={kind:'err',title:M[0],msg:M[1]};}
       show();
-    });
+    },'/',adresse===host?'':host.toLowerCase());
     };
     if(ip2n(host)!==null)return ouvrir(host);
     dnsResolve(d,host,res=>{
@@ -2723,7 +2765,8 @@ function buildRouter(W){
     const arp=[...r.arp.entries()].map(([ip,mac])=>`<tr><td>${n2ip(ip)}</td><td>${mac}</td><td class="n">${esc(macOwner(mac)||'')}</td></tr>`).join('');
     box.innerHTML=`<h4>Interfaces</h4><table class="mt"><thead><tr><th>Port</th><th>Adresse</th><th>Relié à</th></tr></thead><tbody>${ifr}</tbody></table>
 <h4>Table de routage</h4><table class="mt"><thead><tr><th>Réseau</th><th>Passerelle</th><th>Sortie</th></tr></thead><tbody>${rtr||'<tr class="none"><td colspan="3">Aucune route : configure les interfaces.</td></tr>'}</tbody></table>
-<h4>Table ARP</h4><table class="mt"><thead><tr><th>Adresse IP</th><th>Adresse MAC</th><th>Appareil</th></tr></thead><tbody>${arp||'<tr class="none"><td colspan="3">Vide pour l’instant.</td></tr>'}</tbody></table>`;};
+<h4>Table ARP</h4><table class="mt"><thead><tr><th>Adresse IP</th><th>Adresse MAC</th><th>Appareil</th></tr></thead><tbody>${arp||'<tr class="none"><td colspan="3">Vide pour l’instant.</td></tr>'}</tbody></table>${d.fw&&(d.fw.regles.length||d.fw.pol==='refuser')?`
+<h4>Pare-feu · ${r.filtres||0} demande(s) bloquée(s)</h4><table class="mt"><thead><tr><th>Action</th><th>Service</th><th>Source → destination</th></tr></thead><tbody>${d.fw.regles.map(x=>`<tr><td>${x.act==='refuser'?'Refuser':'Autoriser'}</td><td>${esc((FW_PROTOS.find(p=>p[0]===x.proto)||['',''])[1])}</td><td class="n">${esc(x.src||'toute')} → ${esc(x.dst||'toute')}</td></tr>`).join('')}<tr class="none"><td colspan="3">Sinon : ${d.fw.pol==='refuser'?'tout refuser':'tout autoriser'}</td></tr></tbody></table>`:''}`;};
   draw();W.timers.push(setInterval(draw,700));
 }
 function macOwner(m){if(m===BCAST)return 'tous (diffusion)';for(const d of S.devices){if(d.mac===m)return d.name;if(d.ifs){const i=d.ifs.findIndex(f=>f.mac===m);if(i>=0)return `${d.name} (eth${i})`;}}return '';}
@@ -2843,7 +2886,7 @@ function majResume(){
   const tous=tpsParc();
   const t=S.exo?tous.find(u=>u.exos.some(e=>e.k===S.exo.k)):tous.find(u=>u.exos.some(x=>!exoFait(x)));
   if(!t){b.className='tbres';b.textContent='Choisis un atelier';return;}
-  const code=`${t.c[0]}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`;
+  const code=`${prefixeTP(t.c)}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`;
   const f=t.exos.filter(exoFait).length;
   b.className='tbres k'+t.c[0];
   b.innerHTML=`${pas(t.c)}<span class="tpcn">${code}</span><span class="tpnom">${TP_LABEL[t.k]}</span>${barres(t.niv)}<span class="tbpct">${f}/${t.exos.length}</span>`;
@@ -3034,8 +3077,8 @@ const CATS={
  '2nde':[['reseau','Réseau local','Adresses, switch et protocole ARP.'],['diag','Diagnostic','Trouver une panne dans un réseau local.']],
  '1re':[['routage','Routage','Routeurs, passerelles et sous-réseaux.']],
  'tle':[['services','Services réseau','DNS, DHCP et serveur web.']],
- 'bac1':[['client','Client-serveur','Messagerie et services.'],['adressage','Adressage avancé','Masques et routes.']],
- 'bac2':[['conception','Conception','Plan d’adressage et réseau d’entreprise.']],
+ 'bac1':[['client','Client-serveur','Un serveur relaie et range les messages.'],['analyse','Analyse de trames','ARP, ICMP et TTL observés trame par trame.'],['adressage','Adressage IPv4','Masques, sous-réseaux et pannes d’adressage.'],['routage','Routage statique','Routes, route par défaut, agrégation et diagnostic.']],
+ 'bac2':[['conception','Conception de réseau','Plan d’adressage VLSM et réseau multi-sites.'],['services','Services d’infrastructure','DHCP, DNS et résolution de noms.'],['securite','Sécurité','Pare-feu, filtrage et DMZ.']],
  '3e':[['sousreseau','Sous-réseaux et masques','Découper et planifier les adresses.'],['routage','Routage','Routes statiques et durée de vie (TTL).'],['protocoles','Protocoles et encapsulation','Ethernet, IP, TCP, HTTP.'],['noms','Noms et adresses','Un serveur DNS traduit les noms en adresses IP.'],['messagerie','Messagerie de classe','Un serveur relaie les messages entre les postes.'],['imprimer','Imprimer dans la salle','Envoyer un document à l’imprimante et trouver la panne.'],['dhcprouteur','Adresses automatiques derrière un routeur','Un routeur distribue les adresses d’une autre salle.']]
 };
 const catName=(c,k)=>{const r=(CATS[c]||[]).find(x=>x[0]===k);return r?r[1]:'';};
@@ -3054,7 +3097,7 @@ const X={
   ev:(type,f)=>EV.some(e=>e.type===type&&(!f||f(e))),
   count:(type,f)=>EV.filter(e=>e.type===type&&(!f||f(e))).length,
   ping:(from,dst,ok)=>X.ev('ping',e=>(!from||e.from===from)&&(!dst||e.dst===dst)&&(ok==null||e.ok===ok)),
-  http:(from,dst,ok)=>X.ev('http',e=>(!from||e.from===from)&&(!dst||e.dst===dst)&&(ok==null||e.ok===ok)),
+  http:(from,dst,ok)=>X.ev('http',e=>(!from||e.from===from)&&(!dst||e.dst===dst||e.nom===dst)&&(ok==null||e.ok===ok)),
   port:(r,n)=>{const R=X.d(r);if(!R||!R.ifs)return -1;for(let p=0;p<R.ifs.length;p++){const l=linkOf(R,p);if(l&&l.dev&&l.dev.name===n)return p;}return -1;},
   rip:(r,n)=>{const p=X.port(r,n);return p<0?'':(X.d(r).ifs[p].ip||'').trim();},
   rmask:(r,n)=>{const p=X.port(r,n);return p<0?'':(X.d(r).ifs[p].mask||'').trim();},
@@ -3062,7 +3105,24 @@ const X={
   noIssue:names=>names.every(n=>X.d(n)&&diag(X.d(n)).length===0),
   uniq:names=>{const v=names.map(X.ip);return v.every(Boolean)&&new Set(v).size===v.length;},
   zoneOf:d=>S.zones.find(z=>inZone(z,d)),
-  route:(r,net,via)=>((X.d(r)||{}).routes||[]).some(x=>x.net.trim()===net&&x.via.trim()===via)
+  route:(r,net,via)=>((X.d(r)||{}).routes||[]).some(x=>x.net.trim()===net&&x.via.trim()===via),
+  routeM:(r,net,mask,via)=>((X.d(r)||{}).routes||[]).some(x=>x.net.trim()===net&&x.mask.trim()===mask&&x.via.trim()===via),
+  /* l’appareil a une adresse utilisable du réseau net/p, avec le masque /p */
+  inNet:(n,net,p)=>{const d=X.d(n),ip=ip2n(X.ip(n)),m=maskOf(p);if(!d||ip===null||ip2n(d.mask)!==m||netOf(ip,m)!==ip2n(net))return false;return ip!==ip2n(net)&&ip!==((ip2n(net)|(~m>>>0))>>>0);},
+  /* prochain saut réellement choisi par l’appareil vers dst (table de routage du moteur) */
+  prochain:(r,dst)=>{const d=X.d(r),v=ip2n(dst);if(!d||v===null)return '';const rr=route(d,v);return rr&&!rr.err?n2ip(rr.hop):'';},
+  /* le pare-feu de r laisse-t-il passer une demande proto de src vers dst ? */
+  fw:(r,proto,src,dst)=>{const d=X.d(r);return !!d&&fwPasse(d,{proto,src:ip2n(src),dst:ip2n(dst),icmp:{kind:'req'},http:{kind:'get'},dns:{kind:'q'},msg:{kind:'envoi'}});},
+  /* tous les appareils se voient dans le même réseau, dans les deux sens */
+  memeReseau:names=>names.every(a=>names.every(b=>{const A=ip2n(X.ip(a)),B=ip2n(X.ip(b)),m=ip2n(X.mask(a));return A!==null&&B!==null&&hostMaskOk(m)&&sameNet(A,B,m);})),
+  dnsDonne:(srv,nom,ip)=>{const d=X.d(srv);return !!d&&!!d.dnsSrv&&d.dnsSrv.on&&dnsTable(d).some(x=>x.nom===nom&&x.ip===ip2n(ip));},
+  /* port de Routeur 1 vers le switch sw : réseau /p inclus dans 172.16.10.0/24 */
+  vlsm:(sw,p)=>{const R=X.d('Routeur 1'),i=X.port('Routeur 1',sw);if(i<0)return false;const f=R.ifs[i],ip=ip2n(f.ip),m=ip2n(f.mask);if(ip===null||m!==maskOf(p))return false;const net=netOf(ip,m);return netOf(ip,maskOf(24))===ip2n('172.16.10.0')&&ip!==net&&ip!==((net|(~m>>>0))>>>0);},
+  chevauche:()=>{const ls=l3(X.d('Routeur 1')||{type:'switch'});return ls.some((a,i)=>ls.some((b,j)=>j>i&&sameNet(a.ip,b.ip,prefix(a.mask)<prefix(b.mask)?a.mask:b.mask)));},
+  /* le poste est dans le réseau du port de routeur qui dessert son switch, avec ce port pour passerelle */
+  dansPort:n=>{const d=X.d(n),l=d&&linkOf(d,0),sw=l&&l.dev;if(!sw)return false;
+    for(const R of S.devices.filter(x=>x.type==='router'))for(let p=0;p<R.ifs.length;p++){const o=linkOf(R,p);if(o&&o.dev===sw){const f=R.ifs[p],ip=ip2n(d.ip),fi=ip2n(f.ip),m=ip2n(f.mask);return ip!==null&&fi!==null&&ip2n(d.mask)===m&&sameNet(ip,fi,m)&&X.gw(n)===f.ip.trim();}}
+    return false;}
 };
 const SIM={t:'Lance la simulation avec le bouton ▶ en haut de l’écran.',c:X.sim};
 /* gestes d’interface mémorisés pour les étapes guidées (menu ouvert, outil choisi) */
@@ -3473,67 +3533,182 @@ const EXOS=[
      {t:'Vérifie que l’adresse de PC 1 est dans la plage 192.168.30.100 à 192.168.30.150.',c:()=>X.in24('PC 1','192.168.30.')&&ip2n(X.ip('PC 1'))>=ip2n('192.168.30.100')&&ip2n(X.ip('PC 1'))<=ip2n('192.168.30.150')}],
     q:['Pourquoi un poste ne doit-il pas garder une adresse fixe dans une salle ?','Qu’est-ce qui se passe si la plage est épuisée ?'],verif:'PC 1 a reçu une adresse dans la plage du serveur.',
     build:h=>{h.zone('Salle 5',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const a=h.host('pc',110,100,'',''),s=h.host('server',530,100,'192.168.30.1','');s.dhcpSrv={on:false,debut:'',fin:''};[a,s].forEach(d=>h.link(d,sw));}},
-  /* ----- Supérieur : Bac+1, Bac+2 (un atelier par niveau de difficulté) ----- */
-  {k:'sb1-0',c:'bac1',niv:0,cat:'client',dur:'25 min',t:'Le serveur de messagerie',p:'Un serveur range les messages de la classe : configurer le serveur, les postes, puis envoyer un message.',
-    steps:[{t:'Règle le serveur en 192.168.1.10, PC 1 en 192.168.1.11 et PC 2 en 192.168.1.12.',c:()=>X.ip('Serveur 1')==='192.168.1.10'&&X.in24('PC 1','192.168.1.')&&X.in24('PC 2','192.168.1.')&&X.uniq(['Serveur 1','PC 1','PC 2'])},
-     {t:'Clique sur le serveur : coche « Serveur de messagerie ».',c:()=>S.devices.some(d=>d.type==='server'&&d.msgSrv&&d.msgSrv.on)},
-     {t:'Clique sur PC 1 et PC 2 : écris `192.168.1.10` dans le champ Serveur de messagerie.',h:'Ce champ indique au poste le serveur qui range ses messages.',c:()=>['PC 1','PC 2'].every(n=>((X.d(n)||{}).mailSrv||'').trim()==='192.168.1.10')},
+  /* ----- Supérieur : Bac+1, Bac+2 (deux ateliers par niveau de difficulté) -----
+     Les consignes donnent l’objectif, pas la valeur à recopier : la validation vérifie le résultat
+     (adresse dans le bon réseau, route effectivement suivie, règle de pare-feu qui filtre ce qu’il faut). */
+  {k:'sb1-0',c:'bac1',niv:0,cat:'client',dur:'30 min',t:'Le serveur de messagerie',p:'Configurer un serveur de messagerie et deux clients, envoyer puis relever un message, et lire dans les trames qui parle à qui.',
+    steps:[{t:'Règle le serveur en 192.168.1.10, PC 1 et PC 2 avec deux adresses libres du réseau 192.168.1.0/24.',c:()=>X.ip('Serveur 1')==='192.168.1.10'&&X.in24('PC 1','192.168.1.')&&X.in24('PC 2','192.168.1.')&&X.uniq(['Serveur 1','PC 1','PC 2'])},
+     {t:'Sur le serveur, coche « Serveur de messagerie ».',c:()=>S.devices.some(d=>d.type==='server'&&d.msgSrv&&d.msgSrv.on)},
+     {t:'Sur PC 1 et PC 2, indique l’adresse du serveur dans le champ Serveur de messagerie.',h:'Ce champ dit au poste quel serveur range ses messages (comme le serveur SMTP/IMAP d’un client de messagerie).',c:()=>['PC 1','PC 2'].every(n=>((X.d(n)||{}).mailSrv||'').trim()==='192.168.1.10')},
      SIM,
-     {t:'Depuis PC 1, envoie un message à PC 2 : il passe par le serveur.',c:()=>X.ev('mail',e=>e.from==='PC 1'&&e.to==='PC 2'&&e.ok)}],
-    q:['Pourquoi le message ne va-t-il pas directement de PC 1 à PC 2 ?','Quel protocole sert à envoyer un message et lequel à le relever ?'],verif:'Le message de PC 1 arrive dans la boîte de PC 2.',
+     {t:'Depuis PC 1 (application Messagerie), envoie un message à PC 2.',c:()=>X.ev('mail',e=>e.from==='PC 1'&&e.to==='PC 2'&&e.ok)},
+     {t:'Sur PC 2, clique sur « Relever les messages » : le message de PC 1 arrive.',c:()=>X.ev('relever',e=>e.from==='PC 2'&&e.n>0)},
+     {t:'Ouvre Trames échangées et clique sur une trame MAIL : relève son adresse IP de destination.',h:'Compare avec l’adresse de PC 2.',c:()=>X.ev('frame',e=>e.proto==='MSG')}],
+    q:['La trame MAIL envoyée par PC 1 a pour destination 192.168.1.10 : pourquoi pas l’adresse de PC 2 ?','PC 2 est éteint quand PC 1 envoie son message : le message est-il perdu ? Et si c’est le serveur qui est arrêté ?','Dans la réalité, quels protocoles servent à envoyer et à relever un message ? Sur quels ports ?'],verif:'Le message passe par le serveur : envoi par PC 1, relève par PC 2.',
     build:h=>{h.zone('Salle info',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const s=h.host('server',110,100,'',''),a=h.host('pc',320,100,'',''),b=h.host('pc',530,100,'','');[s,a,b].forEach(d=>h.link(d,sw));}},
-  {k:'sb1-1',c:'bac1',niv:1,cat:'adressage',dur:'30 min',t:'Deux sous-réseaux',p:'Le masque définit le réseau de chaque poste : donner le bon masque à chaque groupe de postes.',
-    steps:[{t:'PC 1 et PC 2 sont dans le réseau 192.168.7.0/25 : donne-leur le masque 255.255.255.128.',c:()=>X.mask('PC 1')==='255.255.255.128'&&X.mask('PC 2')==='255.255.255.128'},
-     {t:'PC 3 et PC 4 sont dans le réseau 192.168.7.192/26 : donne-leur le masque 255.255.255.192.',c:()=>X.mask('PC 3')==='255.255.255.192'&&X.mask('PC 4')==='255.255.255.192'},
+  {k:'sb1-3',c:'bac1',niv:0,cat:'analyse',dur:'30 min',t:'ARP, passerelle et TTL',p:'Un ping traverse un routeur : lire la table ARP du poste, les trames ARP et ICMP, et expliquer la valeur du TTL reçu.',
+    steps:[SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.2.10` et relève le TTL des réponses.',c:()=>X.ping('PC 1','192.168.2.10',true)},
+     {t:'Tape `arp` sur PC 1 : quelle adresse IP figure dans la table ?',h:'Le serveur n’y est pas : PC 1 n’a parlé directement qu’à sa passerelle.',c:()=>X.ev('cmd',e=>e.c==='arp'&&e.from==='PC 1')},
+     {t:'Ouvre Trames échangées et clique sur une trame ARP : à qui est-elle adressée ?',h:'Une demande ARP part en diffusion (adresse MAC FF:FF:FF:FF:FF:FF).',c:()=>X.ev('frame',e=>e.proto==='ARP')},
+     {t:'Clique sur une trame ICMP : compare son TTL avant et après le routeur.',c:()=>X.ev('frame',e=>e.proto==='ICMP')},
+     {t:'Tape `tracert 192.168.2.10` : combien de sauts jusqu’au serveur ?',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='192.168.2.10'&&e.ok)}],
+    q:['Pourquoi PC 1 demande-t-il l’adresse MAC de 192.168.1.254 et non celle du serveur ?','Les réponses arrivent avec TTL=63 : expliquez cette valeur.','Quand le paquet traverse le routeur, qu’est-ce qui change : les adresses MAC, les adresses IP, les deux ?'],verif:'La table ARP de PC 1 contient la passerelle ; le TTL baisse de 1 au passage du routeur.',
+    build:h=>{h.zone('Réseau A',0,0,440,440,'bleu');h.zone('Réseau B',880,0,440,440,'vert');const a=h.dev('switch',220,240),b=h.dev('switch',1100,240);
+      const p1=h.host('pc',96,96,'192.168.1.11','192.168.1.254'),sv=h.host('server',1224,96,'192.168.2.10','192.168.2.254');sv.web.page='Serveur du réseau B';
+      const r=h.router(660,240,['192.168.1.254','192.168.2.254']);h.link(p1,a);h.link(a,r);h.link(r,b);h.link(sv,b);}},
+  {k:'sb1-1',c:'bac1',niv:1,cat:'adressage',dur:'35 min',t:'Deux sous-réseaux',p:'Découper 192.168.7.0/24 : la salle A prend la première moitié, la salle B le bloc 192.168.7.128/26. Calculer masques, adresses et passerelles.',
+    steps:[{t:'Salle A : 192.168.7.0/25. Donne à PC 1 et PC 2 une adresse de ce réseau, son masque et la passerelle 192.168.7.126.',h:'/25 = 128 adresses, dont 126 utilisables. Le routeur a déjà la dernière.',c:()=>['PC 1','PC 2'].every(n=>X.inNet(n,'192.168.7.0',25)&&X.gw(n)==='192.168.7.126')&&X.noIssue(['PC 1','PC 2'])},
+     {t:'Salle B : 192.168.7.128/26. Donne à PC 3 et PC 4 une adresse de ce réseau, son masque et la passerelle du routeur côté B.',h:'Regarde l’adresse du port du routeur relié à la salle B.',c:()=>['PC 3','PC 4'].every(n=>X.inNet(n,'192.168.7.128',26)&&X.gw(n)==='192.168.7.190')&&X.noIssue(['PC 3','PC 4'])},
      SIM,
-     {t:'Depuis PC 1, tape `ping 192.168.7.20` : la réponse revient.',c:()=>X.ping('PC 1','192.168.7.20',true)}],
-    q:['Combien d’adresses utilisables offre un masque /25 ?','Pourquoi PC 1 ne peut-il pas joindre PC 3 directement ?'],verif:'PC 1 et PC 2 ont le masque /25, PC 3 et PC 4 le masque /26.',
-    build:h=>{h.zone('Salle A',0,0,440,440,'bleu');h.zone('Salle B',880,0,440,440,'vert');const sa=h.dev('switch',220,220),sb=h.dev('switch',1100,220);
-      const p1=h.host('pc',96,96,'192.168.7.10',''),p2=h.host('pc',344,96,'192.168.7.20',''),p3=h.host('pc',1024,96,'192.168.7.200',''),p4=h.host('pc',1224,96,'192.168.7.210','');
-      [p1,p2].forEach(d=>h.link(d,sa));[p3,p4].forEach(d=>h.link(d,sb));}},
-  {k:'sb1-2',c:'bac1',niv:2,cat:'adressage',dur:'35 min',t:'Une route fausse',p:'Une route pointe vers une adresse inconnue : trouver la route fautive, la corriger et rétablir la communication.',
+     {t:'Depuis PC 1, fais un ping vers PC 3 : la réponse traverse le routeur.',c:()=>X.ev('ping',e=>e.from==='PC 1'&&e.ok&&e.dst===X.ip('PC 3'))},
+     {t:'Depuis PC 4, fais un ping vers PC 2.',c:()=>X.ev('ping',e=>e.from==='PC 4'&&e.ok&&e.dst===X.ip('PC 2'))}],
+    q:['Combien d’adresses utilisables dans 192.168.7.0/25 ? Et dans 192.168.7.128/26 ?','Donnez l’adresse de diffusion de chaque sous-réseau.','Quel bloc de 192.168.7.0/24 reste libre ? Proposez le sous-réseau d’une troisième salle de 25 postes.'],verif:'Chaque salle a son sous-réseau, son masque et sa passerelle ; les pings traversent le routeur.',
+    build:h=>{h.zone('Salle A',0,0,440,440,'bleu');h.zone('Salle B',880,0,440,440,'vert');const sa=h.dev('switch',220,240),sb=h.dev('switch',1100,240);
+      const r=h.router(660,240,['192.168.7.126','192.168.7.190'],['255.255.255.128','255.255.255.192']);
+      const p=[h.host('pc',96,96,'',''),h.host('pc',344,96,'',''),h.host('pc',976,96,'',''),h.host('pc',1224,96,'','')];
+      h.link(p[0],sa);h.link(p[1],sa);h.link(sa,r);h.link(r,sb);h.link(p[2],sb);h.link(p[3],sb);}},
+  {k:'sb1-4',c:'bac1',niv:1,cat:'adressage',dur:'30 min',t:'Le ping à sens unique',p:'Dans une salle, un poste reçoit les pings mais ne répond jamais. Mener le diagnostic sans changer aucune adresse IP.',help:false,
+    steps:[SIM,
+     {t:'Depuis PC 1, tape `ping 192.168.1.130` : pas de réponse.',c:()=>X.ping('PC 1','192.168.1.130')},
+     {t:'Ouvre Trames échangées : la demande de ping (ICMP) arrive-t-elle jusqu’à PC 3 ?',c:()=>X.ev('frame',e=>e.proto==='ICMP')},
+     {t:'Depuis PC 3, tape `ping 192.168.1.10` : lis bien le message d’erreur.',c:()=>X.ping('PC 3','192.168.1.10')},
+     {t:'Compare la configuration de PC 1 et de PC 3 avec `ipconfig`.',c:()=>X.ev('cmd',e=>e.c==='ipconfig'&&e.from==='PC 3')},
+     {t:'Corrige la configuration fautive, sans changer aucune adresse IP.',h:'Tous les postes doivent se voir dans le même réseau.',c:()=>X.ip('PC 3')==='192.168.1.130'&&X.memeReseau(['PC 1','PC 2','PC 3','Serveur 1'])},
+     SIM,
+     {t:'Vérifie dans les deux sens : `ping 192.168.1.130` depuis PC 1, puis `ping 192.168.1.10` depuis PC 3.',c:()=>X.ping('PC 1','192.168.1.130',true)&&X.ping('PC 3','192.168.1.10',true)}],
+    q:['Expliquez pourquoi la demande arrive à PC 3 mais que la réponse ne repart pas.','Pourquoi le message d’erreur affiché par PC 3 n’est-il pas le même que celui de PC 1 ?','Avec le masque d’origine de PC 3, quels appareils de la salle pouvait-il encore joindre ?'],verif:'PC 3 a de nouveau le masque du réseau ; le ping passe dans les deux sens.',
+    build:h=>{const {ds}=salle4(h,'Salle B12',['192.168.1.10','192.168.1.20','192.168.1.130','192.168.1.5'],{types:['pc','pc','pc','server']});ds[2].mask='255.255.255.128';ds[3].web.page='Serveur de la salle';}},
+  {k:'sb1-2',c:'bac1',niv:2,cat:'routage',dur:'40 min',t:'Une route fausse',p:'Le réseau B est injoignable. Localiser la panne avec tracert, corriger la route fautive, puis la route de retour manquante.',
     steps:[SIM,
      {t:'Depuis PC 1, tape `ping 192.168.2.10` : la réponse ne revient pas.',c:()=>X.ping('PC 1','192.168.2.10')},
-     {t:'Clique sur Routeur 1 : la route vers 192.168.2.0 pointe vers 10.0.0.9. Corrige-la en `10.0.0.2`.',h:'La passerelle doit être l’adresse du routeur voisin sur le même lien.',c:()=>X.route('Routeur 1','192.168.2.0','10.0.0.2')&&!X.route('Routeur 1','192.168.2.0','10.0.0.9')},
-     {t:'Dans Routeur 2, ajoute la route du retour vers `192.168.1.0`, via `10.0.0.1`.',c:()=>X.route('Routeur 2','192.168.1.0','10.0.0.1')},
-     {t:'Refais `ping 192.168.2.10` depuis PC 1 : la réponse revient.',c:()=>X.ping('PC 1','192.168.2.10',true)}],
-    q:['Pourquoi une route vers une adresse inconnue fait-elle échouer tout le trajet ?','Comment vérifier le chemin suivi par un paquet ?'],verif:'Les deux routes sont correctes et le ping réussit.',
+     {t:'Tape `tracert 192.168.2.10` : quel est le dernier routeur qui répond ?',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='192.168.2.10')},
+     {t:'Ouvre Routeur 1 et lis sa table de routage, puis corrige la route vers 192.168.2.0.',h:'La passerelle d’une route est l’adresse du routeur voisin, sur le lien qui les relie.',c:()=>X.prochain('Routeur 1','192.168.2.10')==='10.0.0.2'},
+     SIM,
+     {t:'Refais `tracert 192.168.2.10` : Routeur 2 ne répond toujours pas. Pourquoi ?',h:'Pour répondre, Routeur 2 doit savoir renvoyer un paquet vers 192.168.1.0.',c:()=>X.count('tracert',e=>e.from==='PC 1'&&e.dst==='192.168.2.10')>=2},
+     {t:'Ajoute sur Routeur 2 ce qui lui manque pour répondre au réseau A.',c:()=>X.prochain('Routeur 2','192.168.1.11')==='10.0.0.1'},
+     SIM,
+     {t:'Vérifie : `tracert 192.168.2.10` depuis PC 1 aboutit en 3 sauts.',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='192.168.2.10'&&e.ok)}],
+    q:['Pourquoi tracert s’arrête-t-il après Routeur 1 avant la correction ?','Pourquoi faut-il une route dans les deux sens ?','Combien de sauts tracert affiche-t-il à la fin, et pourquoi ?'],verif:'Les routes des deux routeurs sont correctes : tracert atteint le serveur en 3 sauts.',
     build:h=>{h.zone('Réseau A',0,0,440,480,'bleu');h.zone('Réseau B',880,0,440,480,'vert');const a=h.dev('switch',220,240),b=h.dev('switch',1100,240);
       [h.host('pc',96,96,'192.168.1.11','192.168.1.254'),h.host('pc',344,96,'192.168.1.12','192.168.1.254')].forEach(d=>h.link(d,a));
       const r1=h.router(560,240,['192.168.1.254','10.0.0.1']),r2=h.router(760,240,['10.0.0.2','192.168.2.254']);
       r1.routes.push({net:'192.168.2.0',mask:'255.255.255.0',via:'10.0.0.9'});
       const sv=h.host('server',976,96,'192.168.2.10','192.168.2.254');sv.web.page='Serveur du réseau B';
       h.link(a,r1);h.link(r1,r2);h.link(r2,b);[sv,h.host('pc',1224,96,'192.168.2.11','192.168.2.254')].forEach(d=>h.link(d,b));}},
-  {k:'sb2-0',c:'bac2',niv:0,cat:'conception',dur:'30 min',t:'Plan d’adressage',p:'Deux réseaux séparés par un routeur : établir le plan d’adressage, puis régler les passerelles.',
-    steps:[{t:'PC 1 et PC 2 sont dans 192.168.40.0/24 : donne-leur une adresse de ce réseau.',c:()=>X.in24('PC 1','192.168.40.')&&X.in24('PC 2','192.168.40.')&&X.uniq(['PC 1','PC 2'])},
-     {t:'Donne à PC 1 la passerelle 192.168.40.254 (port du routeur côté réseau A).',c:()=>X.gw('PC 1')==='192.168.40.254'},
-     {t:'PC 3 est dans 192.168.41.0/24 : donne-lui une adresse et la passerelle 192.168.41.254.',c:()=>X.in24('PC 3','192.168.41.')&&X.gw('PC 3')==='192.168.41.254'},
+  {k:'sb1-5',c:'bac1',niv:2,cat:'routage',dur:'40 min',t:'Route par défaut et agrégation',p:'Relier deux bâtiments à Internet : lien /30, route par défaut, route agrégée chez le fournisseur… et la boucle de routage qui en découle.',
+    steps:[{t:'Le lien Routeur 1 ↔ Routeur 2 ne relie que deux appareils : donne à ses deux extrémités le plus petit masque possible.',h:'Il faut 2 adresses utilisables, plus l’adresse du réseau et celle de diffusion.',c:()=>X.rmask('Routeur 1','Routeur 2')==='255.255.255.252'&&X.rmask('Routeur 2','Routeur 1')==='255.255.255.252'},
+     {t:'Sur Routeur 1, ajoute une route par défaut vers le routeur du fournisseur.',h:'Route par défaut : réseau 0.0.0.0, masque 0.0.0.0.',c:()=>X.routeM('Routeur 1','0.0.0.0','0.0.0.0','192.168.100.2')},
+     {t:'Sur Routeur 2, ajoute une seule route qui couvre les deux bâtiments (10.1.1.0/24 et 10.1.2.0/24).',h:'On peut écrire le réseau sous la forme 10.1.0.0/16 : le masque se remplit tout seul.',c:()=>{const rs=((X.d('Routeur 2')||{}).routes||[]).filter(x=>x.via.trim()==='192.168.100.1');return rs.length===1&&prefix(ip2n(rs[0].mask)||0)>=8&&X.prochain('Routeur 2','10.1.1.11')==='192.168.100.1'&&X.prochain('Routeur 2','10.1.2.11')==='192.168.100.1';}},
      SIM,
-     {t:'Depuis PC 1, tape `ping` vers PC 3 : la réponse revient.',c:()=>X.ev('ping',e=>e.from==='PC 1'&&e.ok&&e.dst.startsWith('192.168.41.'))}],
-    q:['Pourquoi chaque réseau a-t-il sa propre plage d’adresses ?','Quelle est l’adresse de passerelle d’un poste du réseau B ?'],verif:'Le ping de PC 1 vers PC 3 réussit à travers le routeur.',
-    build:h=>{h.zone('Réseau A',0,0,440,440,'bleu');h.zone('Réseau B',880,0,440,440,'vert');const sa=h.dev('switch',220,220),sb=h.dev('switch',1100,220);
-      const r=h.router(660,220,['192.168.40.254','192.168.41.254']);
-      const p1=h.host('pc',96,96,'',''),p2=h.host('pc',344,96,'',''),p3=h.host('pc',1224,96,'','');
-      [p1,p2].forEach(d=>h.link(d,sa));h.link(sa,r);h.link(r,sb);h.link(p3,sb);}},
-  {k:'sb2-1',c:'bac2',niv:1,cat:'conception',dur:'35 min',t:'DHCP et DNS',p:'Un serveur distribue les adresses et traduit le nom du campus : configurer les deux services.',
-    steps:[{t:'Clique sur le serveur : coche « Distribuer les adresses automatiquement » et écris la plage 192.168.50.100 à 192.168.50.150.',c:()=>{const s=(X.d('Serveur 1')||{}).dhcpSrv;return !!s&&s.on&&s.debut==='192.168.50.100'&&s.fin==='192.168.50.150';}},
-     {t:'Coche « Serveur DNS » sur le serveur et écris `campus.sup 192.168.50.5` dans la table.',c:()=>S.devices.some(d=>d.name==='Serveur 1'&&d.dnsSrv&&d.dnsSrv.on&&d.dnsSrv.noms.includes('campus.sup'))},
-     {t:'Clique sur PC 1 : coche « Adresse obtenue par DHCP » et écris `192.168.50.5` dans le champ Serveur DNS.',c:()=>(X.d('PC 1')||{}).dhcp===true&&(X.d('PC 1')||{}).dns==='192.168.50.5'},
+     {t:'Sur PC 1 puis sur PC 2, ouvre `http://203.0.113.10`.',c:()=>X.http('PC 1','203.0.113.10',true)&&X.http('PC 2','203.0.113.10',true)},
+     {t:'Depuis PC 1, tape `tracert 10.1.3.5` (un réseau qui n’existe pas) : quels routeurs répondent ?',h:'Les mêmes routeurs reviennent en alternance : c’est une boucle de routage.',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='10.1.3.5')}],
+    q:['Pourquoi une route par défaut suffit-elle à Routeur 1 ?','Quelle est la route agrégée la plus précise couvrant 10.1.1.0/24 et 10.1.2.0/24 ?','Expliquez la boucle observée vers 10.1.3.5. Que faudrait-il ajouter sur Routeur 1 pour l’éviter ?'],verif:'Les deux bâtiments joignent le serveur public ; la boucle vers 10.1.3.5 est expliquée.',
+    build:h=>{h.zone('Bâtiment A',0,0,440,440,'bleu');h.zone('Bâtiment B',0,600,440,440,'vert');h.zone('Fournisseur',1120,0,440,440,'orange');
+      const sa=h.dev('switch',220,220),sb=h.dev('switch',220,820),si=h.dev('switch',1340,220);
+      const p1=h.host('pc',96,96,'10.1.1.11','10.1.1.254'),p2=h.host('pc',96,696,'10.1.2.11','10.1.2.254');
+      const r1=h.router(620,520,['10.1.1.254','10.1.2.254','192.168.100.1']),r2=h.router(900,520,['192.168.100.2','203.0.113.1']);
+      const sv=h.host('server',1464,96,'203.0.113.10','203.0.113.1');sv.web.page='Site public\nServeur hébergé chez le fournisseur.';
+      h.link(p1,sa);h.link(p2,sb);h.link(sa,r1);h.link(sb,r1);h.link(r1,r2);h.link(r2,si);h.link(sv,si);}},
+  {k:'sb2-0',c:'bac2',niv:0,cat:'conception',dur:'45 min',t:'Plan d’adressage VLSM',p:'Découper 172.16.10.0/24 au plus juste pour trois services (50, 25 et 10 appareils), puis configurer le routeur et les postes.',
+    steps:[{t:'Administration (50 appareils) : donne au port de Routeur 1 côté Administration une adresse et le masque le plus juste, dans 172.16.10.0/24.',h:'Commence par le plus grand réseau. 50 appareils + le routeur : combien de bits pour les hôtes ?',c:()=>X.vlsm('Switch 1',26)},
+     {t:'Production (25 appareils) : même travail pour le port côté Production, sans chevaucher l’Administration.',c:()=>X.vlsm('Switch 1',26)&&X.vlsm('Switch 2',27)&&!X.chevauche()},
+     {t:'Serveurs (10 appareils) : même travail pour le port côté Serveurs.',c:()=>X.vlsm('Switch 1',26)&&X.vlsm('Switch 2',27)&&X.vlsm('Switch 3',28)&&!X.chevauche()},
+     {t:'Donne à chaque poste et au serveur une adresse de son réseau, le bon masque et sa passerelle.',c:()=>planHosts().every(d=>X.dansPort(d.name))&&X.noIssue(planHosts().map(d=>d.name))},
      SIM,
-     {t:'Sur PC 1, ouvre le navigateur et demande `http://campus.sup`.',c:()=>X.http('PC 1','campus.sup',true)}],
-    q:['Pourquoi le DNS et le DHCP sont-ils souvent sur le même serveur ?','Que se passe-t-il si la plage DHCP est épuisée ?'],verif:'PC 1 reçoit une adresse du serveur et affiche le site par son nom.',
-    build:h=>{h.zone('Campus',0,0,640,440,'bleu');const sw=h.dev('switch',320,220);const pc=h.host('pc',110,100,'',''),s=h.host('server',530,100,'192.168.50.5','');s.web.page='Campus\nBienvenue sur le portail du campus.';s.dhcpSrv={on:false,debut:'',fin:'',passerelle:''};s.dnsSrv={on:false,noms:''};[pc,s].forEach(d=>h.link(d,sw));}},
-  {k:'sb2-2',c:'bac2',niv:2,cat:'conception',dur:'40 min',t:'Réseau d’entreprise',p:'Deux réseaux routés : un routeur distribue les adresses du réseau B, puis le poste reçoit son adresse et joint le réseau A.',
-    steps:[{t:'Clique sur Routeur 1 : coche « Distribuer les adresses automatiquement » pour le réseau B, plage 192.168.41.100 à 192.168.41.150.',c:()=>{const s=(X.d('Routeur 1')||{}).dhcpSrv;return !!s&&s.on&&s.debut==='192.168.41.100'&&s.fin==='192.168.41.150';}},
-     {t:'Clique sur PC 3 : coche « Adresse obtenue par DHCP ».',c:()=>(X.d('PC 3')||{}).dhcp===true},
-     {t:'Donne à PC 3 la passerelle 192.168.41.254 (le routeur, côté réseau B).',c:()=>X.gw('PC 3')==='192.168.41.254'},
+     {t:'Depuis PC 1, fais un ping vers PC 3, puis vers Serveur 1.',c:()=>X.ev('ping',e=>e.from==='PC 1'&&e.ok&&e.dst===X.ip('PC 3'))&&X.ev('ping',e=>e.from==='PC 1'&&e.ok&&e.dst===X.ip('Serveur 1'))}],
+    q:['Pourquoi commence-t-on le découpage par le plus grand réseau ?','Pour chaque réseau : adresse, masque, première et dernière adresse utilisable, diffusion.','Combien d’adresses restent libres dans 172.16.10.0/24, et quel est le plus grand bloc encore disponible ?'],verif:'Trois sous-réseaux /26, /27 et /28 sans chevauchement ; tous les appareils se joignent.',
+    build:h=>{h.zone('Administration',0,0,440,440,'bleu');h.zone('Production',1120,0,440,440,'vert');h.zone('Serveurs',560,640,440,400,'orange');
+      const s1=h.dev('switch',220,220),s2=h.dev('switch',1340,220),s3=h.dev('switch',780,840);
+      const r=h.router(780,300,[]);
+      const a=[h.host('pc',96,96,'',''),h.host('pc',344,96,'','')],b=[h.host('pc',1216,96,'',''),h.host('pc',1464,96,'','')],sv=h.host('server',656,960,'','');
+      a.forEach(d=>h.link(d,s1));b.forEach(d=>h.link(d,s2));h.link(sv,s3);h.link(s1,r);h.link(s2,r);h.link(s3,r);}},
+  {k:'sb2-3',c:'bac2',niv:0,cat:'services',dur:'35 min',t:'Dépanner le DNS',p:'Le site www.campus ne s’affiche pas alors que le serveur web fonctionne. Interroger le DNS avec nslookup, corriger la zone, ajouter un alias.',
+    steps:[SIM,
+     {t:'Sur PC 1, tape `nslookup intranet.campus` : quelle adresse renvoie le serveur DNS ?',c:()=>X.ev('dns',e=>e.from==='PC 1'&&e.nom==='intranet.campus'&&e.ok)},
+     {t:'Ouvre `http://www.campus` dans le navigateur de PC 1 : la page ne s’affiche pas.',c:()=>X.http('PC 1','www.campus')},
+     {t:'Tape `nslookup www.campus` et compare avec l’adresse du serveur « Site web ».',c:()=>X.ev('dns',e=>e.from==='PC 1'&&e.nom==='www.campus')},
+     {t:'Corrige l’enregistrement fautif dans la table du serveur DNS.',c:()=>X.dnsDonne('Serveur DNS','www.campus',X.ip('Site web'))},
+     {t:'Ajoute le nom `portail.campus`, qui mène au même serveur que l’intranet.',c:()=>X.dnsDonne('Serveur DNS','portail.campus',X.ip('Intranet'))},
      SIM,
-     {t:'Depuis PC 1, tape un ping vers l’adresse reçue par PC 3 : la réponse revient.',c:()=>X.ev('ping',e=>e.from==='PC 1'&&e.ok&&e.dst.startsWith('192.168.41.'))}],
-    q:['Pourquoi le routeur doit-il avoir une adresse dans chaque réseau ?','Quelle différence entre une adresse donnée à la main et une adresse DHCP ?'],verif:'PC 3 a une adresse de la plage et PC 1 le joint à travers le routeur.',
-    build:h=>{h.zone('Réseau A',0,0,440,440,'bleu');h.zone('Réseau B',880,0,440,440,'vert');const sa=h.dev('switch',220,220),sb=h.dev('switch',1100,220);
-      const r=h.router(660,220,['192.168.40.254','192.168.41.254']);
-      const p1=h.host('pc',96,96,'192.168.40.11','192.168.40.254'),p3=h.host('pc',1224,96,'','');p3.name='PC 3';
-      h.link(p1,sa);h.link(sa,r);h.link(r,sb);h.link(p3,sb);}},
+     {t:'Ouvre `http://www.campus` puis `http://portail.campus` depuis PC 1.',c:()=>X.http('PC 1','www.campus',true)&&X.http('PC 1','portail.campus',true)}],
+    q:['Quel protocole de transport et quel port utilise une requête DNS ?','Le serveur web fonctionnait : pourquoi le navigateur affichait-il une erreur ?','Quel type d’enregistrement permet, dans un vrai DNS, de donner un second nom à un serveur (A, CNAME, MX…) ?'],verif:'nslookup renvoie les bonnes adresses ; les deux noms affichent leur site.',
+    build:h=>{h.zone('Postes',0,0,440,440,'bleu');h.zone('Serveurs',880,0,640,440,'vert');const sa=h.dev('switch',220,240),sb=h.dev('switch',1200,240);
+      const p1=h.host('pc',96,96,'192.168.10.11','192.168.10.254',{dns:'192.168.20.53'}),p2=h.host('pc',344,96,'192.168.10.12','192.168.10.254',{dns:'192.168.20.53'});
+      const r=h.router(660,240,['192.168.10.254','192.168.20.254']);
+      const dns=h.host('server',976,96,'192.168.20.53','192.168.20.254',{name:'Serveur DNS'});dns.web.on=false;dns.dnsSrv={on:true,noms:'intranet.campus 192.168.20.80\nwww.campus 192.168.20.8\nmail.campus 192.168.20.25'};
+      const it=h.host('server',1200,96,'192.168.20.80','192.168.20.254',{name:'Intranet'});it.web.page='Intranet du campus\nEmplois du temps et annonces.';
+      const ws=h.host('server',1424,96,'192.168.20.88','192.168.20.254',{name:'Site web'});ws.web.page='Site du campus\nBienvenue sur le site public.';
+      [p1,p2].forEach(d=>h.link(d,sa));h.link(sa,r);h.link(r,sb);[dns,it,ws].forEach(d=>h.link(d,sb));}},
+  {k:'sb2-1',c:'bac2',niv:1,cat:'services',dur:'35 min',t:'DHCP et DNS du campus',p:'Un serveur distribue adresse, passerelle et DNS aux postes ; ceux-ci joignent le portail d’un autre réseau par son nom.',
+    steps:[{t:'Sur Serveur 1, active le DHCP : plage 192.168.50.100 à 192.168.50.149, passerelle et serveur DNS annoncés à renseigner.',h:'La passerelle est le port du routeur côté postes ; le DNS est Serveur 1 lui-même.',c:()=>{const s=(X.d('Serveur 1')||{}).dhcpSrv;return !!s&&s.on&&s.debut==='192.168.50.100'&&s.fin==='192.168.50.149'&&(s.passerelle||'').trim()==='192.168.50.254'&&(s.dns||'').trim()==='192.168.50.5';}},
+     {t:'Active le serveur DNS de Serveur 1 et ajoute le nom `portail.campus` avec l’adresse du portail.',c:()=>X.dnsDonne('Serveur 1','portail.campus',X.ip('Portail'))},
+     {t:'Sur PC 1 et PC 2, coche « Adresse obtenue par DHCP ».',c:()=>['PC 1','PC 2'].every(n=>(X.d(n)||{}).dhcp===true)},
+     SIM,
+     {t:'Sur PC 2, tape `ipconfig` : adresse, passerelle et DNS sont-ils reçus ?',c:()=>X.ev('cmd',e=>e.c==='ipconfig'&&e.from==='PC 2')&&X.gw('PC 2')==='192.168.50.254'},
+     {t:'Sur PC 1, ouvre `http://portail.campus`.',c:()=>X.http('PC 1','portail.campus',true)}],
+    q:['Quels sont les quatre messages de l’échange DHCP ? Lesquels sont envoyés en diffusion ?','Que se passerait-il si le serveur DHCP n’annonçait pas de passerelle ?','Le serveur DHCP est dans le réseau des postes. Que faudrait-il sur le routeur pour servir aussi un autre réseau ?'],verif:'Les postes reçoivent adresse, passerelle et DNS, et affichent le portail par son nom.',
+    build:h=>{h.zone('Postes',0,0,640,440,'bleu');h.zone('Serveurs',1080,0,440,440,'vert');const sa=h.dev('switch',320,240),sb=h.dev('switch',1300,240);
+      const s=h.host('server',110,100,'192.168.50.5','192.168.50.254');s.web.on=false;s.dhcpSrv={on:false,debut:'',fin:'',passerelle:'',dns:''};s.dnsSrv={on:false,noms:''};
+      const a=h.host('pc',320,100,'',''),b=h.host('pc',530,100,'','');
+      const r=h.router(860,240,['192.168.50.254','192.168.60.254']);
+      const pt=h.host('server',1300,100,'192.168.60.80','192.168.60.254',{name:'Portail'});pt.web.page='Portail du campus\nBienvenue sur le portail.';
+      [s,a,b].forEach(d=>h.link(d,sa));h.link(sa,r);h.link(r,sb);h.link(pt,sb);}},
+  {k:'sb2-4',c:'bac2',niv:1,cat:'securite',dur:'40 min',t:'Filtrer avec un pare-feu',p:'Les élèves voient le serveur de notes. Écrire les règles de pare-feu du routeur : le site web reste ouvert, les notes réservées au personnel.',
+    steps:[SIM,
+     {t:'Depuis PC 1 (réseau élèves), ouvre `http://192.168.20.90` : la page des notes s’affiche !',c:()=>X.http('PC 1','192.168.20.90',true)},
+     {t:'Sur Routeur 1, section Pare-feu : refuse tout trafic du réseau des élèves vers le serveur de notes.',h:'Source : le réseau des élèves (192.168.10.0/24). Destination : l’adresse du serveur de notes.',c:()=>!X.fw('Routeur 1','HTTP','192.168.10.11','192.168.20.90')&&X.fw('Routeur 1','HTTP','192.168.10.11','192.168.20.80')&&X.fw('Routeur 1','HTTP','192.168.30.11','192.168.20.90')},
+     SIM,
+     {t:'Vérifie : PC 1 n’a plus les notes mais garde le site web ; PC 3 (personnel) a toujours les notes.',c:()=>X.http('PC 1','192.168.20.90',false)&&X.http('PC 1','192.168.20.80',true)&&X.http('PC 3','192.168.20.90',true)},
+     {t:'Durcis le filtrage : des élèves vers les serveurs, seul le web reste autorisé. Le personnel garde tout.',h:'Ordre des règles : la première qui correspond s’applique.',c:()=>!X.fw('Routeur 1','ICMP','192.168.10.11','192.168.20.80')&&X.fw('Routeur 1','HTTP','192.168.10.11','192.168.20.80')&&!X.fw('Routeur 1','HTTP','192.168.10.11','192.168.20.90')&&X.fw('Routeur 1','ICMP','192.168.30.11','192.168.20.90')&&X.fw('Routeur 1','HTTP','192.168.30.11','192.168.20.90')},
+     SIM,
+     {t:'Depuis PC 1, `ping 192.168.20.80` : le pare-feu bloque la demande. Ouvre la fenêtre de Routeur 1 pour voir le compteur.',c:()=>X.ev('filtre',e=>e.r==='Routeur 1'&&e.proto==='ICMP'&&e.src==='192.168.10.11')}],
+    q:['Dans quel ordre le pare-feu lit-il les règles ? Donnez un exemple où inverser deux règles change le résultat.','Aucune règle n’autorise le serveur web à répondre aux élèves : pourquoi la page arrive-t-elle quand même ?','Politique par défaut « tout autoriser » ou « tout refuser » : laquelle est la plus sûre, et pourquoi ?'],verif:'Élèves : web seulement, pas de notes. Personnel : accès complet.',
+    build:h=>{h.zone('Élèves',0,0,440,440,'bleu');h.zone('Personnel',0,600,440,400,'violet');h.zone('Serveurs',1120,0,440,440,'vert');
+      const se=h.dev('switch',220,220),sp=h.dev('switch',220,800),ss=h.dev('switch',1340,220);
+      const p1=h.host('pc',96,96,'192.168.10.11','192.168.10.254'),p2=h.host('pc',344,96,'192.168.10.12','192.168.10.254'),p3=h.host('pc',96,696,'192.168.30.11','192.168.30.254');
+      const r=h.router(780,500,['192.168.10.254','192.168.30.254','192.168.20.254']);
+      const w=h.host('server',1216,96,'192.168.20.80','192.168.20.254',{name:'Serveur web'});w.web.page='Site du lycée\nActualités et emplois du temps.';
+      const n=h.host('server',1464,96,'192.168.20.90','192.168.20.254',{name:'Serveur notes'});n.web.page='Notes du trimestre\nAccès réservé au personnel.';
+      h.link(p1,se);h.link(p2,se);h.link(p3,sp);h.link(se,r);h.link(sp,r);h.link(r,ss);h.link(w,ss);h.link(n,ss);}},
+  {k:'sb2-2',c:'bac2',niv:2,cat:'conception',dur:'50 min',t:'Réseau multi-sites',p:'Trois sites reliés en triangle par des liens /30 : écrire les routes statiques, puis rerouter à la main quand un lien tombe.',
+    steps:[{t:'Sur Routeur 1 (siège), ajoute les routes vers l’agence (10.10.2.0/24) et l’entrepôt (10.10.3.0/24), chacune par le lien direct.',c:()=>X.prochain('Routeur 1','10.10.2.11')==='10.255.0.2'&&X.prochain('Routeur 1','10.10.3.11')==='10.255.0.6'},
+     {t:'Même travail sur Routeur 2 (agence).',c:()=>X.prochain('Routeur 2','10.10.1.10')==='10.255.0.1'&&X.prochain('Routeur 2','10.10.3.11')==='10.255.0.10'},
+     {t:'Même travail sur Routeur 3 (entrepôt).',c:()=>X.prochain('Routeur 3','10.10.1.10')==='10.255.0.5'&&X.prochain('Routeur 3','10.10.2.11')==='10.255.0.9'},
+     SIM,
+     {t:'Depuis PC 1 (agence), `tracert 10.10.1.10` : le chemin passe directement par le siège.',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='10.10.1.10'&&e.ok)},
+     {t:'Le lien siège ↔ agence tombe : supprime le câble entre Routeur 1 et Routeur 2.',c:()=>!X.linked('Routeur 1','Routeur 2')},
+     {t:'Rétablis la liaison agence ↔ siège en passant par l’entrepôt : modifie les routes concernées.',h:'Trois routeurs sont concernés : il faut l’aller et le retour.',c:()=>!X.linked('Routeur 1','Routeur 2')&&X.prochain('Routeur 2','10.10.1.10')==='10.255.0.10'&&X.prochain('Routeur 3','10.10.1.10')==='10.255.0.5'&&X.prochain('Routeur 1','10.10.2.11')==='10.255.0.6'&&X.prochain('Routeur 3','10.10.2.11')==='10.255.0.9'},
+     SIM,
+     {t:'Refais `tracert 10.10.1.10` depuis PC 1 : un saut de plus, par l’entrepôt.',c:()=>X.ev('tracert',e=>e.from==='PC 1'&&e.dst==='10.10.1.10'&&e.ok&&e.sauts>=4)}],
+    q:['Combien de routes statiques faut-il pour 3 sites en triangle ? Pour 10 sites tous reliés entre eux ?','Pourquoi les routes ne se sont-elles pas adaptées seules à la panne ?','Quel protocole de routage dynamique ferait ce travail (RIP, OSPF…) et sur quel critère choisit-il le chemin ?'],verif:'Les trois sites communiquent, puis l’agence rejoint le siège par l’entrepôt après la coupure.',
+    build:h=>{h.zone('Siège',560,0,440,400,'bleu');h.zone('Agence',0,640,440,400,'vert');h.zone('Entrepôt',1120,640,440,400,'orange');
+      const s1=h.dev('switch',780,120),s2=h.dev('switch',220,920),s3=h.dev('switch',1340,920);
+      const r1=h.router(780,320,['10.10.1.254','10.255.0.1','10.255.0.5'],['255.255.255.0','255.255.255.252','255.255.255.252']);
+      const r2=h.router(380,720,['10.10.2.254','10.255.0.2','10.255.0.9'],['255.255.255.0','255.255.255.252','255.255.255.252']);
+      const r3=h.router(1180,720,['10.10.3.254','10.255.0.6','10.255.0.10'],['255.255.255.0','255.255.255.252','255.255.255.252']);
+      const sv=h.host('server',656,40,'10.10.1.10','10.10.1.254',{name:'Serveur siège'});sv.web.page='Intranet du siège';
+      const p1=h.host('pc',96,960,'10.10.2.11','10.10.2.254'),p2=h.host('pc',1464,960,'10.10.3.11','10.10.3.254');
+      h.link(r1,s1);h.link(r2,s2);h.link(r3,s3);h.link(r1,r2);h.link(r1,r3);h.link(r2,r3);h.link(sv,s1);h.link(p1,s2);h.link(p2,s3);}},
+  {k:'sb2-5',c:'bac2',niv:2,cat:'securite',dur:'50 min',t:'La DMZ',p:'Un routeur pare-feu sépare le réseau interne, une DMZ (web et DNS publics) et Internet. Écrire la politique de filtrage complète et la tester depuis chaque zone.',
+    steps:[{t:'Sur Routeur 1, mets la politique par défaut du pare-feu sur « Tout refuser ».',c:()=>((X.d('Routeur 1')||{}).fw||{}).pol==='refuser'},
+     {t:'Autorise tout ce qui part du réseau interne (192.168.1.0/24), vers la DMZ comme vers Internet.',c:()=>X.fw('Routeur 1','ICMP','192.168.1.11','203.0.113.50')&&X.fw('Routeur 1','HTTP','192.168.1.11','172.16.0.80')&&X.fw('Routeur 1','DNS','192.168.1.11','172.16.0.53')},
+     {t:'Depuis Internet, autorise seulement le web vers le serveur web et le DNS vers le serveur DNS.',h:'Une règle par service : Web (HTTP) vers 172.16.0.80, DNS vers 172.16.0.53.',c:()=>X.fw('Routeur 1','HTTP','203.0.113.50','172.16.0.80')&&X.fw('Routeur 1','DNS','203.0.113.50','172.16.0.53')&&!X.fw('Routeur 1','ICMP','203.0.113.50','172.16.0.80')&&!X.fw('Routeur 1','HTTP','203.0.113.50','172.16.0.53')&&!X.fw('Routeur 1','HTTP','203.0.113.50','192.168.1.11')&&!X.fw('Routeur 1','ICMP','203.0.113.50','192.168.1.11')},
+     {t:'Vérifie que rien ne part de la DMZ vers le réseau interne.',h:'Un serveur public piraté ne doit pas servir de tremplin vers les postes.',c:()=>!X.fw('Routeur 1','ICMP','172.16.0.80','192.168.1.11')&&!X.fw('Routeur 1','HTTP','172.16.0.80','192.168.1.11')&&!X.fw('Routeur 1','DNS','172.16.0.53','192.168.1.11')},
+     SIM,
+     {t:'Depuis Client Internet, ouvre `http://www.entreprise` : le DNS puis le web passent.',c:()=>X.http('Client Internet','www.entreprise',true)},
+     {t:'Depuis Client Internet, `ping 192.168.1.11` : la demande est bloquée.',c:()=>X.ev('filtre',e=>e.src==='203.0.113.50'&&e.dst==='192.168.1.11')},
+     {t:'Depuis Serveur web, `ping 192.168.1.11` : bloqué aussi.',c:()=>X.ev('filtre',e=>e.src==='172.16.0.80'&&e.dst==='192.168.1.11')},
+     {t:'Depuis PC 1, ouvre `http://www.entreprise` puis `ping 203.0.113.50` : tout passe.',c:()=>X.http('PC 1','www.entreprise',true)&&X.ping('PC 1','203.0.113.50',true)}],
+    q:['Pourquoi placer les serveurs publics dans une DMZ plutôt que dans le réseau interne ?','Les réponses du serveur web vers Internet n’ont pas de règle : pourquoi passent-elles ?','Un attaquant prend le contrôle du serveur web : que peut-il atteindre avec vos règles ? Et sans DMZ ?'],verif:'Internet n’atteint que le web et le DNS de la DMZ ; la DMZ n’atteint pas le réseau interne ; l’interne atteint tout.',
+    build:h=>{h.zone('Réseau interne',0,0,440,440,'bleu');h.zone('DMZ',560,640,440,400,'orange');h.zone('Internet',1120,0,440,440,'rose');
+      const si=h.dev('switch',220,220),sd=h.dev('switch',780,840),sx=h.dev('switch',1340,220);
+      const r=h.router(780,300,['192.168.1.254','172.16.0.254','203.0.113.1']);
+      const p1=h.host('pc',96,96,'192.168.1.11','192.168.1.254',{dns:'172.16.0.53'});
+      const w=h.host('server',656,960,'172.16.0.80','172.16.0.254',{name:'Serveur web'});w.web.page='Entreprise\nSite public de l’entreprise.';
+      const dn=h.host('server',904,960,'172.16.0.53','172.16.0.254',{name:'Serveur DNS'});dn.web.on=false;dn.dnsSrv={on:true,noms:'www.entreprise 172.16.0.80'};
+      const cx=h.host('pc',1464,96,'203.0.113.50','203.0.113.1',{name:'Client Internet',dns:'172.16.0.53'});
+      h.link(p1,si);h.link(si,r);h.link(r,sd);h.link(r,sx);h.link(w,sd);h.link(dn,sd);h.link(cx,sx);}},
 ];
 function panneFix(){return (X.gw('PC 2')==='192.168.1.254'?1:0)+(X.in24('Portable 1','192.168.1.')?1:0)+(X.linked('Routeur 1','Switch 2')?1:0);}
 function planHosts(){return S.devices.filter(d=>TYPES[d.type].host);}
@@ -3544,10 +3719,13 @@ function planNets(){const hs=planHosts();const nets=new Map();
 function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
 /* Panneau Trames affiché pendant l’atelier quand une étape le demande, même au niveau Débutant. */
 function tramesRequises(x){return x.steps.some(s=>/trame|Trame/.test((s.t||'')+' '+(s.h||'')));}
+/* Niveau de la simulation (champs, commandes, trames) : au collège il suit la difficulté de l’atelier ;
+   au lycée et dans le supérieur, tous les outils sont là (masque, routes, DNS, messagerie), quelle que soit la difficulté. */
+const simNiveau=(c,niv)=>({'5e':1,'4e':1,'3e':1})[c]?niv:2;
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());$('#app').classList.toggle('trames-requises',tramesRequises(x));arpAffiche=x.steps.some(s=>/ARP/.test((s.t||'')+' '+(s.h||'')));$('#app').classList.toggle('arp-requis',arpAffiche);S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles();S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:simNiveau(x.c,x.niv);x.build(H());const membres=new Map(S.zones.map(z=>[z.id,S.devices.filter(d=>inZone(z,d)).map(d=>({d,x:d.x,y:d.y}))]));$('#app').classList.toggle('trames-requises',tramesRequises(x));arpAffiche=x.steps.some(s=>/ARP/.test((s.t||'')+' '+(s.h||'')));$('#app').classList.toggle('arp-requis',arpAffiche);S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles(membres);S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
@@ -3690,12 +3868,13 @@ function guideBlock(def,i){
 }
 function lastFailHTML(){const e=[...EV].reverse().find(x=>(x.type==='ping'||x.type==='http'||x.type==='print'));if(!e||e.ok)return '';
   const w=e.type==='ping'?`Ton ping vers ${esc(e.dst)}`:e.type==='print'?`L’impression vers ${esc(e.dst)}`:`La page ${esc(e.dst)}`;
-  return `<div class="failbox"><b>${w} n’a pas marché</b> : ${FAILTXT[e.why||e.err||'timeout']||FAILTXT.timeout}</div>`;}
+  const k=e.why||e.err||'timeout',filtre=k==='timeout'&&[...EV].reverse().find(x=>x.type==='filtre'&&x.dst===e.dst);
+  return `<div class="failbox"><b>${w} n’a pas marché</b> : ${filtre?`le pare-feu de ${esc(filtre.r)} a bloqué la demande.`:FAILTXT[k]||FAILTXT.timeout}</div>`;}
 /* Code du TP auquel appartient un exercice (ex. 5-1-1). */
 function codeTP(def){
   const tous=tpsParc(),t=tous.find(u=>u.exos.some(e=>e.k===def.k));
   if(!t)return '';
-  return `${t.c[0]}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`;
+  return `${prefixeTP(t.c)}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`;
 }
 /* Atelier qui suit dans le parcours, et ronds des ateliers du TP (en fin d’atelier, pour enchaîner). */
 function atelierSuivant(d){const ord=parcoursOrdre(),i=ord.findIndex(x=>x.k===d.k);return i>=0?ord[i+1]:undefined;}
@@ -4018,7 +4197,7 @@ function buildTopologie(k,routesDe){
    et centrale.json (descripteur de l’atelier).
    ============================================================ */
 EXOS.forEach(x=>{if(x.niv===undefined)x.niv=CLASSES[x.c].lv;});
-const NETSIM_VERSION='1.16.0';
+const NETSIM_VERSION='1.17.0';
 /* Capacités du référentiel de la Centrale (passerelle/competences.json) travaillées par chaque exercice.
    Recopiées dans centrale.json (activites.liste[].competences) : outils/verifier-descripteur.html compare. */
 const COMP_EXO={
@@ -4138,7 +4317,9 @@ $('#bTour').onclick=startTour;
    Mes TP : un parcours. Chaque TP regroupe les exercices d’une
    même catégorie ; on les fait dans l’ordre, étape par étape.
    ============================================================ */
-const TP_LABEL={premiers:'Atelier-Découverte',dhcp:'Atelier-DHCP',noms:'Atelier-Noms',salle:'Atelier-Salle',passerelle:'Atelier-Passerelle',masque:'Atelier-Masque',nomsreseau:'Atelier-NomsRéseau',imprimer:'Atelier-Impression',dhcprouteur:'Atelier-DHCPRouteur',messagerie:'Atelier-Messagerie',cabler:'Atelier-PremierReseau',adresses:'Atelier-Adresses',services:'Atelier-Services',reseau:'Atelier-Réseau',routeur:'Atelier-Routeur',observer:'Atelier-Échanges',diag:'Atelier-Panne',iot:'Atelier-Objets',sousreseau:'Atelier-SousRéseaux',routage:'Atelier-Routage',protocoles:'Atelier-Protocoles'};
+const TP_LABEL={premiers:'Atelier-Découverte',dhcp:'Atelier-DHCP',noms:'Atelier-Noms',salle:'Atelier-Salle',passerelle:'Atelier-Passerelle',masque:'Atelier-Masque',nomsreseau:'Atelier-NomsRéseau',imprimer:'Atelier-Impression',dhcprouteur:'Atelier-DHCPRouteur',messagerie:'Atelier-Messagerie',cabler:'Atelier-PremierReseau',adresses:'Atelier-Adresses',services:'Atelier-Services',reseau:'Atelier-Réseau',routeur:'Atelier-Routeur',observer:'Atelier-Échanges',diag:'Atelier-Panne',iot:'Atelier-Objets',sousreseau:'Atelier-SousRéseaux',routage:'Atelier-Routage',protocoles:'Atelier-Protocoles',client:'Atelier-ClientServeur',analyse:'Atelier-Trames',adressage:'Atelier-Adressage',conception:'Atelier-Conception',securite:'Atelier-Sécurité'};
+/* Préfixe du code de TP : chiffre ou lettre de la classe (5, 4, 3, 2, 1, t), b1 et b2 pour le supérieur. */
+const prefixeTP=c=>({bac1:'b1',bac2:'b2'})[c]||c[0];
 /* Ordre du parcours : TP par TP, exercices dans leur ordre. */
 const CLASSES_PARC=[['5e','5ᵉ · Débutant'],['4e','4ᵉ · Intermédiaire'],['3e','3ᵉ · Avancé'],['2nde','2nde · Débutant'],['1re','1re · Intermédiaire'],['tle','Terminale · Avancé'],['bac1','Bac+1 · Intermédiaire'],['bac2','Bac+2 · Avancé']];
 /* Parcours : classe, puis niveau de difficulté (débutant, intermédiaire, avancé), puis TP.
@@ -4430,7 +4611,7 @@ $('#accueil').addEventListener('click',e=>{
   if(n){
     const niv=+n.dataset.niv;
     $('#accueil').hidden=true;
-    S.level=niv;PREF.classe=classeAccueil;PREF.niv=niv;savePref();save();syncLevel();render();renderProps();
+    S.level=simNiveau(classeAccueil,niv);PREF.classe=classeAccueil;PREF.niv=niv;savePref();save();syncLevel();render();renderProps();
     /* Depuis la création comme depuis un atelier : on passe à l’atelier le plus proche du niveau choisi (le menu reste ouvert). */
     if(!accueilRetour){
       const x=atelierPlusProche(classeAccueil,niv),cur=S.exo?tpsParc().find(t=>t.exos.some(e=>e.k===S.exo.k)):null;
