@@ -3845,7 +3845,6 @@ function openParc(){closeMenus();$('#parcBody').innerHTML='<div class="parcgrill
 function closeParc(){$('#parc').hidden=true;}
 /* ---------- Mes documents : schémas libres, enregistrés automatiquement dans ce navigateur ---------- */
 const DOCS_CLE='netsim-docs',DOC_COURANT='netsim-doc-courant';
-let docChoix=new Set();   // documents cochés dans le menu des ateliers
 function docsLire(){try{const l=JSON.parse(localStorage.getItem(DOCS_CLE)||'[]');return Array.isArray(l)?l:[];}catch(_){return [];}}
 function docsEcrire(l){try{localStorage.setItem(DOCS_CLE,JSON.stringify(l));}catch(_){}}
 function docCourant(){try{return localStorage.getItem(DOC_COURANT);}catch(_){return null;}}
@@ -3932,7 +3931,7 @@ function docSupprimer(ids){
   const q=aSupprimer.length===1?`Supprimer le document « ${aSupprimer[0].nom} » ? Cette action est définitive.`:`Supprimer ${aSupprimer.length} documents ? Cette action est définitive.`;
   if(!confirm(q))return;
   const courant=docCourant();
-  docsEcrire(l.filter(x=>!ids.includes(x.id)));ids.forEach(id=>docChoix.delete(id));
+  docsEcrire(l.filter(x=>!ids.includes(x.id)));
   if(courant&&ids.includes(courant)){docFixer(null);docRetourAtelier();return;}
   docsRafraichir();
 }
@@ -3949,25 +3948,21 @@ function docsRafraichir(){
   const s=document.querySelector('#parcBody .docsec');
   if(s)s.outerHTML=docsHTML();else openParc();
 }
-function docAction(a,id,el){
+function docAction(a,id){
   if(a==='open')return docOuvrir(id);
   if(a==='new'){$('#bNew').onclick();docsRafraichir();return;}
   if(a==='exp')return docExporter([id]);
   if(a==='del')return docSupprimer([id]);
-  if(a==='sel'){el.checked?docChoix.add(id):docChoix.delete(id);return docsRafraichir();}
-  if(a==='selAll'){const l=docsLire();docChoix=docChoix.size===l.length?new Set():new Set(l.map(d=>d.id));return docsRafraichir();}
-  if(a==='exporterSel')return docExporter([...docChoix]);
-  if(a==='supprimerSel')return docSupprimer([...docChoix]);
+  if(a==='exportAll')return docExporter(docsLire().map(d=>d.id));
   if(a==='import')return $('#docFichier').click();
 }
 function docsHTML(){
   const cur=docCourant(),l=[...docsLire()].sort((a,b)=>b.date-a.date);
-  docChoix=new Set([...docChoix].filter(id=>l.some(d=>d.id===id)));
-  const n=docChoix.size,date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom" data-id="${d.id}" title="Double-clic pour renommer"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
+  const date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><div class="docnom" data-id="${d.id}" title="Double-clic pour renommer"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
   return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div>`
     +`<div class="docbar"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button><button class="btn small" data-doc="import" type="button">Importer…</button>`
-    +(l.length?`<span class="docsep"></span><label class="doccase docall"><input type="checkbox" data-doc="selAll" aria-label="Tout sélectionner"${n&&n===l.length?' checked':''}></label><span class="small muted">${n?n+' sélectionné'+(n>1?'s':''):'Sélection'}</span>${n?`<button class="btn small" data-doc="exporterSel" type="button">Exporter la sélection</button><button class="btn small danger" data-doc="supprimerSel" type="button">Supprimer la sélection</button>`:''}`:'')
+    +(l.length?`<button class="btn small" data-doc="exportAll" type="button">Tout exporter</button>`:'')
     +`</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div><input type="file" id="docFichier" accept=".json,application/json" hidden></section>`;
 }
 $('#parc').addEventListener('dblclick',e=>{const n=e.target.closest('.docnom');if(n&&!n.querySelector('input'))docEditerNom(n);});
