@@ -2807,7 +2807,7 @@ $('#clock').onclick=()=>{if($('#legend').dataset.dragged)return;sim.paused=!sim.
 function closeMenus(){$$('.menu').forEach(m=>m.hidden=true);$$('[aria-haspopup]').forEach(b=>b.setAttribute('aria-expanded','false'));}
 function menuBtn(b,m){$(b).onclick=e=>{const mm=$(m),o=mm.hidden;closeMenus();mm.hidden=!o;$(b).setAttribute('aria-expanded',String(o));};}
 menuBtn('#bFile','#mFile');menuBtn('#bSet','#mSet');
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('.menuwrap, #mMenu, .topbar .brand'))closeMenus();});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.menuwrap, #mMenu, #profilMenu, #bCentrale, .topbar .brand'))closeMenus();});
 $('#mFile').addEventListener('click',e=>{if(e.target.closest('.mi'))closeMenus();});
 const HOST_THEME=document.documentElement.getAttribute('data-theme');
 function applyPrefs(){$('#seeChk').checked=PREF.see!==false;$('#gridRect').style.display=PREF.grid?'':'none';$('#gridChk').checked=PREF.grid;$('#snapChk').checked=PREF.snap;
