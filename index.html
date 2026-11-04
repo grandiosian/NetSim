@@ -4001,7 +4001,7 @@ $('#accueil').addEventListener('click',e=>{
     const cur=S.exo?tpsParc().find(t=>t.exos.some(e=>e.k===S.exo.k)):null;
     const cible=tpsParc().find(t=>t.c===classeAccueil&&t.niv===niv);
     const x=cible&&(cible.exos.find(e=>!exoFait(e))||cible.exos[0]);
-    if(S.exo&&x&&(!cur||cur.c!==classeAccueil||cur.niv!==niv)){docCreer(S.exo.t||'Atelier');loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);return;}
+    if(!accueilRetour&&S.exo&&x&&(!cur||cur.c!==classeAccueil||cur.niv!==niv)){docCreer(S.exo.t||'Atelier');loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);return;}
     if(accueilRetour){openParc();const el=document.getElementById(`niv-${classeAccueil}-${niv}`);if(el)el.scrollIntoView({block:'start'});}
     return;
   }
