@@ -3920,7 +3920,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
 
   /* ---------- Widget dans la barre du haut : « Visiteur », ou le code de l’élève une fois connecté ---------- */
   function creerBouton(){
-    const ref=$('#bSet')&&$('#bSet').closest('.menuwrap');
+    const logo=document.querySelector('.topbar .brand');
     bouton=document.createElement('button');
     bouton.className='tbres';bouton.type='button';bouton.id='bCentrale';
     bouton.onclick=()=>{
@@ -3934,7 +3934,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       }
       ouvrirFenetre();
     };
-    if(ref)ref.parentNode.insertBefore(bouton,ref);else document.querySelector('.topbar').appendChild(bouton);
+    if(logo)logo.after(bouton);else document.querySelector('.topbar').prepend(bouton);
     majBouton();
   }
   function majBouton(){
