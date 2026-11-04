@@ -3869,8 +3869,6 @@ function docInit(){
   const id=docCourant();if(id&&!docsLire().some(d=>d.id===id))docFixer(null);
   if(!S.exo&&!docCourant())docCreer('Nouveau document');
 }
-/* Le document ouvert par l’élève depuis Mes documents (et non le document créé automatiquement). */
-function docOuvertEst(){try{const id=docCourant();return !!id&&localStorage.getItem('netsim-doc-ouvert')===id;}catch(_){return false;}}
 /* Atelier le plus proche du niveau choisi (classe et niveau), parmi ceux qui sont ouverts et non terminés. */
 function atelierPlusProche(c,niv){
   const ord=parcoursOrdre(),rang=(cc,n)=>CLASSES_PARC.findIndex(([k])=>k===cc)*3+n,cible=rang(c,niv);
@@ -3879,7 +3877,6 @@ function atelierPlusProche(c,niv){
   return candidats.reduce((b,o)=>Math.abs(o.r-cible)<Math.abs(b.r-cible)?o:b).x;
 }
 function docOuvrir(id){
-  localStorage.setItem('netsim-doc-ouvert',id);
   const d=docsLire().find(x=>x.id===id);if(!d)return;
   setMode('design');snap();S=JSON.parse(JSON.stringify(d.schema));docFixer(d.id);
   sel=null;$('#helpChk').checked=S.help!==false;syncLevel();render();renderProps();save();fitView();closeParc();
@@ -4015,8 +4012,8 @@ $('#accueil').addEventListener('click',e=>{
     const niv=+n.dataset.niv;
     $('#accueil').hidden=true;
     S.level=niv;PREF.classe=classeAccueil;PREF.niv=niv;savePref();save();syncLevel();render();renderProps();
-    /* Atelier en cours, ou document ouvert depuis Mes documents : on passe à l’atelier le plus proche du niveau choisi. */
-    if(!accueilRetour&&(S.exo||docOuvertEst())){
+    /* Depuis la création comme depuis un atelier : on passe à l’atelier le plus proche du niveau choisi (le menu reste ouvert). */
+    if(!accueilRetour){
       const x=atelierPlusProche(classeAccueil,niv),cur=S.exo?tpsParc().find(t=>t.exos.some(e=>e.k===S.exo.k)):null;
       if(x&&!(cur&&cur.exos.includes(x))){if(S.exo)docCreer(S.exo.t||'Atelier');loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);return;}
     }
