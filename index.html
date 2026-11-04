@@ -1457,7 +1457,7 @@ function devIpLabel(d){
 }
 function renderDevices(){
   gDevices.innerHTML=S.devices.map(d=>{
-    const isSel=sel&&sel.kind==='dev'&&sel.id===d.id,pend=pendingCable===d.id;
+    const isSel=(sel&&sel.kind==='dev'&&sel.id===d.id)||groupe.has(d.id),pend=pendingCable===d.id;
     const issues=(mode==='design'&&S.help)?diag(d):[];
     const ipl=devIpLabel(d);
     const srv=(d.web&&d.web.on)||(d.sensor&&d.sensor.on);
@@ -1509,7 +1509,7 @@ ${mode==='design'?`<g class="zrs" data-zone-resize="${z.id}"><rect x="${rx-24}" 
    Interactions sur le canevas
    ============================================================ */
 const HINTS={
-  select:'<b>Sélection</b> · glisse un appareil pour le déplacer, clique dessus pour le configurer, glisse le fond pour te déplacer',
+  select:'<b>Sélection</b> · glisse un appareil pour le déplacer, clique dessus pour le configurer, glisse le fond pour te déplacer · <b>Maj</b> + clic pour cumuler, <b>Ctrl</b> + glisser sur le fond pour un rectangle',
   cable:'<b>Câble</b> · clique sur un appareil puis sur un autre pour les relier',
   zone:'<b>Salle</b> · dessine un rectangle sur le fond pour regrouper une salle ou un sous-réseau',
   erase:'<b>Gomme</b> · clique sur un appareil, un câble ou une salle pour le supprimer',
@@ -1522,10 +1522,11 @@ try{Object.assign(PREF,JSON.parse(localStorage.getItem('netsim-prefs')||localSto
 function savePref(){try{localStorage.setItem('netsim-prefs',JSON.stringify(PREF));}catch(_){}}
 const snapv=v=>PREF.snap?Math.round(v/8)*8:Math.round(v);
 let drag=null;
+let groupe=new Set();   // appareils cumulés (Maj+clic) ou choisis au rectangle (Ctrl+glisser)
 function hitOf(t){return {dev:t.closest('[data-dev]'),cab:t.closest('[data-cable]'),grab:t.closest('[data-zone-grab]'),rs:t.closest('[data-zone-resize]'),pkt:t.closest('[data-pkt]'),zone:t.closest('[data-zone]')};}
 svg.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'&&e.button!==0)return;
-  drag={id:e.pointerId,sx:e.clientX,sy:e.clientY,w0:toWorld(e),hit:hitOf(e.target),moved:false,kind:null,vx:view.x,vy:view.y};
+  drag={id:e.pointerId,sx:e.clientX,sy:e.clientY,w0:toWorld(e),hit:hitOf(e.target),moved:false,kind:null,vx:view.x,vy:view.y,shift:e.shiftKey,ctrl:e.ctrlKey||e.metaKey};
   try{svg.setPointerCapture(e.pointerId);}catch(_){}
 });
 svg.addEventListener('pointermove',e=>{
@@ -1545,9 +1546,10 @@ function startDrag(dr){
   if(mode==='sim'){dr.kind='pan';return;}
   if(tool==='select'){
     if(h.rs){snap();dr.kind='resize';dr.z=Z(+h.rs.dataset.zoneResize);dr.z0={w:dr.z.w,h:dr.z.h};}
-    else if(h.dev){snap();dr.kind='move';dr.d=D(+h.dev.dataset.dev);dr.d0={x:dr.d.x,y:dr.d.y};sel={kind:'dev',id:dr.d.id};renderProps();}
+    else if(h.dev&&groupe.size>1&&groupe.has(+h.dev.dataset.dev)){snap();dr.kind='gmove';dr.g=[...groupe].map(i=>D(i)).filter(Boolean).map(d=>({d,x:d.x,y:d.y}));}
+    else if(h.dev){snap();dr.kind='move';dr.d=D(+h.dev.dataset.dev);dr.d0={x:dr.d.x,y:dr.d.y};groupe=new Set();sel={kind:'dev',id:dr.d.id};renderProps();}
     else if(h.grab){snap();dr.kind='zmove';dr.z=Z(+h.grab.dataset.zoneGrab);dr.z0={x:dr.z.x,y:dr.z.y};dr.inside=S.devices.filter(d=>inZone(dr.z,d)).map(d=>({d,x:d.x,y:d.y}));sel={kind:'zone',id:dr.z.id};renderProps();}
-    else dr.kind='pan';
+    else dr.kind=dr.ctrl?'lasso':'pan';
   }else if(tool==='cable'){if(h.dev){dr.kind='rubber';dr.d=D(+h.dev.dataset.dev);}else dr.kind='pan';}
   else if(tool==='zone'){dr.kind=(!h.dev&&!h.grab)?'zdraw':'pan';}
   else dr.kind='pan';
@@ -1557,6 +1559,8 @@ function moveDrag(dr,e,w){
   switch(dr.kind){
     case 'pan':view.x=dr.vx+(e.clientX-dr.sx);view.y=dr.vy+(e.clientY-dr.sy);applyView();break;
     case 'move':dr.d.x=snapv(dr.d0.x+dx);dr.d.y=snapv(dr.d0.y+dy);render();break;
+    case 'gmove':dr.g.forEach(o=>{o.d.x=snapv(o.x+dx);o.d.y=snapv(o.y+dy);});render();break;
+    case 'lasso':{const x=Math.min(dr.w0.x,w.x),y=Math.min(dr.w0.y,w.y);gTemp.innerHTML=`<rect x="${x}" y="${y}" width="${Math.abs(dx)}" height="${Math.abs(dy)}" fill="rgba(60,110,200,.12)" stroke="#3c6ec8" stroke-width="1.5" stroke-dasharray="6 4"/>`;break;}
     case 'zmove':{dr.z.x=snapv(dr.z0.x+dx);dr.z.y=snapv(dr.z0.y+dy);const ax=dr.z.x-dr.z0.x,ay=dr.z.y-dr.z0.y;dr.inside.forEach(o=>{o.d.x=o.x+ax;o.d.y=o.y+ay;});render();break;}
     case 'resize':dr.z.w=Math.max(140,snapv(dr.z0.w+dx));dr.z.h=Math.max(110,snapv(dr.z0.h+dy));render();break;
     case 'rubber':drawRubber(dr.d,w);break;
@@ -1581,7 +1585,16 @@ function endDrag(dr,e,w){
     const inp=$('#props [data-f="name"]');if(inp){inp.focus();inp.select();}
     return;
   }
-  if(dr.kind==='move'||dr.kind==='zmove'||dr.kind==='resize'){render();renderProps();save();}
+  if(dr.kind==='lasso'){
+    gTemp.innerHTML='';
+    const x0=Math.min(dr.w0.x,w.x),x1=Math.max(dr.w0.x,w.x),y0=Math.min(dr.w0.y,w.y),y1=Math.max(dr.w0.y,w.y);
+    const dedans=S.devices.filter(d=>d.x>=x0&&d.x<=x1&&d.y>=y0&&d.y<=y1).map(d=>d.id);
+    groupe=new Set(dr.shift?[...groupe,...dedans]:dedans);
+    sel=null;render();renderProps();
+    if(groupe.size)toast(`${groupe.size} appareil${groupe.size>1?'s':''} sélectionné${groupe.size>1?'s':''} : glisse-les ensemble.`);
+    return;
+  }
+  if(dr.kind==='move'||dr.kind==='zmove'||dr.kind==='resize'||dr.kind==='gmove'){render();renderProps();save();}
 }
 function clickAt(dr){
   const h=dr.hit;
@@ -1591,10 +1604,11 @@ function clickAt(dr){
     return;
   }
   if(tool==='select'){
-    if(h.dev)sel={kind:'dev',id:+h.dev.dataset.dev};
-    else if(h.cab)sel={kind:'cable',id:+h.cab.dataset.cable};
-    else if(h.grab)sel={kind:'zone',id:+h.grab.dataset.zoneGrab};
-    else sel=null;
+    if(h.dev&&dr.shift){const i=+h.dev.dataset.dev;if(sel&&sel.kind==='dev')groupe.add(sel.id);groupe.has(i)?groupe.delete(i):groupe.add(i);sel=null;}
+    else if(h.dev){groupe=new Set();sel={kind:'dev',id:+h.dev.dataset.dev};}
+    else if(h.cab){groupe=new Set();sel={kind:'cable',id:+h.cab.dataset.cable};}
+    else if(h.grab){groupe=new Set();sel={kind:'zone',id:+h.grab.dataset.zoneGrab};}
+    else{groupe=new Set();sel=null;}
     render();renderProps();
   }else if(tool==='cable'){
     gTemp.innerHTML='';
@@ -2855,8 +2869,9 @@ document.addEventListener('keydown',e=>{
   if(typing)return;
   if(e.key==='f'||e.key==='F'){if(!(e.ctrlKey||e.metaKey||e.altKey)){e.preventDefault();repartirFenetres();}return;}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return;}
+  if(mode==='design'&&(e.key==='Delete'||e.key==='Backspace')&&!sel&&groupe.size){e.preventDefault();snap();const ids=[...groupe];S.cables=S.cables.filter(c=>!ids.includes(c.a.d)&&!ids.includes(c.b.d));S.devices=S.devices.filter(d=>!ids.includes(d.id));groupe=new Set();afterEdit();return;}
   if(mode==='design'&&(e.key==='Delete'||e.key==='Backspace')&&sel){e.preventDefault();const o=selObj();if(!o)return;if(sel.kind==='dev')delDevice(o);else if(sel.kind==='zone')delZone(o);else delCable(o);}
-  if(e.key==='Escape'){closeMenus();pendingCable=null;gTemp.innerHTML='';sel=null;render();renderProps();}
+  if(e.key==='Escape'){closeMenus();pendingCable=null;gTemp.innerHTML='';sel=null;groupe=new Set();render();renderProps();}
   if(mode==='sim'&&e.key===' '){e.preventDefault();sim.paused=!sim.paused;updPause();}
 });
 
