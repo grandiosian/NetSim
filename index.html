@@ -895,6 +895,12 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .tbres .tpnom{font-weight:700;overflow:hidden;text-overflow:ellipsis}
 .tbres .tbpct{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);flex:none}
 .tbres .nvb{flex:none}
+.docsec{margin:0 0 14px}
+.docrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.docrow.on{border-color:var(--accent)}
+.docnom{display:flex;flex-direction:column;min-width:0}
+.docbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.doclist{margin-top:4px}
 .topbar{position:relative;z-index:88}
 /* Liste des ateliers dans la fiche d’un TP : chaque atelier se déplie pour montrer ses étapes. */
 .flist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -1352,7 +1358,7 @@ function afterEdit(){render();renderProps();save();}
 function snap(){HIST.push(JSON.stringify(S));if(HIST.length>60)HIST.shift();}
 function undo(){if(mode!=='design')return;if(!HIST.length){toast('Rien à annuler.');return;}S=JSON.parse(HIST.pop());sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;syncLevel();afterEdit();}
 let saveT=0;
-function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}if(window.centraleTravail)window.centraleTravail();},300);}
+function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}docSauverCourant();if(window.centraleTravail)window.centraleTravail();},300);}
 function save(){persist();if(typeof checkSoon==='function')checkSoon();if(!S.exo&&typeof renderExo==='function')renderExo();}
 
 function ipsOf(d){if(d.type==='router')return d.ifs.map(f=>ip2n(f.ip)).filter(v=>v!==null);if(TYPES[d.type].host){const v=ip2n(d.ip);return v===null?[]:[v];}return [];}
@@ -2687,6 +2693,7 @@ function majBarreNiveau(){
 /* Résumé central : TP en cours, code, nom, niveau et avancement. */
 function majResume(){
   const b=$('#bResume');if(!b)return;
+  if(!S.exo){const d=docCourantObj();b.className='tbres';b.innerHTML=`<span class="tpnom">${esc(d?d.nom:'Nouveau document')}</span>`;b.onclick=basculerParc;return;}
   const tous=tpsParc();
   const t=S.exo?tous.find(u=>u.exos.some(e=>e.k===S.exo.k)):tous.find(u=>u.exos.some(x=>!exoFait(x)));
   if(!t){b.className='tbres';b.textContent='Choisis un atelier';return;}
@@ -3254,6 +3261,7 @@ function planNets(){const hs=planHosts();const nets=new Map();
   return new Set(nets.values()).size===nets.size&&nets.size===4;}
 function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
 function loadExo(x,niveau,ratt){
+  docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
   setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
@@ -3443,7 +3451,7 @@ $('#exo').addEventListener('change',e=>{const i=e.target.dataset.step;if(i==null
 $('#exo').addEventListener('click',e=>{
   const go=e.target.closest('[data-go-exo]');if(go){const d=EXOS.find(q=>q.k===go.dataset.goExo);if(d)loadExo(d);return;}
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
-  if(a==='exoclose'){snap();delete S.exo;renderExo();save();toast('Atelier quitté. Annuler (Ctrl + Z) pour y revenir.');openParc();}
+  if(a==='exoclose'){snap();const nomAtelier=S.exo&&S.exo.t;delete S.exo;docCreer(nomAtelier||'Nouveau document');renderExo();save();toast('Atelier quitté. Annuler (Ctrl + Z) pour y revenir.');openParc();}
   if(a==='next'&&S.exo){const d=exoDef(),st=d&&d.steps[S.exo.cur||0];if(st&&st.c)S.exo.saut=(S.exo.saut||0)+1;S.exo.cur=(S.exo.cur||0)+1;persist();markProg();renderExo(true);checkSoon();}
   if(a==='restart'){const d=exoDef();if(d)loadExo(d);else{S.exo.cur=0;S.exo.done=[];renderExo();save();}}
   if(a==='suivant'){const nx=atelierSuivant(exoDef());if(nx)loadExo(nx);else openParc();}
@@ -3528,6 +3536,7 @@ function buildExample(k){
   }else if(k==='deux'||k==='panne'){
     buildDeux(H(),k==='panne');S.level=Math.max(prevLv,1);if(k==='panne')S.help=false;
   }else if(k==='anneau'||k==='maille'){buildTopologie(k);S.level=Math.max(prevLv,1);}
+  docCreer(k==='vide'?'Nouveau document':(EXAMPLES.find(x=>x.k===k)||{t:'Nouveau document'}).t);
 }
 /* Quatre sites, chacun avec un routeur et un PC. Les routes statiques suivent le plus court chemin.
    routesDe : les routeurs qui reçoivent leurs routes (les autres sont laissés à l’élève). */
@@ -3809,9 +3818,56 @@ function parcoursHTML(){
 ${filtres}
 ${cartes}`;
 }
-function openParc(){closeMenus();$('#parcBody').innerHTML=parcoursHTML()+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
+function openParc(){closeMenus();$('#parcBody').innerHTML=docsHTML()+parcoursHTML()+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
 function closeParc(){$('#parc').hidden=true;}
+/* ---------- Mes documents : schémas libres, enregistrés automatiquement dans ce navigateur ---------- */
+const DOCS_CLE='netsim-docs',DOC_COURANT='netsim-doc-courant';
+function docsLire(){try{const l=JSON.parse(localStorage.getItem(DOCS_CLE)||'[]');return Array.isArray(l)?l:[];}catch(_){return [];}}
+function docsEcrire(l){try{localStorage.setItem(DOCS_CLE,JSON.stringify(l));}catch(_){}}
+function docCourant(){try{return localStorage.getItem(DOC_COURANT);}catch(_){return null;}}
+function docFixer(id){try{if(id)localStorage.setItem(DOC_COURANT,id);else localStorage.removeItem(DOC_COURANT);}catch(_){}}
+function docCourantObj(){const id=docCourant();return id?docsLire().find(d=>d.id===id)||null:null;}
+/* Un document naît du schéma libre en cours ; son nom reste unique dans la liste. */
+function docCreer(base){
+  const l=docsLire(),noms=l.map(d=>d.nom);let nom=base,n=2;while(noms.includes(nom))nom=`${base} ${n++}`;
+  const d={id:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nom,date:Date.now(),schema:JSON.parse(JSON.stringify(S))};
+  l.push(d);docsEcrire(l);docFixer(d.id);return d;
+}
+/* Le schéma libre est enregistré dans son document ; jamais pendant un atelier. */
+function docSauverCourant(){
+  const id=docCourant();if(!id||S.exo)return;
+  const l=docsLire(),d=l.find(x=>x.id===id);if(!d)return;
+  d.schema=JSON.parse(JSON.stringify(S));d.date=Date.now();docsEcrire(l);
+}
+function docInit(){
+  const id=docCourant();if(id&&!docsLire().some(d=>d.id===id))docFixer(null);
+  if(!S.exo&&!docCourant())docCreer('Nouveau document');
+}
+function docOuvrir(id){
+  const d=docsLire().find(x=>x.id===id);if(!d)return;
+  setMode('design');snap();S=JSON.parse(JSON.stringify(d.schema));docFixer(d.id);
+  sel=null;$('#helpChk').checked=S.help!==false;syncLevel();render();renderProps();save();fitView();closeParc();
+  toast(`Document « ${d.nom} » ouvert.`);
+}
+function docSupprimer(id){
+  const d=docsLire().find(x=>x.id===id);if(!d||!confirm(`Supprimer le document « ${d.nom} » ? Cette action est définitive.`))return;
+  docsEcrire(docsLire().filter(x=>x.id!==id));
+  if(docCourant()===id){docFixer(null);$('#bNew').onclick();closeParc();}else openParc();
+}
+function docAction(a,id){
+  if(a==='open')return docOuvrir(id);
+  if(a==='new'){$('#bNew').onclick();closeParc();return;}
+  if(a==='save'){docSauverCourant();openParc();toast('Document enregistré dans ce navigateur.');return;}
+  if(a==='del')return docSupprimer(id);
+}
+function docsHTML(){
+  const cur=docCourant(),date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><div class="docnom"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
+  const l=[...docsLire()].sort((a,b)=>b.date-a.date);
+  return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div><div class="docbtns" style="margin-top:8px"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button>${cur?'<button class="btn small" data-doc="save" type="button">Enregistrer maintenant</button>':''}</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div></section>`;
+}
 $('#parc').addEventListener('click',e=>{
+  const dc=e.target.closest('[data-doc]');if(dc){docAction(dc.dataset.doc,dc.dataset.id);return;}
   const pn=e.target.closest('[data-pn]');if(pn){PREF.pn=pn.dataset.pn;savePref();openParc();return;}
   const pf=e.target.closest('[data-pf]');if(pf){PREF.pf=pf.dataset.pf;savePref();openParc();return;}
   const o=e.target.closest('[data-tpopen]');if(o){$('#tpbody').innerHTML=PARC_DETAIL[o.dataset.tpopen]||'';$('#tpmodal').hidden=false;$('#tpbody').scrollTop=0;return;}
@@ -3863,6 +3919,7 @@ $('#accueil').addEventListener('click',e=>{
   try{const raw=localStorage.getItem(KEY)||localStorage.getItem('atelier-reseau-v2')||localStorage.getItem('atelier-reseau-v1');if(raw){const o=JSON.parse(raw);if(o&&Array.isArray(o.devices)&&Array.isArray(o.cables)){S=Object.assign(blank(),o);S.zones=S.zones||[];loaded=true;}}}catch(_){}
   if(!loaded){S=blank();S.level=0;}
   $('#helpChk').checked=S.help!==false;
+  docInit();
   applyPrefs();syncLevel();updPause();placeAll();setHint();render();renderProps();fillDevSelect();renderFrames();
   requestAnimationFrame(fitView);
   const premiere=!loaded&&!Object.keys(PROG).some(k=>k!=='__seen');
