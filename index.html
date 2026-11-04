@@ -1484,10 +1484,13 @@ function portTag(X,p,Y){
   const ax=dx/L,anc=ax>.5?'start':ax<-.5?'end':'middle',sx=anc==='start'?-w/2:anc==='end'?w/2:0;
   return `<g class="ptag" transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><rect x="${-w/2}" y="-9" width="${w}" height="18" rx="9"/><text y="4">${lab}</text>${sub?`<text class="psub" x="${sx}" y="22" style="text-anchor:${anc}">${esc(sub)}</text>`:''}</g>`;
 }
+/* Point de fixation d’un câble : le centre du trapèze, pas l’origine de l’appareil. */
+function ancre(d){return Object.assign({},d,{y:d.y+TUILE_DY});}
 function renderCables(){
   gCables.innerHTML=S.cables.map(c=>{
-    const A=D(c.a.d),B=D(c.b.d);if(!A||!B)return '';
-    const wifi=TYPES[A.type].wifi||TYPES[B.type].wifi,isSel=sel&&sel.kind==='cable'&&sel.id===c.id;
+    const A0=D(c.a.d),B0=D(c.b.d);if(!A0||!B0)return '';
+    const A=ancre(A0),B=ancre(B0);
+    const wifi=TYPES[A0.type].wifi||TYPES[B0.type].wifi,isSel=sel&&sel.kind==='cable'&&sel.id===c.id;
     const co=`x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"`;
     return `<g class="cab${wifi?' wifi':''}${isSel?' sel':''}" data-cable="${c.id}"><line class="hit" ${co}/><line class="wire" id="cab-${c.id}" ${co}/>${portTag(A,c.a.p,B)}${portTag(B,c.b.p,A)}</g>`;
   }).join('');
@@ -1527,6 +1530,15 @@ const ISO_X=55.4256/2,ISO_Y=16;
 const TUILE_DY=22;
 function snapDev(x,y){const p=snapIso(x,y+TUILE_DY);return {x:p.x,y:p.y-TUILE_DY};}
 /* Ateliers : tous les appareils sont posés sur la grille, même si l’accrochage est désactivé. */
+/* Une salle contient entièrement les appareils qui s’y trouvent, étiquettes comprises. */
+function ajusterSalles(){
+  S.zones.forEach(z=>{
+    const dedans=S.devices.filter(d=>inZone(z,d));if(!dedans.length)return;
+    const x0=Math.min(...dedans.map(d=>d.x-70))-16,x1=Math.max(...dedans.map(d=>d.x+70))+16,y0=Math.min(...dedans.map(d=>d.y-60))-16,y1=Math.max(...dedans.map(d=>d.y+110))+16;
+    const r=Math.max(z.x+z.w,x1),b=Math.max(z.y+z.h,y1);
+    z.x=Math.min(z.x,x0);z.y=Math.min(z.y,y0);z.w=r-z.x;z.h=b-z.y;
+  });
+}
 function surGrilleIso(x,y){const yc=y+TUILE_DY;let a=Math.round(x/ISO_X),b=Math.round(yc/ISO_Y);if(((a-b)%2+2)%2!==0)b+=(yc/ISO_Y>b?1:-1);return {x:a*ISO_X,y:b*ISO_Y-TUILE_DY};}
 function snapIso(x,y){
   if(!PREF.snap)return {x:Math.round(x),y:Math.round(y)};
@@ -1580,7 +1592,7 @@ function moveDrag(dr,e,w){
     case 'zdraw':{const x=Math.min(dr.w0.x,w.x),y=Math.min(dr.w0.y,w.y);gTemp.innerHTML=`<rect class="zdraft" x="${x}" y="${y}" width="${Math.abs(dx)}" height="${Math.abs(dy)}" rx="18"/>`;break;}
   }
 }
-function drawRubber(d,w){if(!d)return;gTemp.innerHTML=`<line class="rubber" x1="${d.x}" y1="${d.y}" x2="${w.x}" y2="${w.y}"/>`;}
+function drawRubber(d,w){if(!d)return;gTemp.innerHTML=`<line class="rubber" x1="${d.x}" y1="${d.y+TUILE_DY}" x2="${w.x}" y2="${w.y}"/>`;}
 function endDrag(dr,e,w){
   if(dr.kind==='rubber'){
     gTemp.innerHTML='';
@@ -3319,7 +3331,7 @@ function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});ajusterSalles();S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
