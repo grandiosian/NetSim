@@ -1530,6 +1530,22 @@ const ISO_X=55.4256/2,ISO_Y=16;
 const TUILE_DY=22;
 function snapDev(x,y){const p=snapIso(x,y+TUILE_DY);return {x:p.x,y:p.y-TUILE_DY};}
 /* Ateliers : tous les appareils sont posés sur la grille, même si l’accrochage est désactivé. */
+/* Alignement des appareils d’un atelier : ceux qui sont presque sur une même rangée (ou colonne) de la grille partagent exactement leur position. */
+function alignerAppareils(){
+  const ds=S.devices;if(ds.length<2)return;
+  const L=ds.map(d=>({d,a:Math.round(d.x/ISO_X),b:Math.round((d.y+TUILE_DY)/ISO_Y)}));
+  const regrouper=cle=>{
+    const vals=[...new Set(L.map(o=>o[cle]))].sort((p,q)=>p-q),groupes=[];
+    vals.forEach(v=>{const g=groupes[groupes.length-1];if(g&&v-g[g.length-1]<=1)g.push(v);else groupes.push([v]);});
+    const rep={};
+    groupes.forEach(g=>{const m=Math.round(L.filter(o=>g.includes(o[cle])).reduce((t,o)=>t+o[cle],0)/L.filter(o=>g.includes(o[cle])).length);g.forEach(v=>rep[v]=m);});
+    return rep;
+  };
+  const rb=regrouper('b');L.forEach(o=>o.b=rb[o.b]);
+  const ra=regrouper('a');L.forEach(o=>o.a=ra[o.a]);
+  L.forEach(o=>{if(((o.a-o.b)%2+2)%2!==0)o.a+=(o.d.x/ISO_X>o.a?1:-1);});
+  L.forEach(o=>{o.d.x=o.a*ISO_X;o.d.y=o.b*ISO_Y-TUILE_DY;});
+}
 /* Une salle contient entièrement les appareils qui s’y trouvent, étiquettes comprises. */
 function ajusterSalles(){
   S.zones.forEach(z=>{
@@ -3331,7 +3347,7 @@ function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});ajusterSalles();S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();ajusterSalles();S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
