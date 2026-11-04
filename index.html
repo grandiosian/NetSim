@@ -3797,7 +3797,10 @@ function parcoursHTML(){
     return `<li><button class="tpxb ${et}" data-parc="${x.k}" type="button"${et==='verrou'?' disabled':''}><span class="ico" aria-hidden="true">${ico}</span><span class="txt"><span>${esc(x.t)}</span><small>${info}</small></span></button></li>`;
   }).join('');
   const DETAIL={};
-  const PF=PREF.pf||'all';
+  /* Classes accessibles : la classe en cours et les précédentes. Une nouvelle classe s’ouvre quand la précédente est terminée. */
+  const ordreC=CLASSES_PARC.map(([c])=>c),classeC=suivant?suivant.c:ordreC[ordreC.length-1];
+  const accessibles=ordreC.slice(0,ordreC.indexOf(classeC)+1);
+  const PF=accessibles.length>1&&accessibles.includes(PREF.pf)?PREF.pf:'all';
   const PN=PREF.pn||'all';
   let rang=0;
   const cartes=CLASSES_PARC.map(([c])=>[0,1,2].map(niv=>{
@@ -3818,7 +3821,7 @@ function parcoursHTML(){
   const widget=`<div class="widget"><div class="wtop"><div class="wtitre">Tu en es là</div><div class="wetat"><div class="wrecap">${CLASSES_PARC.map(([c])=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="wrc">${pas(c)}<b>${xs.filter(exoFait).length}/${xs.length}</b></span>`;}).join('')}<span class="wtot">${fait}/${ord.length}</span></div><div class="gbar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div>
 <div class="wrow"><div class="wsuite${suivant?' k'+suivant.c[0]:''}">${suivant?`<div class="wsinfo"><div class="wligne">${tpS?`<span class="wbig">${tpS.c[0]}</span>`:''}<span class="tpcn">${codeS}</span><b>${esc(suivant.t)}</b></div><span class="wenonce">${tpS?esc(tpS.desc):''}</span><div class="wtp"><div class="wprog"><i style="width:${nS?Math.round(fS/nS*100):0}%"></i></div><span class="tpcp">${fS}/${nS}</span></div></div><button class="btn primary wgo k${suivant.c[0]}" data-parc="${suivant.k}" type="button">Continuer</button>`:'<b>Tous les ateliers sont terminés. Bravo !</b>'}</div></div></div>`;
   PARC_DETAIL=DETAIL;
-  const filtres=`<div class="pfbarres"><div class="pfiltres" role="group" aria-label="Filtrer par classe">${[['all','Tout'],['5e','5'],['4e','4'],['3e','3']].map(([v,l])=>`<button type="button" class="pf${PF===v?' on':''}" data-pf="${v}" aria-pressed="${PF===v}" aria-label="${v==='all'?'Toutes les classes':'Classe '+l+'ᵉ'}"><span class="pfc ${v==='all'?'pall':'p'+l}">${l}</span></button>`).join('')}</div>
+  const filtres=`<div class="pfbarres">${accessibles.length>1?`<div class="pfiltres" role="group" aria-label="Filtrer par classe">${[['all','Tout'],...accessibles.map(c=>[c,c[0]])].map(([v,l])=>`<button type="button" class="pf${PF===v?' on':''}" data-pf="${v}" aria-pressed="${PF===v}" aria-label="${v==='all'?'Toutes les classes':'Classe '+l+'ᵉ'}"><span class="pfc ${v==='all'?'pall':'p'+l}">${l}</span></button>`).join('')}</div>`:''}
 <div class="pniv${PF!=='all'?' k'+PF[0]:''}" role="group" aria-label="Filtrer par niveau">${[['all','Tous niveaux'],['0','Débutant'],['1','Intermédiaire'],['2','Avancé']].map(([v,l])=>`<button type="button" class="pn${PN===v?' on':''}" data-pn="${v}" aria-pressed="${PN===v}">${v==='all'?'':barres(+v)}${l}</button>`).join('')}</div></div>`;
   return `${widget}
 ${filtres}
