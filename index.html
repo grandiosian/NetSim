@@ -1546,6 +1546,27 @@ function alignerAppareils(){
   L.forEach(o=>{if(((o.a-o.b)%2+2)%2!==0)o.a+=(o.d.x/ISO_X>o.a?1:-1);});
   L.forEach(o=>{o.d.x=o.a*ISO_X;o.d.y=o.b*ISO_Y-TUILE_DY;});
 }
+/* Symétrie : les appareils reliés seulement à un switch ou un routeur se rangent deux à deux de part et d’autre, en miroir.
+   Les décalages restent des multiples de la grille, donc les positions restent sur les nœuds. */
+const PAIRES_SYM=[[-1,0],[1,0],[-1,1],[1,1],[-1,-1],[1,-1]];
+function symetriserAutourDesConcentrateurs(){
+  const ds=S.devices;
+  const voisins=d=>S.cables.filter(c=>c.a.d===d.id||c.b.d===d.id).map(c=>ds.find(x=>x.id===(c.a.d===d.id?c.b.d:c.a.d))).filter(Boolean);
+  const concentrateurs=ds.filter(d=>d.type==='switch'||d.type==='router');
+  concentrateurs.forEach(h=>{
+    const feuilles=voisins(h).filter(v=>!concentrateurs.includes(v)&&voisins(v).length===1);
+    if(feuilles.length<2||feuilles.length>PAIRES_SYM.length+1)return;
+    const cibles=feuilles.length%2===0?PAIRES_SYM.slice(0,feuilles.length):[[0,1],...PAIRES_SYM].slice(0,feuilles.length);
+    const pos=cibles.map(([u,v])=>({x:h.x+u*4*ISO_X,y:h.y+v*4*ISO_Y}));
+    const libre=pos.every(p=>!ds.some(o=>!feuilles.includes(o)&&o!==h&&Math.abs(o.x-p.x)<100&&Math.abs(o.y-p.y)<50));
+    if(!libre)return;
+    const anciens=feuilles.map(f=>({f,x:f.x,y:f.y}));
+    feuilles.forEach((f,i)=>{f.x=pos[i].x;f.y=pos[i].y;});
+    // un appareil déplacé ne doit chevaucher ni un autre appareil ni un autre décalage
+    const ok=feuilles.every(f=>!ds.some(o=>o!==f&&Math.abs(o.x-f.x)<100&&Math.abs(o.y-f.y)<50));
+    if(!ok)anciens.forEach(({f,x,y})=>{f.x=x;f.y=y;});
+  });
+}
 /* Une salle contient entièrement les appareils qui s’y trouvent, étiquettes comprises. */
 function ajusterSalles(){
   S.zones.forEach(z=>{
@@ -3347,7 +3368,7 @@ function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();ajusterSalles();S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();ajusterSalles();S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
