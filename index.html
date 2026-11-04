@@ -3786,7 +3786,10 @@ ${bouton}</div>`;
 let PARC_DETAIL={};
 function parcoursHTML(){
   const ord=parcoursOrdre(),fait=ord.filter(exoFait).length,suivant=ord.find(x=>exoEtat(x,ord)==='prochain');
-  const tps=tpsParc();
+  /* Classes accessibles : la classe en cours et les précédentes. Une nouvelle classe s’ouvre quand la précédente est terminée. */
+  const ordreC=CLASSES_PARC.map(([c])=>c),classeC=suivant?suivant.c:ordreC[ordreC.length-1];
+  const accessibles=ordreC.slice(0,ordreC.indexOf(classeC)+1);
+  const tps=tpsParc().filter(t=>accessibles.includes(t.c));
   const chemin=tps.map((t,i)=>{const e=tpEtat(t,ord);
     return `<button class="cnode ${e}" data-tpopen="${tpId(t)}" type="button"><span class="cdot">${e==='fini'?'✓':e==='verrou'?'🔒':i+1}</span><span class="clab">${TP_LABEL[t.k].replace('-','<br>')}</span></button>`;
   }).join('');
@@ -3797,13 +3800,10 @@ function parcoursHTML(){
     return `<li><button class="tpxb ${et}" data-parc="${x.k}" type="button"${et==='verrou'?' disabled':''}><span class="ico" aria-hidden="true">${ico}</span><span class="txt"><span>${esc(x.t)}</span><small>${info}</small></span></button></li>`;
   }).join('');
   const DETAIL={};
-  /* Classes accessibles : la classe en cours et les précédentes. Une nouvelle classe s’ouvre quand la précédente est terminée. */
-  const ordreC=CLASSES_PARC.map(([c])=>c),classeC=suivant?suivant.c:ordreC[ordreC.length-1];
-  const accessibles=ordreC.slice(0,ordreC.indexOf(classeC)+1);
   const PF=accessibles.length>1&&accessibles.includes(PREF.pf)?PREF.pf:'all';
   const PN=PREF.pn||'all';
   let rang=0;
-  const cartes=CLASSES_PARC.map(([c])=>[0,1,2].map(niv=>{
+  const cartes=CLASSES_PARC.filter(([c])=>accessibles.includes(c)).map(([c])=>[0,1,2].map(niv=>{
     const blocs=tps.filter(t=>t.c===c&&t.niv===niv).map((t,i)=>{
       const code=`${c[0]}-${niv+1}-${i+1}`;
       rang++;const e=tpEtat(t,ord),f=t.exos.filter(exoFait).length,pct=Math.round(f/t.exos.length*100);
@@ -3818,7 +3818,7 @@ function parcoursHTML(){
   const tpS=suivant?tousTP.find(t=>t.exos.includes(suivant)):null;
   const codeS=tpS?`${tpS.c[0]}-${tpS.niv+1}-${tousTP.filter(u=>u.c===tpS.c&&u.niv===tpS.niv).indexOf(tpS)+1}`:'';
   const fS=tpS?tpS.exos.filter(exoFait).length:0, nS=tpS?tpS.exos.length:0;
-  const widget=`<div class="widget"><div class="wtop"><div class="wtitre">Tu en es là</div><div class="wetat"><div class="wrecap">${CLASSES_PARC.map(([c])=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="wrc">${pas(c)}<b>${xs.filter(exoFait).length}/${xs.length}</b></span>`;}).join('')}<span class="wtot">${fait}/${ord.length}</span></div><div class="gbar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div>
+  const widget=`<div class="widget"><div class="wtop"><div class="wtitre">Tu en es là</div><div class="wetat"><div class="wrecap">${CLASSES_PARC.filter(([c])=>accessibles.includes(c)).map(([c])=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="wrc">${pas(c)}<b>${xs.filter(exoFait).length}/${xs.length}</b></span>`;}).join('')}<span class="wtot">${fait}/${ord.length}</span></div><div class="gbar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div>
 <div class="wrow"><div class="wsuite${suivant?' k'+suivant.c[0]:''}">${suivant?`<div class="wsinfo"><div class="wligne">${tpS?`<span class="wbig">${tpS.c[0]}</span>`:''}<span class="tpcn">${codeS}</span><b>${esc(suivant.t)}</b></div><span class="wenonce">${tpS?esc(tpS.desc):''}</span><div class="wtp"><div class="wprog"><i style="width:${nS?Math.round(fS/nS*100):0}%"></i></div><span class="tpcp">${fS}/${nS}</span></div></div><button class="btn primary wgo k${suivant.c[0]}" data-parc="${suivant.k}" type="button">Continuer</button>`:'<b>Tous les ateliers sont terminés. Bravo !</b>'}</div></div></div>`;
   PARC_DETAIL=DETAIL;
   const filtres=`<div class="pfbarres">${accessibles.length>1?`<div class="pfiltres" role="group" aria-label="Filtrer par classe">${[['all','Tout'],...accessibles.map(c=>[c,c[0]])].map(([v,l])=>`<button type="button" class="pf${PF===v?' on':''}" data-pf="${v}" aria-pressed="${PF===v}" aria-label="${v==='all'?'Toutes les classes':'Classe '+l+'ᵉ'}"><span class="pfc ${v==='all'?'pall':'p'+l}">${l}</span></button>`).join('')}</div>`:''}
