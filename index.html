@@ -3860,12 +3860,20 @@ function docOuvrir(id){
   sel=null;$('#helpChk').checked=S.help!==false;syncLevel();render();renderProps();save();fitView();closeParc();
   toast(`Document « ${d.nom} » ouvert.`);
 }
-function docRenommer(id){
-  const l=docsLire(),d=l.find(x=>x.id===id);if(!d)return;
-  const v=prompt('Nouveau nom du document :',d.nom);if(v==null)return;
-  const nom=v.trim();if(!nom)return;
-  if(l.some(x=>x.id!==id&&x.nom===nom)){toast('Un document porte déjà ce nom.');return;}
-  d.nom=nom;docsEcrire(l);if(docCourant()===id)majResume();docsRafraichir();
+/* Renommage sur place : le nom devient un champ ; Entrée ou clic ailleurs valide, Échap annule. */
+function docEditerNom(n){
+  const d=docsLire().find(x=>x.id===n.dataset.id);if(!d)return;
+  n.innerHTML=`<input class="docinp" data-id="${d.id}" value="${esc(d.nom)}" aria-label="Nom du document">`;
+  const i=n.querySelector('input');i.focus();i.select();
+}
+function docValiderNom(i){
+  if(i.dataset.fin)return;i.dataset.fin='1';
+  const id=i.dataset.id,nom=i.value.trim(),l=docsLire(),d=l.find(x=>x.id===id);
+  if(d&&nom&&nom!==d.nom){
+    if(l.some(x=>x.id!==id&&x.nom===nom))toast('Un document porte déjà ce nom.');
+    else{d.nom=nom;docsEcrire(l);if(docCourant()===id)majResume();}
+  }
+  docsRafraichir();
 }
 function docNomFichier(nom){
   const base=nom.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9_.-]+/g,'-').replace(/^-+|-+$/g,'');
@@ -3918,9 +3926,8 @@ function docsRafraichir(){
 }
 function docAction(a,id,el){
   if(a==='open')return docOuvrir(id);
-  if(a==='new'){$('#bNew').onclick();closeParc();return;}
+  if(a==='new'){$('#bNew').onclick();docsRafraichir();return;}
   if(a==='save'){docSauverCourant();docsRafraichir();toast('Document enregistré dans ce navigateur.');return;}
-  if(a==='rename')return docRenommer(id);
   if(a==='exp')return docExporter([id]);
   if(a==='del')return docSupprimer([id]);
   if(a==='sel'){el.checked?docChoix.add(id):docChoix.delete(id);return docsRafraichir();}
@@ -3933,13 +3940,19 @@ function docsHTML(){
   const cur=docCourant(),l=[...docsLire()].sort((a,b)=>b.date-a.date);
   docChoix=new Set([...docChoix].filter(id=>l.some(d=>d.id===id)));
   const n=docChoix.size,date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom" data-id="${d.id}" title="Double-clic pour renommer"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="rename" data-id="${d.id}" type="button">Renommer</button><button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
+  const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom" data-id="${d.id}" title="Double-clic pour renommer"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
   return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div>`
     +`<div class="docbar"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button><button class="btn small" data-doc="import" type="button">Importer…</button>${cur?'<button class="btn small" data-doc="save" type="button">Enregistrer maintenant</button>':''}`
     +(l.length?`<span class="docsep"></span><label class="doccase docall"><input type="checkbox" data-doc="selAll" aria-label="Tout sélectionner"${n&&n===l.length?' checked':''}></label><span class="small muted">${n?n+' sélectionné'+(n>1?'s':''):'Sélection'}</span>${n?`<button class="btn small" data-doc="exporterSel" type="button">Exporter la sélection</button><button class="btn small danger" data-doc="supprimerSel" type="button">Supprimer la sélection</button>`:''}`:'')
     +`</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div><input type="file" id="docFichier" accept=".json,application/json" hidden></section>`;
 }
-$('#parc').addEventListener('dblclick',e=>{const n=e.target.closest('.docnom');if(n)docRenommer(n.dataset.id);});
+$('#parc').addEventListener('dblclick',e=>{const n=e.target.closest('.docnom');if(n&&!n.querySelector('input'))docEditerNom(n);});
+$('#parc').addEventListener('keydown',e=>{
+  const i=e.target;if(!i.classList||!i.classList.contains('docinp'))return;
+  if(e.key==='Enter'){e.preventDefault();docValiderNom(i);}
+  else if(e.key==='Escape'){i.dataset.fin='1';docsRafraichir();}
+});
+$('#parc').addEventListener('focusout',e=>{if(e.target.classList&&e.target.classList.contains('docinp'))docValiderNom(e.target);});
 $('#parc').addEventListener('change',e=>{if(e.target.id==='docFichier'&&e.target.files[0]){docImporter(e.target.files[0]);e.target.value='';}});
 $('#parc').addEventListener('click',e=>{
   const dc=e.target.closest('[data-doc]');if(dc){docAction(dc.dataset.doc,dc.dataset.id,dc);return;}
