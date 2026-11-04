@@ -276,6 +276,8 @@ button{cursor:pointer}
 .hint{display:none!important}
 .props.empty{display:none}
 #app[data-lv="0"] .lv1,#app[data-lv="0"] .lv2,#app[data-lv="1"] .lv2{display:none!important}
+/* Un atelier qui parle des trames affiche le panneau, quel que soit le niveau. */
+#app.trames-requises[data-lv="0"] #frames.lv1{display:block!important}
 #app[data-lv="0"] .wbtn[data-act="frames"]{display:none}
 .simctl{display:none;align-items:center;gap:10px;flex-wrap:wrap}
 .app.sim .simctl{display:flex}
@@ -3534,10 +3536,12 @@ function planNets(){const hs=planHosts();const nets=new Map();
     if(nets.has(z.id)&&nets.get(z.id)!==n)return false;nets.set(z.id,n);}
   return new Set(nets.values()).size===nets.size&&nets.size===4;}
 function exoDef(){return S.exo&&EXOS.find(e=>e.k===S.exo.k);}
+/* Panneau Trames affiché pendant l’atelier quand une étape le demande, même au niveau Débutant. */
+function tramesRequises(x){return x.steps.some(s=>/trame|Trame/.test((s.t||'')+' '+(s.h||'')));}
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles();S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:x.niv;x.build(H());$('#app').classList.toggle('trames-requises',tramesRequises(x));S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles();S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
