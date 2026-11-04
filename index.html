@@ -902,6 +902,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .docnom{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;cursor:text}
 .docbtns{margin-left:auto}
 .docbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+/* Dans une ligne de document, Ouvrir, Exporter et Supprimer sont empilés à droite. */
+.docrow .docbtns{flex-direction:column;align-items:stretch;flex:none;width:116px;margin-left:auto}
+.docrow .docbtns .btn{justify-content:center}
 .doclist{margin-top:4px}
 /* Menu des ateliers : Mes documents à gauche et Mes ateliers à droite quand la fenêtre est assez large. */
 .parcgrille{display:block}
@@ -3949,7 +3952,6 @@ function docsRafraichir(){
 function docAction(a,id,el){
   if(a==='open')return docOuvrir(id);
   if(a==='new'){$('#bNew').onclick();docsRafraichir();return;}
-  if(a==='save'){docSauverCourant();docsRafraichir();toast('Document enregistré dans ce navigateur.');return;}
   if(a==='exp')return docExporter([id]);
   if(a==='del')return docSupprimer([id]);
   if(a==='sel'){el.checked?docChoix.add(id):docChoix.delete(id);return docsRafraichir();}
@@ -3964,7 +3966,7 @@ function docsHTML(){
   const n=docChoix.size,date=t=>new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const ligne=d=>`<div class="docrow${d.id===cur?' on':''}"><label class="doccase"><input type="checkbox" data-doc="sel" data-id="${d.id}" aria-label="Sélectionner ${esc(d.nom)}"${docChoix.has(d.id)?' checked':''}></label><div class="docnom" data-id="${d.id}" title="Double-clic pour renommer"><b>${esc(d.nom)}</b><span class="small muted">${d.id===cur?'En cours · ':''}modifié le ${date(d.date)}</span></div><div class="docbtns">${d.id===cur?'':`<button class="btn small" data-doc="open" data-id="${d.id}" type="button">Ouvrir</button>`}<button class="btn small" data-doc="exp" data-id="${d.id}" type="button">Exporter</button><button class="btn small danger" data-doc="del" data-id="${d.id}" type="button">Supprimer</button></div></div>`;
   return `<section class="docsec"><div class="cath"><h3>Mes documents</h3><span>Schémas libres, enregistrés automatiquement dans ce navigateur.</span></div>`
-    +`<div class="docbar"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button><button class="btn small" data-doc="import" type="button">Importer…</button>${cur?'<button class="btn small" data-doc="save" type="button">Enregistrer maintenant</button>':''}`
+    +`<div class="docbar"><button class="btn small primary" data-doc="new" type="button">+ Nouveau document</button><button class="btn small" data-doc="import" type="button">Importer…</button>`
     +(l.length?`<span class="docsep"></span><label class="doccase docall"><input type="checkbox" data-doc="selAll" aria-label="Tout sélectionner"${n&&n===l.length?' checked':''}></label><span class="small muted">${n?n+' sélectionné'+(n>1?'s':''):'Sélection'}</span>${n?`<button class="btn small" data-doc="exporterSel" type="button">Exporter la sélection</button><button class="btn small danger" data-doc="supprimerSel" type="button">Supprimer la sélection</button>`:''}`:'')
     +`</div><div class="doclist">${l.length?l.map(ligne).join(''):'<p class="small muted" style="margin:0">Aucun document pour l’instant.</p>'}</div><input type="file" id="docFichier" accept=".json,application/json" hidden></section>`;
 }
