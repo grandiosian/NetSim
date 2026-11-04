@@ -2738,7 +2738,7 @@ document.addEventListener('click',e=>{
   }
   if(!m.hidden&&!e.target.closest('#mMenu'))m.hidden=true;
 });
-function syncLevel(){majResume();majBarreNiveau();renderExo();$('#app').dataset.lv=lv();$$('.lvl [data-lv]').forEach(b=>b.classList.toggle('on',+b.dataset.lv===lv()));renderPalette();}
+function syncLevel(){majResume();majBarreNiveau();renderExo();$('#app').dataset.lv=lv();$$('.lvl [data-lv]').forEach(b=>b.classList.toggle('on',+b.dataset.lv===lv()));renderPalette();rafraichirParc();}
 function setLevel(n){if(n===lv())return;S.level=n;save();closeAllWins();syncLevel();render();renderProps();renderFrames();toast(LV_TOAST[n]);}
 $$('.lvl [data-lv]').forEach(b=>b.onclick=()=>setLevel(+b.dataset.lv));
 $$('[data-fold]').forEach(h=>h.querySelector('.fold').addEventListener('click',()=>{const el=document.getElementById(h.dataset.fold);el.classList.toggle('folded');requestAnimationFrame(placeAll);}));
@@ -3804,7 +3804,7 @@ function parcoursHTML(){
   if(PREF.progC!==ordreC[idxP]){PREF.progC=ordreC[idxP];savePref();}
   const accessibles=ordreC.slice(0,ordreC.indexOf(PREF.classe)+1);
   /* Prochain atelier affiché : celui du niveau choisi dans la classe choisie, sinon le premier à faire dans la classe. */
-  const suivant=(()=>{const cible=tpsParc().find(t=>t.c===PREF.classe&&t.niv===(PREF.niv||0)&&t.exos.some(x=>!exoFait(x)))||tpsParc().find(t=>t.c===PREF.classe&&t.exos.some(x=>!exoFait(x)));return cible?cible.exos.find(x=>!exoFait(x)):null;})();
+  const suivant=S.exo?(EXOS.find(e=>e.k===S.exo.k)||null):(()=>{const cible=tpsParc().find(t=>t.c===PREF.classe&&t.niv===(PREF.niv||0)&&t.exos.some(x=>!exoFait(x)))||tpsParc().find(t=>t.c===PREF.classe&&t.exos.some(x=>!exoFait(x)));return cible?cible.exos.find(x=>!exoFait(x)):null;})();
   const tps=tpsParc().filter(t=>accessibles.includes(t.c));
   const chemin=tps.map((t,i)=>{const e=tpEtat(t,ord);
     return `<button class="cnode ${e}" data-tpopen="${tpId(t)}" type="button"><span class="cdot">${e==='fini'?'✓':e==='verrou'?'🔒':i+1}</span><span class="clab">${TP_LABEL[t.k].replace('-','<br>')}</span></button>`;
@@ -3845,6 +3845,8 @@ ${cartes}`;
 }
 function openParc(){closeMenus();$('#parcBody').innerHTML='<div class="parcgrille"><div class="parcdocs">'+docsHTML()+'</div><div class="parcat"><h3 class="parcth">Mes ateliers</h3>'+parcoursHTML()+'</div></div>'+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
 function closeParc(){$('#parc').hidden=true;}
+/* Le menu ouvert suit les changements (atelier, classe, niveau) : il est redessiné en gardant sa position. */
+function rafraichirParc(){if($('#parc').hidden)return;const y=$('#parc').scrollTop;openParc();$('#parc').scrollTop=y;}
 /* ---------- Mes documents : schémas libres, enregistrés automatiquement dans ce navigateur ---------- */
 const DOCS_CLE='netsim-docs',DOC_COURANT='netsim-doc-courant';
 function docsLire(){try{const l=JSON.parse(localStorage.getItem(DOCS_CLE)||'[]');return Array.isArray(l)?l:[];}catch(_){return [];}}
