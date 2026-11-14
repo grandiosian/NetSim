@@ -66,10 +66,20 @@ button{cursor:pointer}
 .app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr)}
 
 /* ---------- barre du haut ---------- */
-.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface);position:relative;z-index:20}
+/* Trois colonnes : à gauche logo, Annuler/Rétablir et widget élève ; au centre la pastille de l’atelier ; à droite thème et réglages.
+   Les deux colonnes extérieures se partagent la place : la pastille reste au milieu exact, et ne se décale que du nécessaire si un côté déborde. */
+.topbar{box-sizing:border-box;min-height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface);position:relative;z-index:20}
 .brand{display:flex;align-items:center;gap:8px;font-family:var(--f-disp);font-weight:800;font-size:19px;letter-spacing:-.01em;margin-right:6px;white-space:nowrap}
 .brand b{color:var(--accent);font-weight:800}
 .brand svg{width:28px;height:28px}
+.tb-gauche,.tb-droite{display:flex;align-items:center;gap:10px}
+.tb-droite{justify-content:flex-end}
+/* Annuler / Rétablir : mêmes boutons-icônes que ceux de droite (36 × 34), grisés sans historique ou pendant la simulation. */
+.tb-hist{display:flex;align-items:center;gap:2px;flex:none}
+.tb-hist .btn:disabled{opacity:.4;cursor:default;pointer-events:none}
+/* Place comptée (voir majBarreHaut) : le nom « NetSim » s’efface avant tout le reste, il ne reste que le logo. */
+.topbar.compacte .brand span{display:none}
+.topbar.compacte .brand{margin-right:0}
 .seg{display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2);gap:2px}
 .seg button{display:flex;align-items:center;gap:6px;border:0;background:transparent;padding:6px 12px;border-radius:8px;font-weight:700;color:var(--ink-2)}
 .seg button.on{background:var(--accent);color:var(--on-accent)}
@@ -899,17 +909,17 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 #mMenu{position:fixed;top:58px;left:14px;z-index:80;min-width:260px}
 #mMenu .mh{margin-top:4px}
 #profilMenu{position:fixed;z-index:95;min-width:240px}
-.tbres{display:inline-flex;align-items:center;gap:8px;max-width:min(560px,60vw);padding:6px 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden}
+.tbres{display:inline-flex;align-items:center;gap:8px;box-sizing:border-box;height:34px;max-width:min(560px,60vw);padding:0 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .tbres:hover{border-color:var(--accent)}
-/* Widget Centrale : « ← Tous les ateliers » (retour au portail) et l’identifiant, dans une seule pastille. */
+/* Widget Centrale : « ← Étape précédente » (parcours) ou « ← Mes ateliers » (portail), et l’identifiant, dans une seule pastille. */
 .tbid{padding:0;gap:0;cursor:default}
-.tbid>button{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;border-radius:999px;white-space:nowrap}
+.tbid>button{display:inline-flex;align-items:center;gap:8px;height:100%;padding:0 14px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;border-radius:999px;white-space:nowrap}
 .tbid>button:hover{color:var(--accent)}
 .tbid>button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .tbid .tbid-ret{font-weight:700;padding-right:12px}
-.tbid .tbid-ret+#bCentrale{border-left:1px solid var(--line);border-radius:0 999px 999px 0;padding-left:12px}
+.tbid .tbid-ret:not([hidden])+#bCentrale{border-left:1px solid var(--line);border-radius:0 999px 999px 0;padding-left:12px}
 .tbid #bCentrale span{font-family:var(--f-mono);font-size:12px}
-@media (max-width:700px){.tbid .tbid-ret .tbid-txt{display:none}}
+@media (max-width:700px){.tbid .tbid-ret .tbid-txt,.tbid .tbid-ret .centrale-precedent-txt{display:none}}
 .tbres .tpcn{background:var(--cl,var(--accent));color:#1c3268;border:1px solid var(--cl,var(--accent));flex:none}
 .tbres .tpnom{font-weight:700;overflow:hidden;text-overflow:ellipsis}
 .tbres .tbpct{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);flex:none}
@@ -993,10 +1003,11 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .flist .fsteps{margin:0;padding:0 12px 10px 46px;font-size:13px;color:var(--ink-2);display:grid;gap:4px;text-align:left}
 /* Mes TP occupe toute la zone de travail, sous la barre commune : une vue à la fois. */
 .parc{top:53px;inset:53px 0 0 0;width:auto;border-right:0;box-shadow:none}
-/* Résumé du TP : centré exactement au milieu de la barre, quels que soient les boutons des deux côtés. */
-.topbar #bResume{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(520px,44vw)}
-/* Ouvert depuis la Centrale, le widget s’allonge (« ← Tous les ateliers ») : sur un écran moyen, la pastille centrale reprend sa place dans la ligne pour ne pas le recouvrir. */
-@media (max-width:1180px){.topbar:has(#bRetourCentrale){flex-wrap:nowrap}.topbar:has(#bRetourCentrale) #bResume{position:static;transform:none;margin-inline:auto;min-width:0;flex:0 1 auto}}
+/* Résumé du TP : colonne du milieu de la barre, donc centré exactement tant que les deux côtés tiennent dans leur moitié.
+   Quand le widget s’allonge (« ← Mes ateliers » / « ← Étape précédente ») ou que l’écran est étroit, il se décale du strict nécessaire puis se raccourcit (points de suspension), sans jamais recouvrir les boutons. */
+.topbar #bResume{justify-self:center;width:100%;min-width:0;max-width:min(520px,44vw)}
+/* Téléphone : le widget élève ne garde que son icône (son info-bulle dit si l’élève est connecté), pour laisser de la place à la pastille. */
+@media (max-width:480px){.tbid #bCentrale span{display:none}}
 .tbid{flex:none}
 .prochain{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:16px;background:var(--accent-soft);border:1px solid var(--accent);margin-bottom:6px}
 .prochain.fin{background:var(--surface-2);border-color:var(--ok)}
@@ -1124,9 +1135,8 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
   .ctrl{top:auto;bottom:108px;left:8px;right:auto;margin:0}
   .ftxt{display:none}
   .lvl button{padding:6px 7px}
-  .topbar{flex-wrap:nowrap}
   .brand{margin-right:0}
-  .topbar{gap:6px}
+  .topbar,.tb-gauche,.tb-droite{gap:6px}
   .app.sim .legend{bottom:156px}
   .frames{left:8px;right:8px;bottom:8px}
   .frames.closed{left:8px;right:auto;transform:none}
@@ -1204,7 +1214,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
     <button class="mi" id="bParc" type="button">Mes ateliers</button>
     <button class="mi" data-pa="visite" type="button">Visite de NetSim</button>
   </div>
+    <div class="tb-gauche">
     <div class="brand"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 20L14 7l7 13z" fill="none" stroke="var(--ink-3)" stroke-width="2"/><circle cx="14" cy="7" r="4" fill="var(--accent)"/><circle cx="7" cy="20" r="4" fill="var(--http)"/><circle cx="21" cy="20" r="4" fill="var(--arp)"/></svg><span>Net<b>Sim</b></span></div>
+    <div class="tb-hist" role="group" aria-label="Annuler ou rétablir"><button class="btn flat iconbtn" id="bUndo" type="button" title="Annuler (Ctrl+Z)" aria-label="Annuler" disabled><svg class="i" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button class="btn flat iconbtn" id="bRedo" type="button" title="Rétablir (Ctrl+Y)" aria-label="Rétablir" disabled><svg class="i" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button></div>
     <div class="menuwrap" hidden><button class="btn flat" id="bFile" type="button" aria-haspopup="true" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span class="ftxt">Fichier</span><svg class="i chev2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
       <div class="menu glass" id="mFile" hidden>
         <button class="mi" id="bNew" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nouveau schéma vide</button>
@@ -1215,11 +1227,9 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
         <button class="mi" id="bExport" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg>Exporter le schéma…</button>
       </div>
     </div>
-    <div class="spacer"></div>
-    
-    <div class="spacer"></div>
+    </div>
     <button class="tbres" id="bResume" type="button" aria-label="Voir mes ateliers"></button>
-    <div class="spacer"></div>
+    <div class="tb-droite">
     <button class="btn flat iconbtn" data-theme-btn type="button" aria-label="Changer de thème"></button>
     <div class="menuwrap"><button class="btn flat iconbtn" id="bSet" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Réglages" title="Réglages"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
       <div class="menu glass right" id="mSet" hidden>
@@ -1235,6 +1245,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
         <div class="seg lv1" id="themeSeg" role="group" aria-label="Thème"><button data-th="auto" type="button" class="on">Auto</button><button data-th="light" type="button">Clair</button><button data-th="dark" type="button">Sombre</button></div>
       </div>
     </div>
+    </div>
   </header>
 
   <div class="work">
@@ -1246,7 +1257,6 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
           <button class="tool" data-tool="cable" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M5 18c4 0 4-12 7-12s3 12 7 12"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/></svg>Câble</button>
           <button class="tool lv1" data-tool="zone" type="button"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" stroke-dasharray="3 2.5"/><path d="M7 9h5"/></svg>Salle</button>
           <button class="tool lv1" data-tool="erase" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M15 4l5 5-9 9H6l-3-3z"/><path d="M10 9l5 5M13 20h8"/></svg>Gomme</button>
-          <button class="tool" id="bUndo" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Annuler</button>
         </div></details>
         <details class="pgroup" open><summary class="ptitle">Appareils</summary><div class="pgrid" id="pdevs"></div></details>
       </div>
@@ -1384,7 +1394,7 @@ const blank=()=>({devices:[],cables:[],zones:[],nextId:1,help:true,level:1});
 let S=blank();
 let mode='design', tool='select', sel=null, pendingCable=null;
 let view={x:0,y:0,k:1};
-let HIST=[];
+let HIST=[],REDO=[],apresHist='';   // HIST : états avant chaque modification ; REDO : états annulés, à rétablir
 const LV_NAMES=['Débutant','Intermédiaire','Avancé'];
 const LV_CLASSE=['5ᵉ','4ᵉ','3ᵉ'];
 const LV_DEVICES=[['pc','laptop','phone','printer','server','switch'],null,null];
@@ -1424,11 +1434,19 @@ function delDevice(d){snap();S.cables=S.cables.filter(c=>c.a.d!==d.id&&c.b.d!==d
 function delCable(c){snap();S.cables=S.cables.filter(x=>x!==c);if(sel&&sel.kind==='cable'&&sel.id===c.id)sel=null;afterEdit();}
 function delZone(z){snap();S.zones=S.zones.filter(x=>x!==z);if(sel&&sel.kind==='zone'&&sel.id===z.id)sel=null;afterEdit();}
 function afterEdit(){render();renderProps();save();}
-function snap(){HIST.push(JSON.stringify(S));if(HIST.length>60)HIST.shift();}
-function undo(){if(mode!=='design')return;if(!HIST.length){toast('Rien à annuler.');return;}S=JSON.parse(HIST.pop());sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;syncLevel();afterEdit();}
+function snap(){const j=JSON.stringify(S);if(HIST[HIST.length-1]!==j){HIST.push(j);if(HIST.length>60)HIST.shift();}majHist();}
+/* Rétablir n’a de sens que si rien n’a changé depuis le dernier Annuler / Rétablir (l’avancement de l’atelier ne compte pas) :
+   la première vraie modification rend les états annulés caducs. Un simple clic sur un appareil (snap sans changement) ne les perd pas. */
+const signeHist=()=>JSON.stringify(S,(k,v)=>k==='exo'?undefined:v);
+const redoPossible=()=>REDO.length>0&&signeHist()===apresHist;
+function restaurer(j){S=JSON.parse(j);sel=null;pendingCable=null;$('#helpChk').checked=S.help!==false;syncLevel();afterEdit();apresHist=signeHist();majHist();}
+function undo(){if(mode!=='design')return;const cur=JSON.stringify(S);while(HIST.length&&HIST[HIST.length-1]===cur)HIST.pop();if(!HIST.length){majHist();toast('Rien à annuler.');return;}if(!redoPossible())REDO=[];REDO.push(cur);restaurer(HIST.pop());}
+function redo(){if(mode!=='design')return;if(!redoPossible()){REDO=[];majHist();toast('Rien à rétablir.');return;}const cur=JSON.stringify(S);if(HIST[HIST.length-1]!==cur)HIST.push(cur);restaurer(REDO.pop());}
+/* Boutons Annuler / Rétablir de la barre du haut : grisés sans historique ou hors de la conception. */
+function majHist(){const u=$('#bUndo'),r=$('#bRedo');if(!u||!r)return;const ok=mode==='design',cur=ok?JSON.stringify(S):'';u.disabled=!ok||!HIST.some(h=>h!==cur);r.disabled=!ok||!redoPossible();}
 let saveT=0;
 function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}docSauverCourant();if(window.centraleTravail)window.centraleTravail();},300);}
-function save(){persist();if(typeof checkSoon==='function')checkSoon();if(!S.exo&&typeof renderExo==='function')renderExo();}
+function save(){persist();majHist();if(typeof checkSoon==='function')checkSoon();if(!S.exo&&typeof renderExo==='function')renderExo();}
 
 function ipsOf(d){if(d.type==='router')return d.ifs.map(f=>ip2n(f.ip)).filter(v=>v!==null);if(TYPES[d.type].host){const v=ip2n(d.ip);return v===null?[]:[v];}return [];}
 /* Liste des interfaces IP valides d'un appareil */
@@ -1866,7 +1884,7 @@ window.addEventListener('pointerup',e=>{
 });
 window.addEventListener('pointercancel',()=>{if(pdrag&&pdrag.ghost)pdrag.ghost.remove();pdrag=null;});
 $$('.tool[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
-$('#bUndo').addEventListener('click',undo);
+$('#bUndo').addEventListener('click',undo);$('#bRedo').addEventListener('click',redo);
 
 /* ============================================================
    Panneau des propriétés
@@ -1897,7 +1915,7 @@ ${lv()>0?'<li>Avec l’outil <b>Salle</b>, dessine un rectangle autour d’un gr
 <button class="btn primary" data-act="openex" type="button">Choisir un atelier guidé</button>
 <div class="calc">${pas(lv())} Niveau <b>${LV_CLASSE[lv()]}</b> · ${esc(LV_TOAST[lv()].split(' : ')[1])}</div>
 <div class="stats"><span class="stat">${S.devices.length} appareil${S.devices.length>1?'s':''}</span><span class="stat">${S.cables.length} câble${S.cables.length>1?'s':''}</span><span class="stat">${S.zones.length} salle${S.zones.length>1?'s':''}</span></div>
-<p class="small muted" style="margin:0">Raccourcis : <b>Suppr</b> efface la sélection, <b>Ctrl + Z</b> annule, <b>Échap</b> désélectionne. Ton travail est gardé dans ce navigateur.</p>`;
+<p class="small muted" style="margin:0">Raccourcis : <b>Suppr</b> efface la sélection, <b>Ctrl + Z</b> annule, <b>Ctrl + Y</b> rétablit, <b>Échap</b> désélectionne. Ton travail est gardé dans ce navigateur.</p>`;
 }
 function head(d){return `<div class="ph"><svg viewBox="0 0 100 100"><use href="#ic-${d.type}" width="100" height="100"/></svg><div style="min-width:0;flex:1"><div class="pkind">${TYPES[d.type].label}</div><input class="pname" data-f="name" value="${esc(d.name)}" aria-label="Nom de l’appareil"></div></div>`;}
 function sec(key,title,body,open,cls){const o=secState.has(key)?secState.get(key):open!==false;return `<details class="sec${cls?' '+cls:''}" data-sec="${key}"${o?' open':''}><summary>${title}</summary><div class="secb">${body}</div></details>`;}
@@ -2874,7 +2892,7 @@ function setMode(m){
   sel=null;pendingCable=null;cancelAnimationFrame(sim.raf);
   if(m==='sim'){LOG=[];logN=0;fSel=null;sim.t=0;sim.last=0;sim.paused=false;updPause();sim.raf=requestAnimationFrame(loop);S.devices.forEach(d=>{if(d.dhcp&&TYPES[d.type].host){d.ip='';d.gw='';d.dhcpEtat='attente';schedule(.5+.3*(d.id%4),()=>dhcpStart(d,0));}});}
   else $$('#gCables .wire').forEach(w=>{w.classList.remove('busy');w.style.stroke='';});
-  render();renderProps();setHint();fillDevSelect();renderFrames();updMini();
+  render();renderProps();setHint();fillDevSelect();renderFrames();updMini();majHist();
 }
 function updPause(){updMini();const ck=$('#clock');if(ck){ck.textContent=`t = ${fmt1(sim.t)} s${sim.paused?' · en pause':''}`;ck.classList.toggle('paused',sim.paused);}}
 /* Barre du haut : pour chaque classe, pastille de classe + code du TP en cours + barres de niveau. */
@@ -3027,12 +3045,32 @@ document.addEventListener('keydown',e=>{
   if(!$('#modal').hidden){if(e.key==='Escape')closeModal();return;}
   if(typing)return;
   if(e.key==='f'||e.key==='F'){if(!(e.ctrlKey||e.metaKey||e.altKey)){e.preventDefault();repartirFenetres();}return;}
+  if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){e.preventDefault();redo();return;}   // Ctrl + Y ou Ctrl + Maj + Z : rétablir
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return;}
   if(mode==='design'&&(e.key==='Delete'||e.key==='Backspace')&&!sel&&groupe.size){e.preventDefault();snap();const ids=[...groupe];S.cables=S.cables.filter(c=>!ids.includes(c.a.d)&&!ids.includes(c.b.d));S.devices=S.devices.filter(d=>!ids.includes(d.id));groupe=new Set();afterEdit();return;}
   if(mode==='design'&&(e.key==='Delete'||e.key==='Backspace')&&sel){e.preventDefault();const o=selObj();if(!o)return;if(sel.kind==='dev')delDevice(o);else if(sel.kind==='zone')delZone(o);else delCable(o);}
   if(e.key==='Escape'){closeMenus();pendingCable=null;gTemp.innerHTML='';sel=null;groupe=new Set();render();renderProps();}
   if(mode==='sim'&&e.key===' '){e.preventDefault();sim.paused=!sim.paused;updPause();}
 });
+
+/* Barre du haut : si la pastille de l’atelier ne peut plus être au milieu exact, ou doit se raccourcir,
+   le nom « NetSim » s’efface d’abord (classe .compacte, logo seul). On mesure sans le nom réduit, puis on décide. */
+function majBarreHaut(){
+  const tb=$('.topbar'),r=$('#bResume');if(!tb||!r)return;
+  tb.classList.remove('compacte');
+  const cs=getComputedStyle(tb),b=tb.getBoundingClientRect(),p=r.getBoundingClientRect();
+  const milieu=(b.left+parseFloat(cs.paddingLeft)+b.right-parseFloat(cs.paddingRight))/2,nom=r.querySelector('.tpnom');
+  const decale=p.width>0&&Math.abs((p.left+p.right)/2-milieu)>1;
+  const tronque=p.width>0&&p.width<parseFloat(getComputedStyle(r).maxWidth)-1&&(r.scrollWidth>r.clientWidth+1||(nom&&nom.scrollWidth>nom.clientWidth+1));
+  tb.classList.toggle('compacte',decale||tronque||tb.scrollWidth>tb.clientWidth+1);
+}
+(()=>{let attente=0;const plusTard=()=>{if(!attente)attente=requestAnimationFrame(()=>{attente=0;majBarreHaut();});};
+  addEventListener('resize',plusTard);
+  // contenu de la barre (pastille, widget élève, « ← Étape précédente » montré ou caché) : on recompte la place
+  new MutationObserver(plusTard).observe($('.topbar'),{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['hidden']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(plusTard);
+  plusTard();
+})();
 
 /* ---------- toast & modales ---------- */
 let toastT=0;
@@ -4266,11 +4304,11 @@ function guideDebutant(){
 const TOUR=[
   {t:'Bienvenue dans NetSim !',p:'Tu vas construire un petit réseau informatique, comme dans une salle de classe. On découvre l’écran un élément après l’autre.'},
   {sel:'.topbar .brand',t:'Le menu NetSim',p:'Un clic sur le logo ouvre le menu : créer un schéma vide, lancer une démo, importer ou exporter ton travail dans un fichier .json, ouvrir tes ateliers.'},
+  {sel:'.tb-hist',t:'Annuler et Rétablir',p:'Ces deux flèches, dans la barre du haut à côté du logo, reviennent en arrière si tu t’es trompé (Annuler, Ctrl + Z) ou refont ce que tu viens d’annuler (Rétablir, Ctrl + Y). Sur Mac : ⌘ + Z et ⌘ + Maj + Z.'},
   {sel:'#bCentrale',t:'Visiteur',p:'Pour te connecter avec le code donné par ton professeur, ou changer de classe. Sans connexion, ton travail reste enregistré dans le navigateur.'},
   {sel:'#bResume',t:'L’atelier en cours',p:'La pastille donne ta classe, puis le code de l’atelier et le nombre d’ateliers terminés. Un clic ouvre Mes ateliers : tous les ateliers et tes documents.'},
   {sel:'[data-tool="select"]',t:'L’outil Sélection',p:'Il sert à cliquer sur un appareil pour le choisir, et à le déplacer en le faisant glisser.'},
   {sel:'[data-tool="cable"]',t:'L’outil Câble',p:'Clique sur un appareil, puis sur un autre : un câble les relie. Un trait en pointillés représente une liaison Wi-Fi.'},
-  {sel:'#bUndo',t:'Annuler',p:'Revient en arrière si tu t’es trompé. Raccourci clavier : Ctrl + Z (⌘ + Z sur Mac).'},
   {sel:'#pdevs',t:'Les appareils',p:'Glisse un appareil (PC, portable, smartphone, imprimante, serveur, switch) sur la feuille blanche. Tu peux aussi cliquer dessus.'},
   {sel:'#stage',t:'La feuille de travail',p:'C’est ici que tu construis ton réseau. La molette de la souris, ou les boutons + et − en bas à droite, permettent de zoomer.'},
   {sel:'#cMini',t:'Le bouton ▶ : la simulation',p:'Il lance la simulation : les appareils s’allument et s’envoient des messages. Le bouton ⏸ revient à la conception.'},
@@ -4682,6 +4720,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   const SERVEUR=window.CENTRALE_URL||(miroir?location.origin+miroir[1]:'https://technoversailles.alwaysdata.net/');
   const avecJeton=/(^|[#&])centrale=/.test(location.hash);
   let pret=false,bouton=null,widget=null,fenetre=null;
+  let precedent=null;   // { bouton, maj } donné par Centrale.boutonPrecedent (Centrale récente)
   /* Adresse du portail quand NetSim a été ouvert depuis la Centrale (#…&retour=…, gardée par le client). */
   const adresseRetour=()=>{try{return sessionStorage.getItem('centrale-retour');}catch(_){return null;}};
 
@@ -4700,7 +4739,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       app:'netsim',
       // Liste des exercices : colonnes du tableau de suivi de l'enseignant
       activites:NetSim.activites(),
-      boutonRetour:false,   // « ← Tous les ateliers » est dans le widget de la barre du haut
+      boutonRetour:false,   // « ← Mes ateliers » / « ← Étape précédente » est dans le widget de la barre du haut
       surDeconnexion:()=>{pret=false;majBouton();toast('Session terminée : reconnecte-toi pour enregistrer ton travail.');}
     });
     majBouton();
@@ -4709,7 +4748,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
 
   /* ---------- Widget dans la barre du haut : « Visiteur », ou le code de l’élève une fois connecté ---------- */
   function creerBouton(){
-    const logo=document.querySelector('.topbar .brand');
+    const logo=document.querySelector('.topbar .tb-hist')||document.querySelector('.topbar .brand');   // après Annuler / Rétablir
     widget=document.createElement('div');
     widget.className='tbres tbid';widget.id='widgetCentrale';
     bouton=document.createElement('button');
@@ -4718,12 +4757,15 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     bouton.onclick=e=>{
       e.stopPropagation();
       if(!(window.Centrale&&Centrale.connecte())){basculerProfil();return;}
+      // menu de l'élève commun aux applications (module de la Centrale) ; sinon l'ancienne confirmation
+      const sortir=()=>{pret=false;majBouton();toast('Déconnecté. NetSim enregistre de nouveau dans ce navigateur seulement.');};
+      if(Centrale.menuEleve){closeMenus();Centrale.menuEleve(bouton,{onDeconnexion:sortir,onChange:majBouton});return;}
       const s=Centrale.session();
       if(confirm(`Connecté : ${s.classe} · élève ${s.eleve}.\nTon travail est enregistré automatiquement.\n\nSe déconnecter ?`)){
         Centrale.deconnexion();pret=false;majBouton();toast('Déconnecté. NetSim enregistre de nouveau dans ce navigateur seulement.');
       }
     };
-    if(logo)logo.after(widget);else document.querySelector('.topbar').prepend(widget);
+    if(logo)logo.after(widget);else(document.querySelector('.topbar .tb-gauche')||document.querySelector('.topbar')).prepend(widget);
     majBouton();
   }
   /* Menu du widget hors connexion : se connecter avec son code, ou changer de classe. */
@@ -4754,12 +4796,27 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     bouton.innerHTML=`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>${esc(s?(s.identifiant||s.eleve):'Visiteur')}</span>`;
     bouton.title=s?'Connecté : ton travail est enregistré sur le serveur de la classe':'Visiteur : clique pour te connecter avec ton code et enregistrer ton travail';
     let ret=document.getElementById('bRetourCentrale');
+    /* Centrale récente : le bouton commun « ← Étape précédente » (parcours, quelle que soit l’application)
+       ou « ← Mes ateliers » (portail), caché hors de la Centrale ; il se met aussi à jour tout seul. */
+    if(window.Centrale&&Centrale.boutonPrecedent){
+      if(!precedent){
+        if(ret)ret.remove();   // bouton de secours posé avant le chargement du client
+        precedent=Centrale.boutonPrecedent({classe:'tbid-ret'});
+        precedent.bouton.id='bRetourCentrale';
+        // En attendant la réponse du client (étape du parcours), pas de pastille vide ni de clignotement.
+        if(adresseRetour()){const t=precedent.bouton.querySelector('.centrale-precedent-txt');if(t&&!t.textContent)t.textContent='Mes ateliers';precedent.bouton.hidden=false;}
+        widget.prepend(precedent.bouton);
+      }
+      precedent.maj();
+      return;
+    }
+    /* Centrale plus ancienne (ou client pas encore chargé) : retour au portail seulement. */
     const adresse=adresseRetour();
     if(!adresse){if(ret)ret.remove();return;}
     if(!ret){
       ret=document.createElement('button');ret.type='button';ret.id='bRetourCentrale';ret.className='tbid-ret';
-      ret.innerHTML='<span aria-hidden="true">←</span><span class="tbid-txt">Tous les ateliers</span>';
-      ret.title='Revenir à tous tes ateliers sur la Centrale (ton travail est enregistré)';ret.setAttribute('aria-label','Tous les ateliers');
+      ret.innerHTML='<span aria-hidden="true">←</span><span class="tbid-txt">Mes ateliers</span>';
+      ret.title='Revenir à tous tes ateliers sur la Centrale (ton travail est enregistré)';ret.setAttribute('aria-label','Mes ateliers');
       ret.onclick=e=>{e.stopPropagation();if(!(window.Centrale&&Centrale.retour()))location.href=adresse;};
       widget.prepend(ret);
     }
