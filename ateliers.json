@@ -2,9 +2,74 @@
   "format": "catalogue.ateliers",
   "version": 1,
   "app": "netsim",
-  "app_version": "1.17.0",
+  "app_version": "1.18.0",
   "referentiel": "technologie-c4-2024",
   "ateliers": [
+    {
+      "id": "premiers-pas",
+      "titre": "Premiers pas",
+      "niveau": "5e",
+      "resume": "Découvrir l’écran, poser et relier ses premiers appareils, brancher la salle, ajouter le Wi-Fi et donner une adresse à chacun : cinq exercices à la suite.",
+      "duree": "1 h",
+      "competences": [
+        "SFC15.5.1",
+        "SFC15.5.2"
+      ],
+      "activites": [
+        {
+          "id": "e5-0a",
+          "titre": "L’écran et mon premier appareil",
+          "total": 9,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        },
+        {
+          "id": "e5-0b",
+          "titre": "Mon premier câble",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1",
+            "SFC15.5.2"
+          ]
+        },
+        {
+          "id": "e5-1",
+          "titre": "Brancher la salle",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        },
+        {
+          "id": "e5-2",
+          "titre": "Le Wi-Fi de la salle",
+          "total": 5,
+          "competences": [
+            "SFC15.5.1"
+          ]
+        },
+        {
+          "id": "e5-3",
+          "titre": "Chacun son adresse",
+          "total": 5,
+          "competences": [
+            "SFC15.5.2"
+          ]
+        }
+      ],
+      "ouvrir": "#atelier=premiers-pas"
+    },
+    {
+      "id": "session-libre",
+      "titre": "Session libre NetSim",
+      "niveau": "",
+      "resume": "NetSim complet : créer de nouveaux documents, ouvrir les démos, importer et exporter des schémas, choisir n’importe quel exercice.",
+      "duree": "",
+      "competences": [],
+      "activites": [],
+      "ouvrir": "#libre"
+    },
     {
       "id": "e5-0a",
       "titre": "L’écran et mon premier appareil",

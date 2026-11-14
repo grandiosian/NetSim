@@ -51,6 +51,7 @@ Un fichier JSON à la racine du site de l’application, nommé `centrale.json`.
 
 ### Sans serveur
 
+- **Mode atelier** : ouvert depuis la Centrale (`#centrale=…`), NetSim ne montre que l'atelier choisi (ni menu du logo, ni liste des ateliers, ni nouveau document). `#atelier=premiers-pas` enchaîne cinq exercices ; `#libre` rend NetSim complet. Ces deux ateliers sont en tête de `ateliers.json` (`ouvrir` : `#atelier=premiers-pas`, `#libre`) ; la Centrale ajoute son jeton à l'adresse sans toucher à ces morceaux.
 - **Ouvrir un exercice par son adresse** : `index.html#activite=e5-1` ouvre l’exercice, même sans la Centrale (l’avancement est gardé si l’élève y était déjà). Depuis le portail (`#centrale=…&activite=…`), c’est la connexion qui ouvre l’exercice demandé.
 - **Sauvegarde de secours** : Fichier → Exporter le schéma → « Enregistrer le fichier » (`5A-07-e5-1.json` si l’élève est connecté, sinon `netsim-e5-1.json`) et « Déposer sur Nuage », qui ouvre le dossier Nuage de la classe : lien de la Centrale si l’élève est connecté, sinon lien collé par le professeur sur le poste (clé locale `netsim-nuage`).
 

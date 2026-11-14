@@ -102,6 +102,13 @@ button{cursor:pointer}
 .extabs button{display:flex;align-items:center;gap:7px}
 .exo{position:absolute;left:190px;top:12px;z-index:12;width:360px;max-height:calc(100% - 24px);border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
 .exo.folded{width:auto}.exo.folded .pscroll{display:none}
+/* Mode atelier (depuis la Centrale) : ni menu du logo, ni liste des ateliers, ni nouveau document */
+.ns-atelier #mMenu,.ns-atelier #bParc,.ns-atelier [data-act="exoclose"]{display:none!important}
+.ns-atelier .topbar .brand,.ns-atelier #bResume{cursor:default}
+.exseq{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;font-size:12px;color:var(--ink-2);margin:-2px 0 6px}.exseq b{color:var(--warn)}
+.exseqp{display:inline-flex;gap:4px}.exseqp i{width:9px;height:9px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line)}.exseqp i.f{background:var(--ok,#2f9a4a);border-color:transparent}.exseqp i.c{outline:2px solid var(--warn);outline-offset:1px}
+/* Consigne : liseré jaune et titre jaune en petites capitales, comme le Guide d'Établi 3D */
+#exoBox{border-left:4px solid var(--warn)}#exoBox .pht{color:var(--warn);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .app.sim .exo:not(.moved){left:12px}
 .work.fopen .exo:not(.moved){max-height:calc(100% - 370px)}
 .exh h3{margin:6px 0 0;font-family:var(--f-disp);font-weight:800;font-size:18px;line-height:1.2;text-wrap:balance}
@@ -323,7 +330,8 @@ button{cursor:pointer}
 .secb{display:flex;flex-direction:column;gap:10px;margin-top:10px}
 .sec.port>summary{text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink-2)}
 .sec.port>summary b{font-family:var(--f-mono);color:var(--ink)}
-.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+/* Boîte à outils : boutons d'environ 70 px, autant de colonnes que la largeur du panneau le permet (2 par défaut) */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
 .tool,.pdev{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid transparent;background:color-mix(in srgb,var(--surface-2) 65%,transparent);border-radius:10px;padding:7px 2px 6px;font-size:11px;font-weight:700;color:var(--ink-2);line-height:1.15;text-align:center;min-height:54px;user-select:none;-webkit-user-select:none}
 .tool:hover,.pdev:hover{border-color:var(--accent);color:var(--ink)}
 .tool.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
@@ -1044,6 +1052,8 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .tpcn{flex:none;min-width:34px;height:22px;padding:0 6px;border-radius:999px;font-family:var(--f-mono);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:var(--surface-2)}
 .tpct{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tpcp{flex:none;font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+/* ligne d'atelier : classe, niveau, titre, barre d'avancement */
+.tpc .pas{flex:none}.tpav{flex:none;display:flex;align-items:center;gap:8px;width:120px}.tpav .tpbar{flex:1;margin:0}.tpav .tpbar i{background:var(--cl,var(--ok))}
 .tpmodal{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;background:rgba(10,14,30,.6)}
 .tpmodal[hidden]{display:none}
 .tpmbox{position:relative;width:min(480px,100%);max-height:calc(100vh - 40px);overflow:auto;padding:26px 24px 24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:0 18px 40px rgba(10,14,30,.35)}
@@ -2903,23 +2913,23 @@ function majBarreNiveau(){
   ['5e','4e','3e'].forEach((c,i)=>{
     const b=document.querySelector(`.seg.lvl [data-lv="${i}"]`);if(!b)return;
     const t=tous.find(u=>u.c===c&&u.exos.some(x=>!exoFait(x)))||tous.find(u=>u.c===c);
-    const code=t?`${t.c[0]}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`:'';
     b.classList.add('k'+c[0]);
     b.hidden=!!cur&&c!==cur;
-    b.innerHTML=c===cur?`${pas(c)}<span class="tpcn">${code}</span><span class="tpnom">${t?TP_LABEL[t.k]:''}</span>${t?barres(t.niv):''}`:pas(c);
+    b.innerHTML=c===cur?`${pas(c)}<span class="tpnom">${t?TP_LABEL[t.k]:''}</span>${t?barres(t.niv):''}`:pas(c);
   });
 }
 /* Résumé central : TP en cours, code, nom, niveau et avancement. */
 function majResume(){
   const b=$('#bResume');if(!b)return;
+  if(MODE_AT&&MODE_AT.titre){const L=MODE_AT.exos.map(k=>EXOS.find(x=>x.k===k)).filter(Boolean);b.className='tbres k5';b.onclick=null;
+    b.innerHTML=`<span class="tpnom">${esc(MODE_AT.titre)}</span><span class="tbpct">${L.filter(exoFait).length}/${L.length}</span>`;return;}
   if(!S.exo){const d=docCourantObj();b.className='tbres';b.innerHTML=`<span class="tpnom">${esc(d?d.nom:'Nouveau document')}</span>`;b.onclick=basculerParc;return;}
   const tous=tpsParc();
   const t=S.exo?tous.find(u=>u.exos.some(e=>e.k===S.exo.k)):tous.find(u=>u.exos.some(x=>!exoFait(x)));
   if(!t){b.className='tbres';b.textContent='Choisis un atelier';return;}
-  const code=`${prefixeTP(t.c)}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`;
   const f=t.exos.filter(exoFait).length;
   b.className='tbres k'+t.c[0];
-  b.innerHTML=`${pas(t.c)}<span class="tpcn">${code}</span><span class="tpnom">${TP_LABEL[t.k]}</span>${barres(t.niv)}<span class="tbpct">${f}/${t.exos.length}</span>`;
+  b.innerHTML=`${pas(t.c)}<span class="tpnom">${TP_LABEL[t.k]}</span>${barres(t.niv)}<span class="tbpct">${f}/${t.exos.length}</span>`;
   b.onclick=basculerParc;
 }
 /* La pastille alterne entre l’atelier en cours et le menu de sélection des ateliers. */
@@ -2930,7 +2940,7 @@ function basculerParc(){
 /* Menu du logo : ouvre, ferme, et délègue aux boutons existants. */
 document.addEventListener('click',e=>{
   const m=$('#mMenu');if(!m)return;
-  if(e.target.closest('.topbar .brand')){m.hidden=!m.hidden;return;}
+  if(e.target.closest('.topbar .brand')){if(!MODE_AT)m.hidden=!m.hidden;return;}
   const it=e.target.closest('#mMenu [data-click], #mMenu [data-pa]');
   if(it){
     if(it.dataset.click)document.getElementById(it.dataset.click)?.click();
@@ -2976,7 +2986,7 @@ function placeColonnes(){
     if(el.classList.contains('folded'))el.style.width=el.style.height=el.style.maxHeight='';
     else Object.assign(el.style,def);
     if(b.w&&!el.classList.contains('folded'))el.style.width=b.w+'px';
-    if(b.h&&!el.classList.contains('folded'))el.style.height=b.h+'px';
+    if(b.h&&key!=='palette'&&!el.classList.contains('folded'))el.style.height=b.h+'px';
     if(p){
       el.classList.add('moved');el.style.right=el.style.bottom='auto';
       const x=clamp(p.x,4,Math.max(4,WK.width-el.offsetWidth-4)),y=clamp(p.y,4,Math.max(4,WK.height-44));
@@ -3006,7 +3016,7 @@ makeDrag($('#exoBox'),$('#exoBox .phead'),'exo');
 makeDrag($('#legend'),$('#legend'),'legend');
 /* Redimensionnement : la taille et la position sont mémorisées à la fin du geste. */
 const memoriserPanneau=(key,id)=>()=>{const el=$(id);PREF.pos[key]={x:el.offsetLeft,y:el.offsetTop};PREF.box[key]={w:el.offsetWidth,h:el.offsetHeight};savePref();placeColonnes();};
-poignees({el:$('#palette'),min:[140,160]},memoriserPanneau('palette','#palette'));
+poignees({el:$('#palette'),min:[164,160],dirs:['e','w']},()=>{$('#palette').style.height='';memoriserPanneau('palette','#palette')();});   // largeur seulement : la hauteur suit le contenu
 poignees({el:$('#propsBox'),min:[260,120]},memoriserPanneau('props','#propsBox'));
 poignees({el:$('#exoBox'),min:[260,160]},memoriserPanneau('exo','#exoBox'));
 window.addEventListener('resize',placeAll);
@@ -3188,9 +3198,9 @@ const liensPCSwitch=()=>S.cables.filter(c=>{const A=D(c.a.d),B=D(c.b.d);return !
 const EXOS=[
   /* ===== 5e · Premiers pas : un geste à la fois ===== */
   {k:'e5-0a',c:'5e',cat:'premiers',dur:'25 min',t:'L’écran et mon premier appareil',p:'Découvrir l’écran pas à pas, puis placer deux ordinateurs et leur donner une adresse IP.',
-   steps:[{t:'Clique sur le logo NetSim, en haut à gauche : un menu s’ouvre.',h:'Le menu propose Nouveau schéma vide, Démos, Importer et Exporter un schéma, puis Mes ateliers et la Visite de NetSim.',c:()=>!!VU.fichier},
-    {t:'Lis les lignes du menu, puis ferme-le : clique ailleurs sur l’écran, ou appuie sur Échap.',h:'Ce menu sert à créer, ouvrir ou sauvegarder un schéma. Rien à choisir pour le moment.',c:()=>!!VU.fichier&&$('#mMenu').hidden},
-    {t:'Regarde la barre du haut, au centre : la pastille 5 est ta classe (5ᵉ), puis viennent le code de l’atelier (5-1-1) et le nombre d’ateliers terminés.',h:'Plus tard, un clic sur cette barre ouvre Mes ateliers : tous les ateliers, classe par classe. Ne clique pas dessus pour le moment.'},
+   steps:[{ha:1,t:'Clique sur le logo NetSim, en haut à gauche : un menu s’ouvre.',h:'Le menu propose Nouveau schéma vide, Démos, Importer et Exporter un schéma, puis Mes ateliers et la Visite de NetSim.',c:()=>!!VU.fichier},
+    {ha:1,t:'Lis les lignes du menu, puis ferme-le : clique ailleurs sur l’écran, ou appuie sur Échap.',h:'Ce menu sert à créer, ouvrir ou sauvegarder un schéma. Rien à choisir pour le moment.',c:()=>!!VU.fichier&&$('#mMenu').hidden},
+    {ta:'Regarde la barre du haut, au centre : le nom de l’atelier (Premiers pas) et le nombre d’exercices terminés. Il avance à chaque exercice réussi.',t:'Regarde la barre du haut, au centre : la pastille 5 est ta classe (5ᵉ), puis viennent le nom de l’atelier, son niveau (les barres) et le nombre d’exercices terminés.',h:'Plus tard, un clic sur cette barre ouvre Mes ateliers : tous les ateliers, classe par classe. Ne clique pas dessus pour le moment.'},
     {t:'Dans la boîte à outils, à gauche, clique sur l’outil Câble.',h:'Il est à droite de l’outil Sélection. Un câble relie deux appareils.',c:()=>!!VU.outil_cable},
     {t:'Clique sur l’outil Sélection pour revenir au mode où tu choisis et déplaces les appareils.',h:'Sélection est la flèche, en haut à gauche de la boîte à outils.',c:()=>!!VU.outil_select&&tool==='select'},
     {t:'Dans la section Appareils, clique sur PC (ou glisse-le sur la feuille blanche).',h:'Le PC apparaît au centre de la feuille, et il est sélectionné.',c:()=>S.devices.some(d=>d.type==='pc')},
@@ -3784,7 +3794,7 @@ function loadExo(x,niveau,ratt){
 function checkExo(){
   const x=S.exo,def=exoDef();if(!x||!def)return;x.cur=x.cur||0;x.done=x.done||[];
   let adv=0;
-  while(x.cur<def.steps.length){const st=def.steps[x.cur];let ok=false;try{ok=!!(st.c&&st.c());}catch(_){ok=false;}if(!ok)break;x.done[x.cur]=true;x.cur++;adv++;}
+  while(x.cur<def.steps.length){const st=def.steps[x.cur];let ok=false;try{ok=!!((MODE_AT&&st.ha)||(st.c&&st.c()));}catch(_){ok=false;}if(!ok)break;x.done[x.cur]=true;x.cur++;adv++;}
   if(adv){persist();markProg();renderExo(true);toast(x.cur>=def.steps.length?'Atelier terminé ! Réponds maintenant aux questions.':`Étape réussie ✓ Passe à l’étape ${x.cur+1}.`);}
 }
 const fmtStep=t=>esc(t).replace(/`([^`]+)`/g,'<code>$1</code>');
@@ -3921,11 +3931,6 @@ function lastFailHTML(){const e=[...EV].reverse().find(x=>(x.type==='ping'||x.ty
   const k=e.why||e.err||'timeout',filtre=k==='timeout'&&[...EV].reverse().find(x=>x.type==='filtre'&&x.dst===e.dst);
   return `<div class="failbox"><b>${w} n’a pas marché</b> : ${filtre?`le pare-feu de ${esc(filtre.r)} a bloqué la demande.`:FAILTXT[k]||FAILTXT.timeout}</div>`;}
 /* Code du TP auquel appartient un exercice (ex. 5-1-1). */
-function codeTP(def){
-  const tous=tpsParc(),t=tous.find(u=>u.exos.some(e=>e.k===def.k));
-  if(!t)return '';
-  return `${prefixeTP(t.c)}-${t.niv+1}-${tous.filter(u=>u.c===t.c&&u.niv===t.niv).indexOf(t)+1}`;
-}
 /* Atelier qui suit dans le parcours, et ronds des ateliers du TP (en fin d’atelier, pour enchaîner). */
 function atelierSuivant(d){const ord=parcoursOrdre(),i=ord.findIndex(x=>x.k===d.k);return i>=0?ord[i+1]:undefined;}
 function bullesTP(d){
@@ -3933,41 +3938,75 @@ function bullesTP(d){
   return `<div class="fexos bulles">${t.exos.map((x,i)=>{const et=exoEtat(x,ord);
     return `<button class="fexo ${et}${x.k===d.k?' actuel':''}" type="button" data-go-exo="${x.k}" aria-label="Atelier ${i+1} : ${esc(x.t)}" title="${esc(x.t)}"${et==='verrou'?' disabled':''}>${et==='fini'?'✓':et==='verrou'?CADENAS_PETIT:i+1}</button>`;}).join('')}</div>`;
 }
+/* ---------- Mode atelier (ouvert depuis la Centrale) ---------- */
+/* Exercice qui suit d sans sortir du mode : le suivant de l'atelier composé, rien pour un exercice seul. */
+function prochainExo(d){
+  if(!d)return null;if(!MODE_AT)return atelierSuivant(d);
+  const L=MODE_AT.exos||[],i=L.indexOf(d.k);return i>=0&&i<L.length-1?EXOS.find(x=>x.k===L[i+1])||null:null;
+}
+/* Pastilles de l'atelier composé (exercice n sur N), dans l'en-tête de la consigne. */
+function seqHTML(k){
+  if(!MODE_AT||!MODE_AT.exos||MODE_AT.exos.length<2)return '';const L=MODE_AT.exos,i=L.indexOf(k);if(i<0)return '';
+  return `<div class="exseq"><b>${esc(MODE_AT.titre||'Atelier')}</b> · exercice ${i+1} sur ${L.length}<span class="exseqp">${L.map((q,j)=>{const x=EXOS.find(e=>e.k===q);return `<i class="${x&&exoFait(x)?'f':''}${j===i?' c':''}"></i>`;}).join('')}</span></div>`;
+}
+/* Pas d'« Annuler » vers un autre document ou un autre exercice. */
+function oublierHist(){HIST.length=0;REDO.length=0;majHist();}
+/* Choisit l'exercice à afficher : celui de l'atelier composé où l'élève en est, l'exercice demandé, ou (carte NetSim du portail)
+   l'exercice en cours, puis le prochain non terminé quand il est fini. Appelé au démarrage et après la connexion. */
+function entrerAtelier(){
+  if(!MODE_AT)return;let cible=null;
+  if(MODE_AT.exos){
+    const L=MODE_AT.exos.map(k=>EXOS.find(x=>x.k===k)).filter(Boolean);if(!L.length)return;
+    if(!(S.exo&&L.some(x=>x.k===S.exo.k)))cible=L.find(x=>!exoFait(x))||L[0];
+  }else{
+    const d=exoDef();
+    if(!(d&&(S.exo.cur||0)<d.steps.length)){
+      const ord=parcoursOrdre(),i=d?ord.findIndex(x=>x.k===d.k):-1;
+      cible=ord.slice(i+1).find(x=>!exoFait(x))||ord.find(x=>!exoFait(x))||d||ord[0];
+      if(d&&cible&&cible.k===d.k)cible=null;
+    }
+  }
+  if(cible){loadExo(cible);oublierHist();}
+  renderExo();checkExo();
+}
 function renderExo(flash){
   const B=$('#exoBox');if(!B)return;const x=S.exo;
   B.hidden=false;
   if(!x){$('#exoTitle').textContent='Pour commencer';$('#exo').innerHTML=guideHTML();return;}
   $('#exoTitle').textContent='Consigne';
   const def=exoDef(),n=x.steps.length,cur=Math.min(x.cur||0,n),done=x.done||[];
-  const head=`<div class="exh k${x.c[0]} nv${def?def.niv:0}"><div class="exhtop">${pas(x.c)}<span class="tpcn">${def?codeTP(def):''}</span>${barres(def?def.niv:0)}<span class="exhst">Atelier en cours</span></div><h3>${esc(x.t)}</h3>${def&&cur===0?`<p class="small muted" style="margin:4px 0 0">${esc(def.p)}</p>`:''}</div>`;
+  const head=`<div class="exh k${x.c[0]} nv${def?def.niv:0}"><div class="exhtop">${pas(x.c)}${barres(def?def.niv:0)}<span class="exhst">Atelier en cours</span></div>${seqHTML(x.k)}<h3>${esc(x.t)}</h3>${def&&cur===0?`<p class="small muted" style="margin:4px 0 0">${esc(def.p)}</p>`:''}</div>`;
   const pct=n>1?Math.min(cur,n-1)/(n-1)*100:0;
   const prog=`<div class="prog"><div class="ptxt">${cur>=n?'Toutes les étapes sont faites':`Étape <b>${cur+1}</b> sur ${n}`}</div><div class="jalons"><span class="jtrait"><i style="width:${pct}%"></i></span>${x.steps.map((_,i)=>`<span class="jpt ${i<cur?'d':i===cur?'c':''}" title="Étape ${i+1}">${i<cur?'✓':i===cur?i+1:CADENAS_PETIT}</span>`).join('')}</div></div>`;
   let body='';
   if(!def){body=`<ol class="steps">${x.steps.map((st,i)=>`<li><label><input type="checkbox" data-step="${i}"${done[i]?' checked':''}><span>${fmtStep(st)}</span></label></li>`).join('')}</ol>`;}
   else if(cur<n){const st=def.steps[cur];
-    body=`<div class="stepcard${flash?' flash':''}"><span class="snum">${cur+1}</span><div class="stxt">${fmtStep(st.t)}</div></div>
+    body=`<div class="stepcard${flash?' flash':''}"><span class="snum">${cur+1}</span><div class="stxt">${fmtStep(MODE_AT&&MODE_AT.titre&&st.ta?st.ta:st.t)}</div></div>
 ${guideBlock(def,cur)}
 ${lastFailHTML()}
 ${st.c?'':'<div class="sstat">Quand c’est fait, passe à l’étape suivante.</div>'}
 <div class="row" style="gap:6px"><button class="btn small${st.c?'':' primary'}" data-act="next" type="button" style="flex:1">${st.c?'Passer cette étape':'J’ai terminé, étape suivante'}</button><button class="btn small" data-act="exoclose" type="button" style="flex:1">Quitter l’atelier</button></div>`;}
-  else body=`<div class="stepcard done${flash?' flash':''}"><span class="snum">✓</span><div class="stxt"><b>Atelier terminé !</b><br>${fmtStep(x.verif)}</div></div>${def?bullesTP(def):''}`;
+  else body=`<div class="stepcard done${flash?' flash':''}"><span class="snum">✓</span><div class="stxt"><b>Atelier terminé !</b><br>${fmtStep(x.verif)}</div></div>${def&&!MODE_AT?bullesTP(def):''}`;
   const qs=x.q&&x.q.length?`<details class="sec"${cur>=n?' open':''}><summary>Questions (${x.q.length})</summary><div class="secb"><ul class="qs">${x.q.map(q=>`<li>${fmtStep(q)}</li>`).join('')}</ul></div></details>`:'';
   const all=def?`<details class="sec"><summary>Toutes les étapes</summary><div class="secb"><ol class="steps ro">${x.steps.map((st,i)=>`<li class="${i<cur?'ok':i===cur?'now':''}"><span>${fmtStep(st)}</span></li>`).join('')}</ol></div></details>`:'';
-  const nx=def&&cur>=n?atelierSuivant(def):null;
+  const nx=def&&cur>=n?prochainExo(def):null;
   const pied=def&&cur>=n
-    ?`<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center">${nx?`<button class="btn primary" data-act="suivant" type="button">Atelier suivant : ${esc(nx.t)}</button>`:'<b>Tous les ateliers sont terminés. Bravo !</b>'}<button class="btn small" data-act="exoclose" type="button">Retour à la liste</button></div>`
+    ?(MODE_AT
+      ?`<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center">${nx?`<button class="btn primary" data-act="suivant" type="button">Exercice suivant : ${esc(nx.t)}</button>`:`<b>${MODE_AT.titre?`Atelier « ${esc(MODE_AT.titre)} » terminé. Bravo !`:'Atelier terminé. Bravo !'}</b><button class="btn primary" data-act="portail" type="button">← Retour à mes ateliers</button>`}</div>`
+      :`<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center">${nx?`<button class="btn primary" data-act="suivant" type="button">Atelier suivant : ${esc(nx.t)}</button>`:'<b>Tous les ateliers sont terminés. Bravo !</b>'}<button class="btn small" data-act="exoclose" type="button">Retour à la liste</button></div>`)
     :'';
   $('#exo').innerHTML=head+prog+body+pied;
 }
 $('#exo').addEventListener('toggle',e=>{if(!e.target.matches('details.hint2')||!e.target.open||!S.exo)return;const i=S.exo.cur||0;S.exo.ind=S.exo.ind||[];if(!S.exo.ind.includes(i)){S.exo.ind.push(i);save();}},true);
 $('#exo').addEventListener('change',e=>{const i=e.target.dataset.step;if(i==null||!S.exo)return;S.exo.done=S.exo.done||[];S.exo.done[+i]=e.target.checked;save();});
 $('#exo').addEventListener('click',e=>{
-  const go=e.target.closest('[data-go-exo]');if(go){const d=EXOS.find(q=>q.k===go.dataset.goExo);if(d)loadExo(d);return;}
+  const go=e.target.closest('[data-go-exo]');if(go){const d=EXOS.find(q=>q.k===go.dataset.goExo);if(d&&(!MODE_AT||(MODE_AT.exos||[]).includes(d.k)))loadExo(d);return;}
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
   if(a==='exoclose'){snap();const nomAtelier=S.exo&&S.exo.t;delete S.exo;docCreer(nomAtelier||'Nouveau document');renderExo();save();toast('Atelier quitté. Annuler (Ctrl + Z) pour y revenir.');openParc();}
   if(a==='next'&&S.exo){const d=exoDef(),st=d&&d.steps[S.exo.cur||0];if(st&&st.c)S.exo.saut=(S.exo.saut||0)+1;S.exo.cur=(S.exo.cur||0)+1;persist();markProg();renderExo(true);checkSoon();}
   if(a==='restart'){const d=exoDef();if(d)loadExo(d);else{S.exo.cur=0;S.exo.done=[];renderExo();save();}}
-  if(a==='suivant'){const nx=atelierSuivant(exoDef());if(nx)loadExo(nx);else openParc();}
+  if(a==='suivant'){const nx=prochainExo(exoDef());if(nx){loadExo(nx);if(MODE_AT){oublierHist();checkExo();}}else openParc();}
+  if(a==='portail'){if(window.Centrale&&Centrale.retour&&Centrale.retour()!==false)return;const r=document.getElementById('bRetourCentrale');if(r)r.click();else toast('Atelier terminé : tu peux fermer NetSim.');}
   if(a==='openex')openParc();
   if(a==='tour')startTour();
 });
@@ -4247,7 +4286,33 @@ function buildTopologie(k,routesDe){
    et centrale.json (descripteur de l’atelier).
    ============================================================ */
 EXOS.forEach(x=>{if(x.niv===undefined)x.niv=CLASSES[x.c].lv;});
-const NETSIM_VERSION='1.17.0';
+const NETSIM_VERSION='1.18.0';
+/* Ateliers composés, publiés dans ateliers.json en plus des exercices : plusieurs exercices à la suite (#atelier=<id>),
+   et la session libre (#libre) où l'élève crée ses propres documents. */
+var ATELIERS_NS=[
+  {id:'premiers-pas',titre:'Premiers pas',niveau:'5e',duree:'1 h',exos:['e5-0a','e5-0b','e5-1','e5-2','e5-3'],
+   resume:'Découvrir l’écran, poser et relier ses premiers appareils, brancher la salle, ajouter le Wi-Fi et donner une adresse à chacun : cinq exercices à la suite.'},
+  {id:'session-libre',titre:'Session libre NetSim',niveau:'',duree:'',libre:true,
+   resume:'NetSim complet : créer de nouveaux documents, ouvrir les démos, importer et exporter des schémas, choisir n’importe quel exercice.'}
+];
+/* Mode atelier : NetSim ouvert depuis la Centrale (#centrale=…) ou par un atelier composé (#atelier=…). L'élève ne voit que
+   l'atelier choisi : pas de menu du logo, pas de liste des ateliers, pas de nouveau document. #libre rend NetSim complet.
+   Gardé pour l'onglet (sessionStorage), car la Centrale retire son jeton de l'adresse. */
+var MODE_AT=(function(){
+  let p;try{p=new URLSearchParams(location.hash.replace(/^#/,''));}catch(_){return null;}
+  const vc=p.has('centrale'),k=p.get('activite'),a=p.get('atelier');let m=null;
+  if(p.has('libre'))m={libre:true};
+  else if(a){const d=ATELIERS_NS.find(x=>x.id===a&&x.exos);m=d?{id:d.id,titre:d.titre,exos:d.exos.slice()}:null;}
+  else if(vc&&k)m={exos:[k]};
+  else if(vc)m={courant:true};
+  try{
+    if(vc||a||p.has('libre')){if(m)sessionStorage.setItem('netsim-mode',JSON.stringify(m));else sessionStorage.removeItem('netsim-mode');}
+    else if(!k)m=JSON.parse(sessionStorage.getItem('netsim-mode')||'null');
+    else sessionStorage.removeItem('netsim-mode');
+  }catch(_){}
+  return m&&!m.libre?m:null;
+})();
+document.documentElement.classList.toggle('ns-atelier',!!MODE_AT);
 /* Capacités du référentiel de la Centrale (passerelle/competences.json) travaillées par chaque exercice.
    Recopiées dans centrale.json (activites.liste[].competences) : outils/verifier-descripteur.html compare. */
 const COMP_EXO={
@@ -4264,8 +4329,11 @@ window.NetSim=Object.freeze({
   activites:()=>EXOS.map(x=>({id:x.k,titre:x.t,groupe:CLASSES[x.c].t+' · '+LV_NAMES[x.niv],total:x.steps.length,competences:COMP_EXO[x.k]||[]})),
   /** Catalogue des ateliers (fichier ateliers.json, format catalogue.ateliers v1) : un exercice = un atelier. */
   ateliers:()=>({format:'catalogue.ateliers',version:1,app:'netsim',app_version:NETSIM_VERSION,referentiel:'technologie-c4-2024',
-    ateliers:EXOS.map(x=>({id:x.k,titre:x.t,niveau:x.c,resume:x.p,duree:x.dur,competences:COMP_EXO[x.k]||[],
-      activites:[{id:x.k,titre:x.t,total:x.steps.length,competences:COMP_EXO[x.k]||[]}],ouvrir:x.k}))}),
+    ateliers:ATELIERS_NS.map(a=>{const xs=(a.exos||[]).map(k=>EXOS.find(x=>x.k===k)).filter(Boolean),cs=[...new Set(xs.flatMap(x=>COMP_EXO[x.k]||[]))];
+      return {id:a.id,titre:a.titre,niveau:a.niveau,resume:a.resume,duree:a.duree,competences:cs,
+        activites:xs.map(x=>({id:x.k,titre:x.t,total:x.steps.length,competences:COMP_EXO[x.k]||[]})),ouvrir:a.exos?'#atelier='+a.id:'#libre'};})
+    .concat(EXOS.map(x=>({id:x.k,titre:x.t,niveau:x.c,resume:x.p,duree:x.dur,competences:COMP_EXO[x.k]||[],
+      activites:[{id:x.k,titre:x.t,total:x.steps.length,competences:COMP_EXO[x.k]||[]}],ouvrir:x.k})))}),
   /** Catalogue détaillé des exercices. */
   catalogue:()=>EXOS.map(x=>({id:x.k,classe:x.c,niveau:CLASSES[x.c].lv,categorie:x.cat,categorie_titre:catName(x.c,x.cat),titre:x.t,resume:x.p,duree:x.dur,etapes:x.steps.length,etapes_auto:x.steps.filter(st=>st.c).length,questions:x.q||[],alertes:x.help!==false})),
   /** Progression d’un exercice au format de la Centrale, ou null. */
@@ -4306,7 +4374,7 @@ const TOUR=[
   {sel:'.topbar .brand',t:'Le menu NetSim',p:'Un clic sur le logo ouvre le menu : créer un schéma vide, lancer une démo, importer ou exporter ton travail dans un fichier .json, ouvrir tes ateliers.'},
   {sel:'.tb-hist',t:'Annuler et Rétablir',p:'Ces deux flèches, dans la barre du haut à côté du logo, reviennent en arrière si tu t’es trompé (Annuler, Ctrl + Z) ou refont ce que tu viens d’annuler (Rétablir, Ctrl + Y). Sur Mac : ⌘ + Z et ⌘ + Maj + Z.'},
   {sel:'#bCentrale',t:'Visiteur',p:'Pour te connecter avec le code donné par ton professeur, ou changer de classe. Sans connexion, ton travail reste enregistré dans le navigateur.'},
-  {sel:'#bResume',t:'L’atelier en cours',p:'La pastille donne ta classe, puis le code de l’atelier et le nombre d’ateliers terminés. Un clic ouvre Mes ateliers : tous les ateliers et tes documents.'},
+  {sel:'#bResume',t:'L’atelier en cours',p:'La pastille donne ta classe, puis le nom de l’atelier, son niveau et le nombre d’exercices terminés. Un clic ouvre Mes ateliers : tous les ateliers et tes documents.'},
   {sel:'[data-tool="select"]',t:'L’outil Sélection',p:'Il sert à cliquer sur un appareil pour le choisir, et à le déplacer en le faisant glisser.'},
   {sel:'[data-tool="cable"]',t:'L’outil Câble',p:'Clique sur un appareil, puis sur un autre : un câble les relie. Un trait en pointillés représente une liaison Wi-Fi.'},
   {sel:'#pdevs',t:'Les appareils',p:'Glisse un appareil (PC, portable, smartphone, imprimante, serveur, switch) sur la feuille blanche. Tu peux aussi cliquer dessus.'},
@@ -4433,7 +4501,7 @@ function detailTP(t,e,code,ord){
       ?`<div class="fbtns"><button class="btn frecom" data-parc="${cible.k}" data-recommence="1" type="button">Recommencer</button><button class="btn primary fgo" data-parc="${cible.k}" type="button">${suite}</button></div>`
       :`<button class="btn primary fgo" data-parc="${cible.k}" type="button">Commencer</button>`;
   const comp=PREF.prof?competencesTP(t).map(c=>`<span class="fcc">${tpill(c)}<b>${c}</b><span>${esc(REF_TEXTE[c]||'')}</span></span>`).join(''):'';
-  return `<div class="fiche k${t.c[0]} nv${t.niv} ${e}"><div class="fhead"><div class="fgauche">${pas(t.c)}<span class="tpcn">${code}</span>${barres(t.niv)}</div><span></span><span class="fferme"><button class="btn small" data-tpclose type="button">Fermer</button></span></div>
+  return `<div class="fiche k${t.c[0]} nv${t.niv} ${e}"><div class="fhead"><div class="fgauche">${pas(t.c)}${barres(t.niv)}</div><span></span><span class="fferme"><button class="btn small" data-tpclose type="button">Fermer</button></span></div>
 ${e==='verrou'?`<div class="fmasque"><span class="tplock fcadenas" aria-label="Verrouillé"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><i class="tpmask"></i><i class="tpmask court"></i></div>`:`<h3 class="ftitre">${esc(t.titre)}</h3>
 <p class="fdesc">${esc(t.desc)}</p>`}
 <div class="fbar"><span>${f}/${n} exercices terminés</span><div class="tpbar"><i style="width:${pct}%"></i></div></div>
@@ -4471,17 +4539,16 @@ function parcoursHTML(){
       rang++;const e=tpEtat(t,ord),f=t.exos.filter(exoFait).length,pct=Math.round(f/t.exos.length*100);
       const libelle={fini:'Terminé',cours:'En cours',verrou:'Verrouillé'}[e];
       DETAIL[tpId(t)]=detailTP(t,e,code,ord);
-      return `<button class="tpc ${e} k${c[0]} nv${niv}" data-tpopen="${tpId(t)}" type="button">${e==='verrou'?`<span class="tplock" aria-label="Verrouillé"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>`:`<span class="tpcn">${code}</span>`}<span class="tpct">${e==='verrou'?'<i class="tpmask"></i>':`<b>${TP_LABEL[t.k]}</b> ${esc(t.titre)}`}</span>${barres(niv)}<span class="tpcp">${f}/${t.exos.length}</span>${e==='fini'?'<span class="tpok" aria-label="Terminé">✓</span>':'<span class="tpok tpko" aria-label="Non validé"></span>'}</button>`;
+      return `<button class="tpc ${e} k${c[0]} nv${niv}" data-tpopen="${tpId(t)}" type="button">${pas(c)}${barres(niv)}<span class="tpct">${e==='verrou'?'<i class="tpmask"></i>':`<b>${TP_LABEL[t.k]}</b> ${esc(t.titre)}`}</span>${e==='verrou'?`<span class="tplock" aria-label="Verrouillé"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>`:`<span class="tpav" aria-label="${f} sur ${t.exos.length} exercices terminés"><span class="tpbar"><i style="width:${pct}%"></i></span><span class="tpcp">${f}/${t.exos.length}</span></span>`}</button>`;
     }).join('');
     return `<div class="pgrp" id="niv-${c}-${niv}" data-cl="${c}"${(PF!=='all'&&PF!==c)||(PN!=='all'&&PN!==String(niv))?' hidden':''}>${blocs||'<p class="tpvide">Ateliers à venir.</p>'}</div>`;
   }).join('')).join('');
   const pct=Math.round(fait/ord.length*100);
   const tousTP=tpsParc();
   const tpS=suivant?tousTP.find(t=>t.exos.includes(suivant)):null;
-  const codeS=tpS?`${tpS.c[0]}-${tpS.niv+1}-${tousTP.filter(u=>u.c===tpS.c&&u.niv===tpS.niv).indexOf(tpS)+1}`:'';
   const fS=tpS?tpS.exos.filter(exoFait).length:0, nS=tpS?tpS.exos.length:0;
   const widget=`<div class="widget"><div class="wtop"><div class="wtitre">Atelier courant</div><div class="wetat"><div class="wrecap">${CLASSES_PARC.filter(([c])=>accessibles.includes(c)).map(([c])=>{const xs=EXOS.filter(x=>x.c===c);return `<span class="wrc">${pas(c)}<b>${xs.filter(exoFait).length}/${xs.length}</b></span>`;}).join('')}<span class="wtot">${fait}/${ord.length}</span></div><div class="gbar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div>
-<div class="wrow"><div class="wsuite${suivant?' k'+suivant.c[0]:''}">${suivant?`<div class="wsinfo"><div class="wligne">${tpS?`<span class="wbig">${tpS.c[0]}</span>`:''}<span class="tpcn">${codeS}</span><b>${esc(suivant.t)}</b></div><span class="wenonce">${tpS?esc(tpS.desc):''}</span><div class="wtp"><div class="wprog"><i style="width:${nS?Math.round(fS/nS*100):0}%"></i></div><span class="tpcp">${fS}/${nS}</span></div></div><button class="btn primary wgo k${suivant.c[0]}" data-parc="${suivant.k}" type="button">Continuer</button>`:(ord.every(exoFait)?'<b>Tous les ateliers sont terminés. Bravo !</b>':`<b>Tous les ateliers de la ${PREF.classe.replace('e','ᵉ')} sont terminés.</b>`)}</div></div></div>`;
+<div class="wrow"><div class="wsuite${suivant?' k'+suivant.c[0]:''}">${suivant?`<div class="wsinfo"><div class="wligne">${tpS?`<span class="wbig">${tpS.c[0]}</span>`:''}<b>${esc(suivant.t)}</b></div><span class="wenonce">${tpS?esc(tpS.desc):''}</span><div class="wtp"><div class="wprog"><i style="width:${nS?Math.round(fS/nS*100):0}%"></i></div><span class="tpcp">${fS}/${nS}</span></div></div><button class="btn primary wgo k${suivant.c[0]}" data-parc="${suivant.k}" type="button">Continuer</button>`:(ord.every(exoFait)?'<b>Tous les ateliers sont terminés. Bravo !</b>':`<b>Tous les ateliers de la ${PREF.classe.replace('e','ᵉ')} sont terminés.</b>`)}</div></div></div>`;
   PARC_DETAIL=DETAIL;
   const filtres=`<div class="pfbarres">${accessibles.length>1?`<div class="pfiltres" role="group" aria-label="Filtrer par classe">${[['all','Tout'],...accessibles.map(c=>[c,c[0]])].map(([v,l])=>`<button type="button" class="pf${PF===v?' on':''}" data-pf="${v}" aria-pressed="${PF===v}" aria-label="${v==='all'?'Toutes les classes':'Classe '+l+'ᵉ'}"><span class="pfc ${v==='all'?'pall':'p'+l}">${l}</span></button>`).join('')}</div>`:''}
 <div class="pniv${PF!=='all'?' k'+PF[0]:''}" role="group" aria-label="Filtrer par niveau">${[['all','Tous niveaux'],['0','Débutant'],['1','Intermédiaire'],['2','Avancé']].map(([v,l])=>`<button type="button" class="pn${PN===v?' on':''}" data-pn="${v}" aria-pressed="${PN===v}">${v==='all'?'':barres(+v)}${l}</button>`).join('')}</div></div>`;
@@ -4489,7 +4556,7 @@ function parcoursHTML(){
 ${filtres}
 ${cartes}<div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn small" data-act="resetprog" type="button">Effacer ma progression</button></div>`;
 }
-function openParc(){closeMenus();$('#parcBody').innerHTML='<div class="parcgrille"><div class="parcdocs">'+docsHTML()+'</div><div class="parcat"><h3 class="parcth">Mes ateliers</h3>'+parcoursHTML()+'</div></div>'+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
+function openParc(){if(MODE_AT)return;closeMenus();$('#parcBody').innerHTML='<div class="parcgrille"><div class="parcdocs">'+docsHTML()+'</div><div class="parcat"><h3 class="parcth">Mes ateliers</h3>'+parcoursHTML()+'</div></div>'+'<div class="tpmodal" id="tpmodal" hidden><div class="tpmbox"><div id="tpbody"></div></div></div>';$('#parc').hidden=false;}
 function closeParc(){$('#parc').hidden=true;}
 /* Le menu ouvert suit les changements (atelier, classe, niveau) : il est redessiné en gardant sa position. */
 function rafraichirParc(){if($('#parc').hidden)return;const y=$('#parc').scrollTop;openParc();$('#parc').scrollTop=y;}
@@ -4688,7 +4755,7 @@ $('#accueil').addEventListener('click',e=>{
   applyPrefs();syncLevel();updPause();placeAll();setHint();render();renderProps();fillDevSelect();renderFrames();
   requestAnimationFrame(fitView);
   const premiere=!loaded&&!Object.keys(PROG).some(k=>k!=='__seen');
-  if(premiere&&!location.hash){accueilRetour=true;$('#accueil').hidden=false;}else openParc();
+  if(premiere&&!location.hash&&!MODE_AT){accueilRetour=true;$('#accueil').hidden=false;}else openParc();
   window.addEventListener('resize',()=>{});
 })();
 /* Ouverture directe d'un exercice par l'adresse (#activite=e5-1), sans la Centrale. Depuis le portail
@@ -4703,6 +4770,7 @@ function ouvrirDepuisAdresse(){
   if(!(S.exo&&S.exo.k===k)){loadExo(x);toast(`Atelier « ${x.t} » : suis les étapes de la consigne.`);}
 }
 ouvrirDepuisAdresse();
+entrerAtelier();
 window.addEventListener('hashchange',ouvrirDepuisAdresse);
 </script>
 
@@ -4879,6 +4947,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       const demande=Centrale.activiteDemandee();
       const exo=demande&&EXOS.find(x=>x.k===demande);
       if(exo&&!(S.exo&&S.exo.k===exo.k))loadExo(exo);
+      if(typeof entrerAtelier==='function'){entrerAtelier();oublierHist();majResume();}
       toast(`Connecté : ${infos.classe} · élève ${infos.eleve}. Ton travail est enregistré automatiquement.`);
     }catch(e){
       toast('Connexion au serveur impossible : '+e.message);

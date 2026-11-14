@@ -17,6 +17,7 @@ puis HTML, puis le JavaScript), sans build ni dépendance. Détails : [README.md
   - Widget de l'élève : `creerBouton()`, `majBouton()`, puis `Centrale.boutonPrecedent()` pour « ← » et `Centrale.menuEleve()` au clic quand l'élève est connecté (hors connexion : `basculerProfil()`).
 - **Annuler / rétablir** : `HIST` / `REDO`, `snap()` avant chaque modification, `undo()`, `redo()`, `majHist()` (boutons grisés), `restaurer()`. Ils ne marchent qu'en mode conception (`mode==='design'`). Raccourcis : Ctrl/⌘+Z, Ctrl+Y ou Ctrl/⌘+Maj+Z.
 - **Modèle** : état `S` (appareils, câbles, zones), `newDevice`, `connect`, `afterEdit()` (dessin, propriétés, sauvegarde).
+- **Mode atelier** (ouvert depuis la Centrale) : `MODE_AT`, lu dans l'adresse avant le module de la Centrale et gardé dans `sessionStorage` (`netsim-mode`) ; classe `ns-atelier` sur `<html>`. `ATELIERS_NS` déclare les ateliers composés (`premiers-pas`) et la session libre (`#libre`), publiés en tête de `NetSim.ateliers()`. `entrerAtelier()` choisit l'exercice (au démarrage et après la connexion), `prochainExo()` donne le suivant, `openParc()` ne fait rien. Une étape `ha:1` est validée d'office en mode atelier ; `ta` remplace son texte dans un atelier composé.
 - **Visite guidée** : tableau des étapes `{sel, t, p}` (rechercher `sel:'.tb-hist'`).
 
 ## Tester

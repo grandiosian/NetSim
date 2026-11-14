@@ -6,7 +6,7 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.17.0",
+    "version": "1.18.0",
     "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 52 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
@@ -24,7 +24,10 @@
       "bac2"
     ],
     "parametres": {
-      "#activite=<id>": "ouvre directement l’exercice <id> (e5-1…), même sans connexion à la Centrale"
+      "#activite=<id>": "ouvre directement l’exercice <id> (e5-1…), même sans connexion à la Centrale",
+      "#atelier=<id>": "atelier composé (premiers-pas : e5-0a à e5-3 à la suite), en mode atelier",
+      "#libre": "session libre : NetSim complet (documents, démos, import, tous les exercices), même ouvert depuis la Centrale",
+      "#centrale=…": "ouvert depuis la Centrale : mode atelier (l’exercice ou l’atelier choisi seulement, ni menu du logo, ni liste des ateliers, ni nouveau document)"
     },
     "_correspondance": "Champs de la table ateliers de la Centrale : app, nom, description, url, icone, urls_secours."
   },
@@ -276,7 +279,7 @@
         "resume": "Découvrir l’écran pas à pas, puis placer deux ordinateurs et leur donner une adresse IP.",
         "duree": "25 min",
         "etapes": 9,
-        "etapes_auto": 6,
+        "etapes_auto": 7,
         "questions": [
           "Quel est le nom de ton PC ?",
           "Pourquoi un appareil a-t-il besoin d’une adresse IP ?"
@@ -1423,7 +1426,7 @@
   },
   "ateliers": {
     "catalogue": "ateliers.json",
-    "note": "Un exercice = un atelier (NetSim.ateliers()). Ouverture directe sans connexion : index.html#activite=<id>."
+    "note": "Un exercice = un atelier (NetSim.ateliers()), plus deux ateliers en tête : premiers-pas (#atelier=premiers-pas, cinq exercices à la suite) et session-libre (#libre). Ouverture directe sans connexion : index.html#activite=<id>."
   },
   "donnees": {
     "schema": {

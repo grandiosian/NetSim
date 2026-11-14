@@ -78,6 +78,13 @@ Le widget **Visiteur**, dans la barre du haut, permet de se connecter avec son c
 
 Sans connexion ou sans réseau, rien ne change : NetSim enregistre dans le navigateur.
 
+**Ouvert depuis la Centrale : mode atelier.** L'élève ne voit que l'atelier choisi : pas de menu du logo, pas de liste des ateliers, pas de nouveau document, pas de « Quitter l'atelier ». À la fin, « ← Retour à mes ateliers » le ramène au portail.
+- Un exercice du catalogue (`#activite=e5-1`) : cet exercice seul.
+- **Premiers pas** (`#atelier=premiers-pas`) : e5-0a, e5-0b, e5-1, e5-2 et e5-3 à la suite. La pastille du centre donne l'avancement (« Premiers pas 2/5 ») et la consigne indique « exercice n sur 5 ». Les deux étapes de l'exercice e5-0a sur le menu du logo sont validées d'office.
+- La carte « NetSim » du portail : l'exercice proposé par le portail ; s'il est fini, le prochain non terminé.
+- **Session libre NetSim** (`#libre`) : NetSim complet, avec documents, démos, import et export.
+Le mode est gardé pour l'onglet (`sessionStorage`, clé `netsim-mode`) : un rechargement ne le perd pas. Sans la Centrale et sans `#atelier=`, NetSim reste complet.
+
 **Sans serveur** : chaque atelier s’ouvre directement par son adresse, par exemple `https://grandiosian.github.io/NetSim/#activite=e5-1`. **Fichier → Exporter le schéma** propose « Enregistrer le fichier » et « Déposer sur Nuage » : le fichier est enregistré puis le dossier Nuage de la classe s’ouvre. C’est la sauvegarde de secours.
 Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"` avant le chargement de la page.
 
