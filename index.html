@@ -113,6 +113,12 @@ button{cursor:pointer}
 .exseqp{display:inline-flex;gap:4px}.exseqp i{width:9px;height:9px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line)}.exseqp i.f{background:var(--ok,#2f9a4a);border-color:transparent}.exseqp i.c{outline:2px solid var(--warn);outline-offset:1px}
 /* Consigne : liseré jaune et titre jaune en petites capitales, comme le Guide d'Établi 3D */
 #exoBox{border-left:4px solid var(--warn)}#exoBox .pht{color:var(--warn);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+/* Pied de la consigne : « ← » et « Suivant → » de la Centrale (Centrale.navigation), hors de la Centrale il est caché */
+.exnav{flex:none;display:flex;flex-direction:column;gap:5px;padding:9px 12px 10px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--surface) 75%,transparent)}.exo.folded .exnav{display:none}
+.exnvr{display:flex;align-items:center;gap:8px}.exnvr .btn{min-width:0}.exnvr .btn span{overflow:hidden;text-overflow:ellipsis}
+.exnvpos{flex:none;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);white-space:nowrap;margin-right:6px}.exnvpos b{color:var(--warn)}
+.exnvs{margin-left:auto;flex:none}.exnvs:disabled{background:var(--surface-2);border-color:var(--line);color:var(--ink-3);cursor:not-allowed;filter:none}
+.exnvt{font-size:12px;line-height:1.35;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.exnvt.verrou{color:var(--warn);white-space:normal}.exnvt svg{vertical-align:-1px;margin-right:4px}
 .app.sim .exo:not(.moved){left:12px}
 .work.fopen .exo:not(.moved){max-height:calc(100% - 370px)}
 .exh h3{margin:6px 0 0;font-family:var(--f-disp);font-weight:800;font-size:18px;line-height:1.2;text-wrap:balance}
@@ -930,7 +936,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
 .tbid>button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .tbid .tbid-ret{font-weight:700;padding-right:12px}
 .tbid .tbid-ret:not([hidden])+#bCentrale{border-left:1px solid var(--line);border-radius:0 999px 999px 0;padding-left:12px}
-.tbid #bCentrale span{font-family:var(--f-mono);font-size:12px}
+.tbid #bCentrale span{font-family:var(--f-mono);font-size:12px}.tbid #bCentrale span.tbid-nom{font-family:var(--f-body);font-size:13px}.tbid #bCentrale span.tbid-anon{font-style:italic;color:var(--ink-3)}
 @media (max-width:700px){.tbid .tbid-ret .tbid-txt,.tbid .tbid-ret .centrale-precedent-txt{display:none}}
 .tbres .tpcn{background:var(--cl,var(--accent));color:#1c3268;border:1px solid var(--cl,var(--accent));flex:none}
 .tbres .tpnom{font-weight:700;overflow:hidden;text-overflow:ellipsis}
@@ -1296,6 +1302,7 @@ table.mt{width:100%;border-collapse:collapse;font-size:12px}
     <aside class="exo glass" id="exoBox" aria-label="Guide et consigne">
       <div class="phead" data-fold="exoBox"><span class="pht" id="exoTitle">Pour commencer</span><button class="fold" type="button" aria-label="Replier ou déplier"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
       <div class="pscroll" id="exo"></div>
+      <div class="exnav" id="exoNav" hidden></div>
     </aside>
     <div class="ctrl glass" id="ctrl"><button class="cmini" id="cMini" type="button"></button></div>
 
@@ -3980,10 +3987,43 @@ function entrerAtelier(){
   if(cible){loadExo(cible);oublierHist();}
   renderExo();checkExo();
 }
+/* ---------- Navigation de la Centrale dans le pied de la consigne ----------
+   NAV_C : ce que donne Centrale.navigation (SPECIFICATION §2.6), null hors de la Centrale ou avec un module plus ancien.
+   { contexte, position:{numero,total,titre}, precedent:{libelle,court,titre,aller()}, suivant:{cible,libelle,court,titre,verrou,raison,fin,aller()} } */
+var NAV_C=null,navEnvoi=false;
+function majNavConsigne(nav){
+  if(nav!==undefined){
+    const avant=!!NAV_C+'|'+!!(NAV_C&&NAV_C.suivant);NAV_C=nav||null;
+    // la fin d'exercice montre ses propres boutons seulement hors navigation : on la redessine si cela change
+    if(avant!==!!NAV_C+'|'+!!(NAV_C&&NAV_C.suivant)&&S.exo&&(S.exo.cur||0)>=S.exo.steps.length){renderExo();return;}
+  }
+  const F=$('#exoNav');if(!F)return;const v=NAV_C;
+  F.hidden=!v||!(v.precedent||v.suivant);if(F.hidden){F.innerHTML='';return;}
+  const p=v.precedent,s=v.suivant,pos=v.position;
+  const portail=s&&s.cible==='portail',bout=s?(s.libelle||'').split('→')[0].trim():'';
+  /* 2ᵉ ligne : « Étape n / N », puis la suite (ou la raison du verrou) */
+  const posH=pos&&pos.total>1?`<span class="exnvpos"${pos.titre?` title="${esc(pos.titre)}"`:''}>Étape <b>${pos.numero}</b> / ${pos.total}</span>`:'';
+  const suite=!s?'':s.verrou?`${CADENAS_PETIT}${esc(s.raison||'Pas encore ouvert')}`
+    :portail?(bout&&bout!==(s.court||'Mes ateliers')?esc(bout):'')
+    :`Ensuite : ${esc(s.libelle||'')}`;
+  const note=posH||suite?`<div class="exnvt${s&&s.verrou?' verrou':''}"${s&&!s.verrou&&!portail?` title="${esc(s.libelle||'')}"`:''}>${posH}${suite}</div>`:'';
+  F.innerHTML=`<div class="exnvr">${p?`<button class="btn small" type="button" data-nav="precedent" title="${esc(p.titre||'')}"><span aria-hidden="true">←</span><span>${esc(p.court||p.libelle||'Retour')}</span></button>`:''}`
+    +(s?`<button class="btn small primary exnvs" type="button" data-nav="suivant" title="${esc(s.titre||s.raison||'')}"${s.verrou?' disabled aria-disabled="true"':''}>${s.verrou?CADENAS_PETIT:''}<span>${portail?esc(s.court||'Mes ateliers'):'Suivant'}</span><span aria-hidden="true">→</span></button>`:'')
+    +`</div>${note}`;
+}
+$('#exoNav').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-nav]');if(!b||b.disabled||navEnvoi||!NAV_C)return;
+  const c=NAV_C[b.dataset.nav];if(!c||c.verrou||typeof c.aller!=='function')return;
+  navEnvoi=true;$('#exoNav').querySelectorAll('button').forEach(x=>x.disabled=true);
+  let ok=false;try{ok=await c.aller();}catch(_){ok=false;}
+  if(ok===false){navEnvoi=false;majNavConsigne();toast(c.raison||'Impossible pour le moment : réessaie dans un instant.');}
+  else setTimeout(()=>{navEnvoi=false;majNavConsigne();},5000);   // la page reste (rare) : boutons rendus
+});
 function renderExo(flash){
   majModeAtelier();
   const B=$('#exoBox');if(!B)return;const x=S.exo;
   B.hidden=false;
+  majNavConsigne();if(window.centraleNavExo)centraleNavExo(x&&x.k);   // autre exercice ouvert : la Centrale recalcule la suite
   if(!x){$('#exoTitle').textContent='Pour commencer';$('#exo').innerHTML=guideHTML();return;}
   $('#exoTitle').textContent='Consigne';
   const def=exoDef(),n=x.steps.length,cur=Math.min(x.cur||0,n),done=x.done||[];
@@ -4003,10 +4043,11 @@ ${st.c?'':'<div class="sstat">Quand c’est fait, passe à l’étape suivante.<
   else body=`<div class="stepcard done${flash?' flash':''}"><span class="snum">✓</span><div class="stxt"><b>Atelier terminé !</b><br>${fmtStep(x.verif)}</div></div>${def&&!MODE_AT?bullesTP(def):''}`;
   const qs=x.q&&x.q.length?`<details class="sec"${cur>=n?' open':''}><summary>Questions (${x.q.length})</summary><div class="secb"><ul class="qs">${x.q.map(q=>`<li>${fmtStep(q)}</li>`).join('')}</ul></div></details>`:'';
   const all=def?`<details class="sec"><summary>Toutes les étapes</summary><div class="secb"><ol class="steps ro">${V.map(i=>`<li class="${i<cur?'ok':i===cur?'now':''}"><span>${fmtStep(MODE_AT&&MODE_AT.titre&&def.steps[i].ta?def.steps[i].ta:x.steps[i])}</span></li>`).join('')}</ol></div></details>`:'';
-  const nx=def&&cur>=n?prochainExo(def):null;
+  /* La Centrale navigue (pied de la consigne) : pas de second bouton « suivant » ni « retour » dans la consigne. */
+  const nx=def&&cur>=n?prochainExo(def):null,navS=!!(NAV_C&&NAV_C.suivant);
   const pied=def&&cur>=n
     ?(MODE_AT
-      ?`<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center">${nx?`<button class="btn primary" data-act="suivant" type="button">Exercice suivant : ${esc(nx.t)}</button>`:`<b>${MODE_AT.titre?`Atelier « ${esc(MODE_AT.titre)} » terminé. Bravo !`:'Atelier terminé. Bravo !'}</b><button class="btn primary" data-act="portail" type="button">← Retour à mes ateliers</button>`}</div>`
+      ?`<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center">${nx&&navS?'<b>Exercice réussi. Bravo ! La suite : « Suivant », en bas.</b>':nx?`<button class="btn primary" data-act="suivant" type="button">Exercice suivant : ${esc(nx.t)}</button>`:`<b>${MODE_AT.titre?`Atelier « ${esc(MODE_AT.titre)} » terminé. Bravo !`:'Atelier terminé. Bravo !'}</b>${NAV_C?'':'<button class="btn primary" data-act="portail" type="button">← Retour à mes ateliers</button>'}`}</div>`
       :`<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center">${nx?`<button class="btn primary" data-act="suivant" type="button">Atelier suivant : ${esc(nx.t)}</button>`:'<b>Tous les ateliers sont terminés. Bravo !</b>'}<button class="btn small" data-act="exoclose" type="button">Retour à la liste</button></div>`)
     :'';
   $('#exo').innerHTML=head+prog+body+pied;
@@ -4314,7 +4355,7 @@ var ATELIERS_NS=[
    Gardé pour l'onglet (sessionStorage), car la Centrale retire son jeton de l'adresse. */
 var MODE_AT=(function(){
   let p;try{p=new URLSearchParams(location.hash.replace(/^#/,''));}catch(_){return null;}
-  const vc=p.has('centrale'),k=p.get('activite'),a=p.get('atelier');let m=null;
+  const vc=p.has('centrale'),k=p.get('activite'),ca=p.get('centrale_atelier'),a=p.get('atelier')||(ATELIERS_NS.some(x=>x.id===ca&&x.exos)?ca:null);let m=null;
   if(p.has('libre'))m={libre:true};
   else if(a){const d=ATELIERS_NS.find(x=>x.id===a&&x.exos);m=d?{id:d.id,titre:d.titre,exos:d.exos.slice()}:null;}
   else if(vc&&k)m={exos:[k]};
@@ -4825,6 +4866,8 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   let pret=false,bouton=null,widget=null,fenetre=null;
   let precedent=null;   // { bouton, maj } donné par Centrale.boutonPrecedent (Centrale récente)
   let vueEssai=null;    // { bouton, maj } donné par Centrale.boutonVue : interrupteur Élève | Enseignant (essai de l’enseignant)
+  let navCentrale=null; // { maj, arreter } donné par Centrale.navigation : pied de la consigne
+  let exoNav='';        // exercice ouvert la dernière fois que la navigation a été calculée
   /* Adresse du portail quand NetSim a été ouvert depuis la Centrale (#…&retour=…, gardée par le client). */
   const adresseRetour=()=>{try{return sessionStorage.getItem('centrale-retour');}catch(_){return null;}};
 
@@ -4846,6 +4889,10 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       boutonRetour:false,   // « ← Mes ateliers » / « ← Étape précédente » est dans le widget de la barre du haut
       surDeconnexion:()=>{pret=false;majBouton();toast('Session terminée : reconnecte-toi pour enregistrer ton travail.');}
     });
+    // « ← » et « Suivant → » dans le pied de la consigne (module récent ; sinon les boutons flottants du module restent)
+    if(Centrale.navigation)navCentrale=Centrale.navigation(nav=>majNavConsigne(nav),{activite:()=>(S.exo&&S.exo.k)||''});
+    // vue Enseignant d’un essai : le widget montre le nom de l’élève (Centrale.nomAffiche)
+    if(Centrale.surChangementVue)Centrale.surChangementVue(()=>majBouton());
     majBouton();
     if(avecJeton||Centrale.connecte())Centrale.afficherConnexion(corpsFenetre(),{onConnecte:connecte});
   }
@@ -4898,8 +4945,12 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   function majBouton(){
     if(!bouton)return;
     const s=window.Centrale&&Centrale.connecte()&&Centrale.session();
-    bouton.innerHTML=`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>${esc(s?(s.identifiant||s.eleve):'Visiteur')}</span>`;
-    bouton.title=s?'Connecté : ton travail est enregistré sur le serveur de la classe. Clic : retour sur la Centrale':'Visiteur : clique pour te connecter avec ton code et enregistrer ton travail';
+    /* Centrale.nomAffiche : l’identifiant, ou en vue Enseignant d’un essai le nom gardé sur cet ordinateur (« pas désanonymisé ») */
+    const nomProf=s&&Centrale.nomEnseignant?Centrale.nomEnseignant():null;
+    const nom=s?((Centrale.nomAffiche&&Centrale.nomAffiche())||s.identifiant||s.eleve):'Visiteur';
+    bouton.innerHTML=`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span${nomProf===null?'':nomProf?' class="tbid-nom"':' class="tbid-nom tbid-anon"'}>${esc(nom)}</span>`;
+    bouton.title=nomProf!==null?`Vue Enseignant : ${nomProf?'nom de l’élève gardé sur cet ordinateur':'élève pas désanonymisé sur cet ordinateur'} (${s.identifiant||s.eleve}). Clic : retour sur la Centrale`
+      :s?'Connecté : ton travail est enregistré sur le serveur de la classe. Clic : retour sur la Centrale':'Visiteur : clique pour te connecter avec ton code et enregistrer ton travail';
     if(window.Centrale&&Centrale.boutonVue&&!vueEssai){
       vueEssai=Centrale.boutonVue({classe:'tb-vue',onChange:appliquerVueNS});   // caché hors essai
       const d=document.querySelector('.topbar .tb-droite');if(d)d.prepend(vueEssai.bouton);
@@ -5006,6 +5057,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
 
   /* ---------- Appelés par NetSim ---------- */
   window.centraleTravail=()=>{if(pret&&Centrale.connecte())Centrale.sauver('schema',S);};
+  window.centraleNavExo=k=>{if(navCentrale&&(k||'')!==exoNav){exoNav=k||'';navCentrale.maj();}};
   window.centraleProgres=k=>{
     if(!pret||!Centrale.connecte())return;
     envoyerProgres(k);
