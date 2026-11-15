@@ -5018,12 +5018,14 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     majBouton();
     try{
       const serveur=await Centrale.mesProgressions();
-      const schema=await Centrale.charger('schema',null);
       /* 0. Copie de ce navigateur : elle n'est renvoyée que si elle est à cet élève (ou faite en visiteur). Copie d'un autre élève
-         (poste partagé, essais de l'enseignant) ou travail effacé sur le serveur (« Remettre à zéro ») : on repart de ce qu'a le serveur. */
-      const qui=(infos.classe||'')+'/'+(infos.eleve||''),lie=lireLien();let remis=false;
-      if(lie&&(lie!==qui||(!Object.keys(serveur||{}).length&&!NetSim.estSchema(schema)))){
-        remis=lie===qui;Object.keys(PROG).forEach(k=>delete PROG[k]);saveProg();
+         (poste partagé, essais de l'enseignant) ou travail effacé sur le serveur (« Remettre à zéro ») : on repart de ce qu'a le serveur.
+         Décidé d'après le serveur seul (listeDonnees) : charger() reprendrait la copie de secours du module, restée dans le navigateur. */
+      const qui=(infos.classe||'')+'/'+(infos.eleve||''),lie=lireLien();
+      const cles=await Centrale.listeDonnees().then(l=>(l||[]).map(c=>c.cle)).catch(()=>null);
+      const remis=!!lie&&lie===qui&&!Object.keys(serveur||{}).length&&!!cles&&!cles.includes('schema');
+      if(lie&&(lie!==qui||remis)){
+        Object.keys(PROG).forEach(k=>delete PROG[k]);saveProg();
         S=blank();sel=null;pendingCable=null;$('#helpChk').checked=true;
         try{localStorage.setItem(KEY,JSON.stringify(S));}catch(_){}
         syncLevel();render();renderProps();if(typeof renderExo==='function')renderExo();
@@ -5036,10 +5038,13 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
         const l=PROG[k],p=serveur[k];
         if(!p||(l.best||0)>(p.faites||0)||(l.done&&p.statut!=='termine'))envoyerProgres(k);
       });
-      const vus=await Centrale.charger('decouvertes',[]);
+      const vus=remis?[]:await Centrale.charger('decouvertes',[]);
       PROG.__seen=[...new Set([...(PROG.__seen||[]),...(Array.isArray(vus)?vus:[])])];
       saveProg();
       // 2. Schéma : on reprend celui du serveur s'il existe, sinon on envoie celui de ce navigateur
+      //    (remis à zéro : pas de charger(), le schéma vide envoyé remplace la copie de secours du module)
+      const schema=remis?null:await Centrale.charger('schema',null);
+      if(remis)Centrale.sauver('decouvertes',PROG.__seen||[]);
       if(NetSim.estSchema(schema)){
         if(JSON.stringify(schema)!==JSON.stringify(S)){
           snap();                                   // l'ancien schéma reste accessible avec « Annuler »
