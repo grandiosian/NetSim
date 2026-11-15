@@ -74,6 +74,9 @@ button{cursor:pointer}
 .brand svg{width:28px;height:28px}
 .tb-gauche,.tb-droite{display:flex;align-items:center;gap:10px}
 .tb-droite{justify-content:flex-end}
+/* Essai de l’enseignant (« Tester à la place d’un élève ») : interrupteur Élève | Enseignant du module de la Centrale, collé au centre */
+.tb-droite .tb-vue{margin-right:auto;color:var(--ink)}
+.topbar.compacte .tb-vue .centrale-vue-txt{display:none}.topbar.compacte .tb-vue button{padding:0 8px}
 /* Annuler / Rétablir : mêmes boutons-icônes que ceux de droite (36 × 34), grisés sans historique ou pendant la simulation. */
 .tb-hist{display:flex;align-items:center;gap:2px;flex:none}
 .tb-hist .btn:disabled{opacity:.4;cursor:default;pointer-events:none}
@@ -4329,8 +4332,18 @@ document.documentElement.classList.toggle('ns-atelier',!!MODE_AT);
    publié dans ateliers.json. */
 var INTERFACE_ATELIER={menu:false,bibliotheque:false,niveau:false};
 function interfaceAtelier(def){return Object.assign({},INTERFACE_ATELIER,(def&&def.interface)||{});}
+/* Vue enseignant d’un essai (« Tester à la place d’un élève », interrupteur Élève | Enseignant) : aucune règle d’atelier,
+   compétences visées affichées. Gardée par la Centrale avec la session (Centrale.vue). */
+function vueProfNS(){return !!(window.Centrale&&Centrale.vue&&Centrale.connecte&&Centrale.connecte()&&Centrale.vue()==='enseignant');}
+var vueNS=false;
+function appliquerVueNS(){
+  const v=vueProfNS();if(v===vueNS)return;vueNS=v;   // seulement quand la vue change
+  document.documentElement.classList.toggle('ns-vue-prof',v);
+  majModeAtelier();closeMenus();
+  if(!$('#parc').hidden&&regleAtelier('bibliotheque'))openParc();
+}
 function regleAtelier(cle){
-  if(!MODE_AT)return true;
+  if(!MODE_AT||vueProfNS())return true;
   const d=MODE_AT.id?ATELIERS_NS.find(a=>a.id===MODE_AT.id):(typeof exoDef==='function'?exoDef():null);
   return interfaceAtelier(d)[cle]!==false;
 }
@@ -4522,7 +4535,7 @@ function detailTP(t,e,code,ord){
     :entame
       ?`<div class="fbtns"><button class="btn frecom" data-parc="${cible.k}" data-recommence="1" type="button">Recommencer</button><button class="btn primary fgo" data-parc="${cible.k}" type="button">${suite}</button></div>`
       :`<button class="btn primary fgo" data-parc="${cible.k}" type="button">Commencer</button>`;
-  const comp=PREF.prof?competencesTP(t).map(c=>`<span class="fcc">${tpill(c)}<b>${c}</b><span>${esc(REF_TEXTE[c]||'')}</span></span>`).join(''):'';
+  const comp=(PREF.prof||vueProfNS())?competencesTP(t).map(c=>`<span class="fcc">${tpill(c)}<b>${c}</b><span>${esc(REF_TEXTE[c]||'')}</span></span>`).join(''):'';
   return `<div class="fiche k${t.c[0]} nv${t.niv} ${e}"><div class="fhead"><div class="fgauche">${pas(t.c)}${barres(t.niv)}</div><span></span><span class="fferme"><button class="btn small" data-tpclose type="button">Fermer</button></span></div>
 ${e==='verrou'?`<div class="fmasque"><span class="tplock fcadenas" aria-label="Verrouillé"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><i class="tpmask"></i><i class="tpmask court"></i></div>`:`<h3 class="ftitre">${esc(t.titre)}</h3>
 <p class="fdesc">${esc(t.desc)}</p>`}
@@ -4811,6 +4824,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   const avecJeton=/(^|[#&])centrale=/.test(location.hash);
   let pret=false,bouton=null,widget=null,fenetre=null;
   let precedent=null;   // { bouton, maj } donné par Centrale.boutonPrecedent (Centrale récente)
+  let vueEssai=null;    // { bouton, maj } donné par Centrale.boutonVue : interrupteur Élève | Enseignant (essai de l’enseignant)
   /* Adresse du portail quand NetSim a été ouvert depuis la Centrale (#…&retour=…, gardée par le client). */
   const adresseRetour=()=>{try{return sessionStorage.getItem('centrale-retour');}catch(_){return null;}};
 
@@ -4886,6 +4900,11 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
     const s=window.Centrale&&Centrale.connecte()&&Centrale.session();
     bouton.innerHTML=`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>${esc(s?(s.identifiant||s.eleve):'Visiteur')}</span>`;
     bouton.title=s?'Connecté : ton travail est enregistré sur le serveur de la classe. Clic : retour sur la Centrale':'Visiteur : clique pour te connecter avec ton code et enregistrer ton travail';
+    if(window.Centrale&&Centrale.boutonVue&&!vueEssai){
+      vueEssai=Centrale.boutonVue({classe:'tb-vue',onChange:appliquerVueNS});   // caché hors essai
+      const d=document.querySelector('.topbar .tb-droite');if(d)d.prepend(vueEssai.bouton);
+    }
+    if(vueEssai){vueEssai.maj();appliquerVueNS();}
     let ret=document.getElementById('bRetourCentrale');
     /* Centrale récente : le bouton commun « ← Étape précédente » (parcours, quelle que soit l’application)
        ou « ← Mes ateliers » (portail), caché hors de la Centrale ; il se met aussi à jour tout seul. */
