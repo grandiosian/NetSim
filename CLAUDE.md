@@ -6,6 +6,7 @@ puis HTML, puis le JavaScript), sans build ni dépendance. Détails : [README.md
 
 ## Règles
 - Textes visibles en français, simples (élèves de collège). Style du fichier : règles CSS et JS compacts sur une ligne ; gardez-le.
+- **Charte graphique** : [CHARTE-GRAPHIQUE.md](CHARTE-GRAPHIQUE.md) (logo, couleurs clair / sombre, polices) est à respecter. Un changement de logo ou de couleur principale se fait d'abord dans ce document, puis dans le code et dans le portail de la Centrale (`centrale/public/index.php` : `LOGOS` et `.app-…`).
 - NetSim est **la référence de la barre du haut commune** (SPECIFICATION de la Centrale, §2.6) : une modification de sa barre se reporte dans TechnoStudio, Établi 3D et le portail.
 - L'application marche sans la Centrale. Le module `centrale-client.js` vient du serveur de la Centrale : testez une fonction récente avant de l'appeler (`Centrale.menuEleve && …`) et gardez l'ancien comportement en repli.
 - Ne renommez aucun identifiant d'activité ni clé de données (du travail élève y est rattaché).
@@ -17,7 +18,7 @@ puis HTML, puis le JavaScript), sans build ni dépendance. Détails : [README.md
   - Widget de l'élève : `creerBouton()`, `majBouton()`, puis `Centrale.boutonPrecedent()` pour « ← » et `Centrale.menuEleve()` au clic quand l'élève est connecté (hors connexion : `basculerProfil()`).
 - **Annuler / rétablir** : `HIST` / `REDO`, `snap()` avant chaque modification, `undo()`, `redo()`, `majHist()` (boutons grisés), `restaurer()`. Ils ne marchent qu'en mode conception (`mode==='design'`). Raccourcis : Ctrl/⌘+Z, Ctrl+Y ou Ctrl/⌘+Maj+Z.
 - **Modèle** : état `S` (appareils, câbles, zones), `newDevice`, `connect`, `afterEdit()` (dessin, propriétés, sauvegarde).
-- **Mode atelier** (ouvert depuis la Centrale) : `MODE_AT`, lu dans l'adresse avant le module de la Centrale et gardé dans `sessionStorage` (`netsim-mode`) ; classe `ns-atelier` sur `<html>`. `ATELIERS_NS` déclare les ateliers composés (`premiers-pas`) et la session libre (`#libre`), publiés en tête de `NetSim.ateliers()`. `entrerAtelier()` choisit l'exercice (au démarrage et après la connexion), `prochainExo()` donne le suivant, `openParc()` ne fait rien. Une étape `ha:1` est validée d'office en mode atelier ; `ta` remplace son texte dans un atelier composé.
+- **Mode atelier** (ouvert depuis la Centrale) : `MODE_AT`, lu dans l'adresse avant le module de la Centrale et gardé dans `sessionStorage` (`netsim-mode`) ; classe `ns-atelier` sur `<html>`. `ATELIERS_NS` déclare les ateliers composés (`premiers-pas`) et la session libre (`#libre`), publiés en tête de `NetSim.ateliers()`. `entrerAtelier()` choisit l'exercice (au démarrage et après la connexion), `prochainExo()` donne le suivant, `openParc()` ne fait rien. Une étape `ha:1` est validée d'office en mode atelier ; `ta` remplace son texte dans un atelier composé. Règles de l'atelier (SPECIFICATION §2.6) : `regleAtelier('menu'|'bibliotheque'|'niveau')`, fermé par défaut (`INTERFACE_ATELIER`), rouvert par un champ `interface:{…}` d'un atelier (`ATELIERS_NS`) ou d'un exercice (`EXOS`), publié dans `ateliers.json` ; classes `ns-sans-…` de `<html>`.
 - **Visite guidée** : tableau des étapes `{sel, t, p}` (rechercher `sel:'.tb-hist'`).
 
 ## Tester

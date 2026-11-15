@@ -6,7 +6,7 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.18.0",
+    "version": "1.19.0",
     "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 52 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
