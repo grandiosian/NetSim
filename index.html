@@ -5009,12 +5009,27 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   }
 
   /* ---------- Une fois connecté ---------- */
+  /* Élève à qui appartient la copie de ce navigateur (progression, schéma) : « classe/numéro », posé à chaque connexion. */
+  const LIEN='netsim-centrale-eleve';
+  function lireLien(){try{return localStorage.getItem(LIEN);}catch(_){return null;}}
+  function ecrireLien(q){try{localStorage.setItem(LIEN,q);}catch(_){}}
   async function connecte(infos){
     if(fenetre)montrer(false);
     majBouton();
     try{
-      // 1. Progression : on garde le meilleur entre ce navigateur et le serveur
       const serveur=await Centrale.mesProgressions();
+      const schema=await Centrale.charger('schema',null);
+      /* 0. Copie de ce navigateur : elle n'est renvoyée que si elle est à cet élève (ou faite en visiteur). Copie d'un autre élève
+         (poste partagé, essais de l'enseignant) ou travail effacé sur le serveur (« Remettre à zéro ») : on repart de ce qu'a le serveur. */
+      const qui=(infos.classe||'')+'/'+(infos.eleve||''),lie=lireLien();let remis=false;
+      if(lie&&(lie!==qui||(!Object.keys(serveur||{}).length&&!NetSim.estSchema(schema)))){
+        remis=lie===qui;Object.keys(PROG).forEach(k=>delete PROG[k]);saveProg();
+        S=blank();sel=null;pendingCable=null;$('#helpChk').checked=true;
+        try{localStorage.setItem(KEY,JSON.stringify(S));}catch(_){}
+        syncLevel();render();renderProps();if(typeof renderExo==='function')renderExo();
+      }
+      ecrireLien(qui);
+      // 1. Progression : on garde le meilleur entre ce navigateur et le serveur
       NetSim.fusionnerProgression(serveur);
       Object.keys(PROG).forEach(k=>{
         if(k==='__seen')return;
@@ -5025,7 +5040,6 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       PROG.__seen=[...new Set([...(PROG.__seen||[]),...(Array.isArray(vus)?vus:[])])];
       saveProg();
       // 2. Schéma : on reprend celui du serveur s'il existe, sinon on envoie celui de ce navigateur
-      const schema=await Centrale.charger('schema',null);
       if(NetSim.estSchema(schema)){
         if(JSON.stringify(schema)!==JSON.stringify(S)){
           snap();                                   // l'ancien schéma reste accessible avec « Annuler »
@@ -5045,7 +5059,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       if(exo&&!(S.exo&&S.exo.k===exo.k))loadExo(exo);
       if(typeof entrerAtelier==='function'){entrerAtelier();oublierHist();majResume();}
       if(navCentrale){exoNav=(S.exo&&S.exo.k)||'';navCentrale.maj();}   // exercice ouvert : « ← » / « Suivant » recalculés pour lui
-      toast(`Connecté : ${infos.classe} · élève ${infos.eleve}. Ton travail est enregistré automatiquement.`);
+      toast(`Connecté : ${infos.classe} · élève ${infos.eleve}. `+(remis?'Ton travail a été remis à zéro : tu repars du début.':'Ton travail est enregistré automatiquement.'));
     }catch(e){
       toast('Connexion au serveur impossible : '+e.message);
     }
