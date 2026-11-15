@@ -4014,6 +4014,9 @@ function majNavConsigne(nav){
 $('#exoNav').addEventListener('click',async e=>{
   const b=e.target.closest('[data-nav]');if(!b||b.disabled||navEnvoi||!NAV_C)return;
   const c=NAV_C[b.dataset.nav];if(!c||c.verrou||typeof c.aller!=='function')return;
+  /* Suite dans le même atelier composé (nav.suivant.activite, module récent) : on l'ouvre ici, sans recharger la page */
+  const x=b.dataset.nav==='suivant'&&c.cible==='activite'&&c.activite&&MODE_AT&&(MODE_AT.exos||[]).includes(c.activite)?EXOS.find(e=>e.k===c.activite):null;
+  if(x){loadExo(x);oublierHist();checkExo();return;}
   navEnvoi=true;$('#exoNav').querySelectorAll('button').forEach(x=>x.disabled=true);
   let ok=false;try{ok=await c.aller();}catch(_){ok=false;}
   if(ok===false){navEnvoi=false;majNavConsigne();toast(c.raison||'Impossible pour le moment : réessaie dans un instant.');}
@@ -5041,6 +5044,7 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
       const exo=demande&&EXOS.find(x=>x.k===demande);
       if(exo&&!(S.exo&&S.exo.k===exo.k))loadExo(exo);
       if(typeof entrerAtelier==='function'){entrerAtelier();oublierHist();majResume();}
+      if(navCentrale){exoNav=(S.exo&&S.exo.k)||'';navCentrale.maj();}   // exercice ouvert : « ← » / « Suivant » recalculés pour lui
       toast(`Connecté : ${infos.classe} · élève ${infos.eleve}. Ton travail est enregistré automatiquement.`);
     }catch(e){
       toast('Connexion au serveur impossible : '+e.message);
