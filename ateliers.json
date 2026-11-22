@@ -2,7 +2,7 @@
   "format": "catalogue.ateliers",
   "version": 1,
   "app": "netsim",
-  "app_version": "1.19.0",
+  "app_version": "1.20.0",
   "referentiel": "technologie-c4-2024",
   "ateliers": [
     {
@@ -604,6 +604,92 @@
         }
       ],
       "ouvrir": "e4-8",
+      "interface": {
+        "menu": false,
+        "bibliotheque": false,
+        "niveau": false
+      }
+    },
+    {
+      "id": "e4-9",
+      "titre": "Mesurer le débit",
+      "niveau": "4e",
+      "resume": "Mesurer la latence et les débits descendant et montant d’un portable en Wi-Fi, puis en Ethernet, avec le test de débit.",
+      "duree": "30 min",
+      "competences": [
+        "OST32.4.1",
+        "OST31.4.1",
+        "SFC15.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e4-9",
+          "titre": "Mesurer le débit",
+          "total": 5,
+          "competences": [
+            "OST32.4.1",
+            "OST31.4.1",
+            "SFC15.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e4-9",
+      "interface": {
+        "menu": false,
+        "bibliotheque": false,
+        "niveau": false
+      }
+    },
+    {
+      "id": "e4-10",
+      "titre": "Chronométrer un transfert",
+      "niveau": "4e",
+      "resume": "Emma envoie sa vidéo de 127 Mo à Noah : mesurer la durée du transfert en Wi-Fi puis en Ethernet, et la vérifier par le calcul.",
+      "duree": "35 min",
+      "competences": [
+        "OST32.4.1",
+        "OST31.4.1"
+      ],
+      "activites": [
+        {
+          "id": "e4-10",
+          "titre": "Chronométrer un transfert",
+          "total": 5,
+          "competences": [
+            "OST32.4.1",
+            "OST31.4.1"
+          ]
+        }
+      ],
+      "ouvrir": "e4-10",
+      "interface": {
+        "menu": false,
+        "bibliotheque": false,
+        "niveau": false
+      }
+    },
+    {
+      "id": "e4-11",
+      "titre": "La consommation du réseau",
+      "niveau": "4e",
+      "resume": "Mesurer la puissance et l’énergie consommée par les appareils du réseau, puis comparer deux façons de l’utiliser sur un an.",
+      "duree": "40 min",
+      "competences": [
+        "OST32.4.1",
+        "OST31.4.2"
+      ],
+      "activites": [
+        {
+          "id": "e4-11",
+          "titre": "La consommation du réseau",
+          "total": 6,
+          "competences": [
+            "OST32.4.1",
+            "OST31.4.2"
+          ]
+        }
+      ],
+      "ouvrir": "e4-11",
       "interface": {
         "menu": false,
         "bibliotheque": false,

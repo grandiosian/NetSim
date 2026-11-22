@@ -11,6 +11,7 @@ Aucune installation : une seule page HTML (`index.html`). Le travail de chaque �
 - **Concevoir** un réseau : PC, portable, smartphone, Raspberry Pi, serveur, imprimante, ESP32, switch et routeur ; câblage ; adresses IP, masque et passerelle ; salles et sous-réseaux. Sélection multiple : Maj + clic, Ctrl + glisser sur le fond pour un rectangle, puis déplacement du groupe.
 - **Simuler** : chaque appareil ouvre son écran (bureau, invite de commandes avec `ping`, `ipconfig`, `tracert`, `arp`, `route`, `nslookup`, `imprimer`), un navigateur web, un serveur web modifiable, une messagerie et une file d’impression.
 - **Filtrer** : chaque routeur a un pare-feu (politique par défaut, règles lues dans l’ordre par service, source et destination). Seules les demandes sont filtrées : les réponses passent, comme sur un pare-feu à états.
+- **Mesurer** (4ème et au-delà) : chaque liaison a un type (Ethernet 100 Mbit/s ou 1 Gbit/s, Wi-Fi, CPL, fibre, 4G, 5G) et des débits montant et descendant. Applications **Envoyer un fichier** (la durée dépend de la taille et de la liaison la plus lente) et **Test de débit** (latence, débits). Bouton **Mesurer** en simulation : **chronomètre**, **wattmètre** (puissance, énergie avec un temps accéléré) et **bilan énergie** (kWh, euros et CO₂ de deux scénarios sur un an). Les valeurs sont des ordres de grandeur, pas des mesures réelles.
 - **Voir les données circuler** : enveloppes animées sur les câbles, tiroir « Trames échangées » avec le détail de l’encapsulation (Ethernet, IP, TCP, HTTP).
 
 ## Classes et niveaux de difficulté
@@ -37,7 +38,7 @@ Le panneau **Consigne** guide l’élève une étape à la fois : une barre de p
 
 Thèmes principaux :
 - **Collège 5ème** : premiers pas, câbles, adresses IP, services (impression, page web).
-- **Collège 4ème** : réseau de salle, routeur et passerelle, ARP et table du switch, diagnostic, capteur connecté, DHCP, noms de réseau.
+- **Collège 4ème** : réseau de salle, routeur et passerelle, ARP et table du switch, diagnostic, capteur connecté, DHCP, noms de réseau, mesures (débit, temps de transfert, consommation électrique).
 - **Collège 3ème** : sous-réseaux et masques, routage (routes statiques, TTL), messagerie, DNS, DHCP, encapsulation.
 - **Lycée** : 2nde (réseau local, table du switch, doublon) ; 1re (passerelle, masque, deux routeurs en chaîne) ; Terminale (page web, DNS, DHCP).
 - **Supérieur** (deux ateliers par niveau de difficulté ; les consignes donnent l’objectif, pas la valeur à recopier) :

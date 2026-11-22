@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exporter les exercices</title>
+<style>
+:root{--bg:#f4f6fb;--surface:#fff;--ink:#14213d;--ink-2:#4d5a78;--line:#d5dbe8;--ok:#178a4c;--err:#d23b3b;--accent:#1c3268}
+@media (prefers-color-scheme: dark){:root{--bg:#0f1729;--surface:#151f35;--ink:#e6ecf8;--ink-2:#a3b0cc;--line:#2a3858;--ok:#4cc584;--err:#ff6f6f;--accent:#9db4f2;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-size:24px} h2{margin:8px 0 0;font-size:18px}
+p{margin:0;color:var(--ink-2)}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+li .n{flex:1;min-width:180px} li small{color:var(--ink-2)}
+li.ok::before{content:"✓";color:var(--ok);font-weight:700}
+li.ko::before{content:"✗";color:var(--err);font-weight:700}
+li pre{flex-basis:100%;margin:0;white-space:pre-wrap;font:12px ui-monospace,Menlo,monospace;color:var(--ink-2)}
+button,label.b{font:inherit;font-weight:700;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:6px 12px;cursor:pointer}
+@media (prefers-color-scheme: dark){button,label.b{color:#0c1430}}
+button.l{background:transparent;color:var(--accent);border:1px solid var(--line);font-weight:600}
+input[type=file]{display:none}
+iframe{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>Exporter les exercices de NetSim</h1>
+  <p>Les exercices de la 4ᵉ et au-delà sont écrits en données (format <code>netsim.exercice</code>, sans code). Chacun donne un fichier <code>&lt;id&gt;.json</code>, à déposer plus tard dans <code>centrale/ateliers/netsim/</code> de la Centrale. Les premiers pas et la 5ᵉ restent dans l’application.</p>
+  <div><button id="tout" type="button" hidden>Tout télécharger</button></div>
+  <ul id="liste"><li>Chargement de l’application…</li></ul>
+  <h2>Vérifier des fichiers</h2>
+  <p>Choisis des fichiers <code>&lt;id&gt;.json</code> : la page dit si cette version de NetSim sait les lire et si elle connaît toutes leurs vérifications nommées.</p>
+  <div><label class="b" for="f2">Choisir des fichiers…</label><input id="f2" type="file" accept=".json,application/json" multiple></div>
+  <ul id="verif"></ul>
+</main>
+<iframe id="f" src="../index.html" title="NetSim"></iframe>
+<script>
+'use strict';
+const $=s=>document.querySelector(s);let N=null;
+const ligne=(ul,ok,html,det)=>{const li=document.createElement('li');li.className=ok?'ok':'ko';li.innerHTML=html;if(det){const p=document.createElement('pre');p.textContent=det;li.appendChild(p);}ul.appendChild(li);return li;};
+const texte=f=>JSON.stringify(f,null,1)+'\n';
+const telecharger=f=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([texte(f)],{type:'application/json'}));a.download=f.id+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('#f').addEventListener('load',()=>{
+  N=$('#f').contentWindow.NetSim;const ul=$('#liste');ul.innerHTML='';
+  if(!N||!N.exercicesEnDonnees){ligne(ul,false,'Cette version de NetSim ne sait pas exporter ses exercices.');return;}
+  const fic=N.exercicesEnDonnees();
+  fic.forEach(f=>{const inc=N.verifsInconnues(f),li=ligne(ul,!inc.length,`<span class="n"><b>${esc(f.id)}.json</b> · ${esc(f.t)}<br><small>${esc(f.c)} · ${f.steps.length} étapes · version ${f.version} · ${(texte(f).length/1024).toFixed(1)} ko</small></span>`,inc.map(x=>`étape ${x.etape} : vérification inconnue « ${x.test} »`).join('\n'));
+    const b=document.createElement('button');b.type='button';b.className='l';b.textContent='Télécharger';b.onclick=()=>telecharger(f);li.insertBefore(b,li.querySelector('pre'));});
+  const t=$('#tout');t.hidden=!fic.length;t.textContent=`Tout télécharger (${fic.length} fichiers)`;t.onclick=()=>fic.forEach((f,i)=>setTimeout(()=>telecharger(f),i*250));
+});
+$('#f2').addEventListener('change',async e=>{const ul=$('#verif');ul.innerHTML='';if(!N)return;
+  for(const fichier of e.target.files){let o=null;try{o=JSON.parse(await fichier.text());}catch(_){ligne(ul,false,`<span class="n"><b>${esc(fichier.name)}</b></span>`,'Ce n’est pas un fichier JSON lisible.');continue;}
+    const r=N.lireExercice(o),det=r.erreurs.concat(r.inconnues.map(x=>`étape ${x.etape} : vérification inconnue « ${x.test} » (NetSim trop ancien ?)`));
+    ligne(ul,!!r.exo&&!det.length,`<span class="n"><b>${esc(fichier.name)}</b>${r.exo?` · ${esc(r.exo.t||'')}`:''}</span>`,det.join('\n'));}
+  e.target.value='';
+});
+</script>
+</body>
+</html>

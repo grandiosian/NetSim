@@ -59,6 +59,17 @@ document.getElementById('f').addEventListener('load',async()=>{
   ok&=line(memeAt,`Catalogue ateliers.json : ${A&&A.ateliers?A.ateliers.length:0} ateliers dans le fichier, ${at.ateliers.length} dans l’application`,
     memeAt?'':(A&&A.ateliers?(diff(A.ateliers,at.ateliers)==='Ordre différent.'?'En-tête différent (version de l’application ?)':diff(A.ateliers,at.ateliers)):'ateliers.json absent ou illisible'));
   ok&=line(at.app_version===D.atelier.version,'ateliers.json et centrale.json ont la même version');
+  /* exercices de la 4e et au-delà : écrits en données, avec des vérifications nommées connues (voir ATELIERS-INTEGRES-ET-TRANSFERES.md §4) */
+  if(N.exercicesEnDonnees){
+    const fic=N.exercicesEnDonnees(),attendus=act.map(a=>a.id).filter(id=>/^(e4|e3|e2|e1|et|sb1|sb2)-/.test(id)),reste=attendus.filter(id=>!fic.some(f=>f.id===id));
+    ok&=line(!!fic.length&&!reste.length,`Exercices en données (4e et au-delà) : ${fic.length} sur ${attendus.length}`,reste.length?'Encore écrits en code : '+reste.join(', '):'');
+    const inc=fic.flatMap(f=>N.verifsInconnues(f).map(x=>`${f.id}, étape ${x.etape} : ${x.test}`));
+    ok&=line(!inc.length,`Vérifications nommées : toutes connues (${N.verifications().length} dans l’application)`,inc.length?'Inconnues :\n'+inc.join('\n'):'');
+    const malLus=fic.filter(f=>{const r=N.lireExercice(JSON.parse(JSON.stringify(f)));return !r.exo||r.erreurs.length||JSON.stringify(r.exo.steps)!==JSON.stringify(f.steps);}).map(f=>f.id);
+    ok&=line(!malLus.length,`Fichiers <id>.json relus par l’application : ${fic.length-malLus.length} sur ${fic.length}`,malLus.join(', '));
+    const tem=N.verifsInconnues({steps:[{t:'essai',verifier:[{test:'lien',a:'A',b:'B'},{test:'au-moins',n:1,liste:[{test:'verification-qui-n-existe-pas'}]}]}]});
+    ok&=line(tem.length===1&&tem[0].test==='verification-qui-n-existe-pas','Une vérification inconnue est bien repérée (essai témoin)');
+  }else ok&=line(false,'L’application ne publie pas ses exercices en données (NetSim.exercicesEnDonnees).');
   document.body.dataset.resultat=ok?'ok':'ecarts';
   if(!memeAt){document.getElementById('aide2').hidden=false;const t2=document.getElementById('maj2');t2.hidden=false;t2.value=texteAt;const c2=document.getElementById('cp2');c2.hidden=false;
     c2.onclick=()=>{navigator.clipboard.writeText(t2.value).then(()=>c2.textContent='Copié',()=>{t2.focus();t2.select();});};}

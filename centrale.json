@@ -6,8 +6,8 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.19.0",
-    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 52 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
+    "version": "1.20.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 55 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
     "icone": "🌐",
@@ -158,6 +158,11 @@
           "id": "nomsreseau",
           "titre": "Noms et réseaux",
           "description": "Un nom ne fonctionne plus à travers le routeur."
+        },
+        {
+          "id": "mesures",
+          "titre": "Mesurer le réseau",
+          "description": "Débit, temps de transfert, consommation électrique."
         }
       ],
       "3e": [
@@ -708,6 +713,80 @@
         "questions": [
           "Pourquoi PC 1 n’a-t-il pas reçu la réponse du serveur DNS ?",
           "Quels appareils doivent avoir une passerelle, et pourquoi ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-9",
+        "titre": "Mesurer le débit",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 5,
+        "competences": [
+          "OST32.4.1",
+          "OST31.4.1",
+          "SFC15.4.2"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "mesures",
+        "categorie_titre": "Mesurer le réseau",
+        "resume": "Mesurer la latence et les débits descendant et montant d’un portable en Wi-Fi, puis en Ethernet, avec le test de débit.",
+        "duree": "30 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Note la latence et les débits descendant et montant de Portable 1 en Wi-Fi, puis en Ethernet.",
+          "Pourquoi le débit descendant (télécharger) est-il plus grand que le débit montant (envoyer) en Wi-Fi ?",
+          "Avec quel instrument as-tu mesuré le débit ? Dans quelle unité ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-10",
+        "titre": "Chronométrer un transfert",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 5,
+        "competences": [
+          "OST32.4.1",
+          "OST31.4.1"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "mesures",
+        "categorie_titre": "Mesurer le réseau",
+        "resume": "Emma envoie sa vidéo de 127 Mo à Noah : mesurer la durée du transfert en Wi-Fi puis en Ethernet, et la vérifier par le calcul.",
+        "duree": "35 min",
+        "etapes": 5,
+        "etapes_auto": 5,
+        "questions": [
+          "Note la durée mesurée en Wi-Fi, puis en Ethernet.",
+          "Vérifie par le calcul : 127 Mo = 127 × 8 = … Mbit ; temps = taille (Mbit) ÷ débit montant (Mbit/s).",
+          "Il reste 5 minutes avant la sonnerie. Quelle connexion Emma doit-elle choisir ? Justifie avec tes mesures."
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-11",
+        "titre": "La consommation du réseau",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 6,
+        "competences": [
+          "OST32.4.1",
+          "OST31.4.2"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "mesures",
+        "categorie_titre": "Mesurer le réseau",
+        "resume": "Mesurer la puissance et l’énergie consommée par les appareils du réseau, puis comparer deux façons de l’utiliser sur un an.",
+        "duree": "40 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Quelle est la puissance de la box ? Quelle énergie consomme-t-elle en 24 h, en Wh puis en kWh ?",
+          "Que devient la puissance de PC 1 pendant l’envoi du fichier ? Pourquoi ?",
+          "Avec le bilan : combien de kWh, d’euros et de kg de CO₂ économise-t-on par an avec le scénario B ?",
+          "Propose deux gestes pour réduire la consommation du réseau du collège."
         ],
         "alertes": true
       },
