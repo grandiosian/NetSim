@@ -4877,10 +4877,15 @@ window.addEventListener('hashchange',ouvrirDepuisAdresse);
   /* Le widget existe dès l’ouverture : « Visiteur » tant que la Centrale n’est pas connectée ou joignable. */
   creerBouton();
 
-  const js=document.createElement('script');
-  js.src=SERVEUR+'js/centrale-client.js';
-  js.onload=demarrer;              // serveur injoignable : rien ne change pour NetSim
-  document.head.appendChild(js);
+  // Atelier hors ligne préparé par la Centrale (fichier ouvert sur un portable sans internet) : son module local est déjà là
+  // (l'élève est déjà connu : pas de choix de la classe au premier lancement)
+  if(window.Centrale&&Centrale.horsLigne){const ac=document.getElementById('accueil');if(ac)ac.hidden=true;setTimeout(demarrer,0);}
+  else{
+    const js=document.createElement('script');
+    js.src=SERVEUR+'js/centrale-client.js';
+    js.onload=demarrer;              // serveur injoignable : rien ne change pour NetSim
+    document.head.appendChild(js);
+  }
 
   function demarrer(){
     if(!window.Centrale)return;
