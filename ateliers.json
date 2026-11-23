@@ -2,7 +2,7 @@
   "format": "catalogue.ateliers",
   "version": 1,
   "app": "netsim",
-  "app_version": "1.22.0",
+  "app_version": "1.23.0",
   "referentiel": "technologie-c4-2024",
   "ateliers": [
     {
@@ -774,6 +774,34 @@
         }
       ],
       "ouvrir": "e4-14",
+      "interface": {
+        "menu": false,
+        "bibliotheque": false,
+        "niveau": false
+      }
+    },
+    {
+      "id": "e4-15",
+      "titre": "La chaîne de MécaPlus",
+      "niveau": "4e",
+      "resume": "Les mêmes capteurs, alignés le long d’une chaîne de production, sont câblés en étoile (avec un switch) puis en bus (un seul câble, des prises en T) : mesurer la longueur de câble de chaque réseau.",
+      "duree": "20 min",
+      "competences": [
+        "OST31.4.1",
+        "OST32.4.1"
+      ],
+      "activites": [
+        {
+          "id": "e4-15",
+          "titre": "La chaîne de MécaPlus",
+          "total": 4,
+          "competences": [
+            "OST31.4.1",
+            "OST32.4.1"
+          ]
+        }
+      ],
+      "ouvrir": "e4-15",
       "interface": {
         "menu": false,
         "bibliotheque": false,

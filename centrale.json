@@ -6,8 +6,8 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.22.0",
-    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 58 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
+    "version": "1.23.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 59 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
     "icone": "🌐",
@@ -866,6 +866,30 @@
           "Bus : le câble est coupé au milieu. PC B1 peut-il encore joindre PC B4 ? Pourquoi ?",
           "Anneau : un câble est coupé. Par où passe maintenant le message de PC A1 vers PC A3 ?",
           "Quelle forme garde le réseau en marche quand un câble est coupé ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-15",
+        "titre": "La chaîne de MécaPlus",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 4,
+        "competences": [
+          "OST31.4.1",
+          "OST32.4.1"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "formes",
+        "categorie_titre": "Formes de réseau",
+        "resume": "Les mêmes capteurs, alignés le long d’une chaîne de production, sont câblés en étoile (avec un switch) puis en bus (un seul câble, des prises en T) : mesurer la longueur de câble de chaque réseau.",
+        "duree": "20 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Quelle longueur de câble faut-il pour la chaîne en étoile ? Et pour la chaîne en bus ?",
+          "Les deux chaînes marchent-elles ?",
+          "Pourquoi le bus utilise-t-il moins de câble quand les capteurs sont alignés ?"
         ],
         "alertes": true
       },
