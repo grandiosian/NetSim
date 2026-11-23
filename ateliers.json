@@ -2,7 +2,7 @@
   "format": "catalogue.ateliers",
   "version": 1,
   "app": "netsim",
-  "app_version": "1.20.0",
+  "app_version": "1.21.0",
   "referentiel": "technologie-c4-2024",
   "ateliers": [
     {
@@ -690,6 +690,62 @@
         }
       ],
       "ouvrir": "e4-11",
+      "interface": {
+        "menu": false,
+        "bibliotheque": false,
+        "niveau": false
+      }
+    },
+    {
+      "id": "e4-12",
+      "titre": "Wi-Fi : portée et murs",
+      "niveau": "4e",
+      "resume": "Mesurer le signal Wi-Fi de deux appareils avec l’analyseur, comprendre l’effet de la distance et des murs, puis améliorer la connexion du smartphone.",
+      "duree": "30 min",
+      "competences": [
+        "OST32.4.1",
+        "OST31.4.1"
+      ],
+      "activites": [
+        {
+          "id": "e4-12",
+          "titre": "Wi-Fi : portée et murs",
+          "total": 6,
+          "competences": [
+            "OST32.4.1",
+            "OST31.4.1"
+          ]
+        }
+      ],
+      "ouvrir": "e4-12",
+      "interface": {
+        "menu": false,
+        "bibliotheque": false,
+        "niveau": false
+      }
+    },
+    {
+      "id": "e4-13",
+      "titre": "Choisir sa connexion",
+      "niveau": "4e",
+      "resume": "L’annexe du collège doit être reliée à internet. Mesurer trois solutions (4G, 5G, fibre) et choisir celle qui respecte le cahier des charges.",
+      "duree": "40 min",
+      "competences": [
+        "OST31.4.1",
+        "OST32.4.1"
+      ],
+      "activites": [
+        {
+          "id": "e4-13",
+          "titre": "Choisir sa connexion",
+          "total": 4,
+          "competences": [
+            "OST31.4.1",
+            "OST32.4.1"
+          ]
+        }
+      ],
+      "ouvrir": "e4-13",
       "interface": {
         "menu": false,
         "bibliotheque": false,

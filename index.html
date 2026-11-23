@@ -526,7 +526,8 @@ table.ft{width:100%;border-collapse:collapse;font-size:12.5px}
 .mesures{position:absolute;right:12px;bottom:66px;width:min(360px,calc(100% - 24px));z-index:17;border-radius:18px;display:flex;flex-direction:column;max-height:min(560px,calc(100% - 140px))}
 .mesures[hidden],#app.design .mesures{display:none}
 .mesures .pscroll{display:flex;flex-direction:column;gap:10px;padding:10px 14px 14px}
-.instrus{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.instrus{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.wbars{display:inline-flex;align-items:flex-end;gap:2px;height:20px}.wbars i{width:5px;border-radius:1px;background:var(--line)}.wbars i.on{background:var(--ok)}
 .instru{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
 .instru b{font-size:13px}.instru small{font-size:11px;color:var(--ink-2)}
 .instru.on{border-color:var(--data);box-shadow:0 0 0 2px color-mix(in srgb,var(--data) 35%,transparent)}
@@ -1603,7 +1604,7 @@ function renderCables(){
   gCables.innerHTML=S.cables.map(c=>{
     const A0=D(c.a.d),B0=D(c.b.d);if(!A0||!B0)return '';
     const A=ancre(A0),B=ancre(B0);
-    const wifi=TYPES[A0.type].wifi||TYPES[B0.type].wifi,isSel=sel&&sel.kind==='cable'&&sel.id===c.id;
+    const wifi=estWifi(c),isSel=sel&&sel.kind==='cable'&&sel.id===c.id;
     const co=`x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"`;
     return `<g class="cab${wifi?' wifi':''}${isSel?' sel':''}" data-cable="${c.id}"><line class="hit" ${co}/><line class="wire" id="cab-${c.id}" ${co}/>${portTag(A,c.a.p,B)}${portTag(B,c.b.p,A)}</g>`;
   }).join('');
@@ -2042,12 +2043,12 @@ function zonePropsHTML(z){
 <button class="btn danger" data-act="del" type="button">Supprimer la salle</button>`;
 }
 function cablePropsHTML(c){
-  const A=D(c.a.d),B=D(c.b.d),wifi=TYPES[A.type].wifi||TYPES[B.type].wifi;
+  const A=D(c.a.d),B=D(c.b.d),wifi=estWifi(c);
   const end=(X,p)=>X.type==='switch'?`${esc(X.name)} · port ${p+1}`:X.type==='router'?`${esc(X.name)} · eth${p}`:esc(X.name);
   return `<div class="ph"><svg viewBox="0 0 24 24" class="i" style="width:40px;height:40px;color:var(--wire)"><path d="M5 18c4 0 4-12 7-12s3 12 7 12"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/></svg><div><div class="pkind">${wifi?'Liaison Wi-Fi':'Câble Ethernet'}</div><div class="h4">${esc(A.name)} ↔ ${esc(B.name)}</div></div></div>
 <div class="calc">${end(A,c.a.p)}<br>${end(B,c.b.p)}</div>
 ${mesuresOn()?`<label class="field"><span class="lbl">Type de liaison</span><select class="in" data-f="lien">${Object.entries(LIAISONS).map(([k,L])=>`<option value="${k}"${lienDe(c)===k?' selected':''}>${L.n}${L.m===L.d?'':' — '+L.m+' ↑ / '+L.d+' ↓ Mbit/s'}</option>`).join('')}</select></label><p class="small muted" style="margin:0">↑ montant : du poste vers le réseau · ↓ descendant : du réseau vers le poste.</p>`:''}
-${wifi?'<p class="small muted" style="margin:0">Le smartphone et l’ESP32 se connectent sans fil : la liaison est dessinée en pointillés.</p>':''}
+${wifi?`<p class="small muted" style="margin:0">${TYPES[A.type].wifi||TYPES[B.type].wifi?'Le smartphone et l’ESP32 se connectent sans fil : l':'L'}a liaison sans fil est dessinée en pointillés${mesuresOn()?' ; son signal baisse avec la distance et les murs (instrument « Analyseur Wi-Fi »)':''}.</p>`:''}
 <button class="btn danger" data-act="del" type="button">Supprimer le câble</button>`;
 }
 function updateLive(){
@@ -2950,7 +2951,7 @@ $('#mesuresBody').addEventListener('click',e=>{
   if(c){if(c.dataset.ch==='go'){if(CH.on){CH.acc+=sim.t-CH.t0;CH.on=false;rec('chrono',{valeur:Math.round(CH.acc*100)/100});}else{CH.on=true;CH.t0=sim.t;}}else{CH.on=false;CH.acc=0;}majMesures();return;}
   if(e.target.closest('button[data-wm="zero"]'))brancherWattmetre(WM.id);
 });
-$('#mesuresBody').addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='auto')CH.auto=t.checked;if(t.dataset.wm==='app')brancherWattmetre(+t.value||null);if(t.dataset.wm==='ech')WM.ech=+t.value;majMesures();});
+$('#mesuresBody').addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='auto')CH.auto=t.checked;if(t.dataset.wm==='app')brancherWattmetre(+t.value||null);if(t.dataset.wm==='ech')WM.ech=+t.value;if(t.dataset.wf==='app')WF.id=+t.value||null;majMesures();});
 $('#fClear').onclick=()=>{LOG=[];fSel=null;renderFrames();};
 $('#fTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-n]');if(!tr)return;fSel=+tr.dataset.n;{const le=LOG.find(x=>x.n===fSel);if(le)rec('frame',{proto:fproto(le.fr)});}$$('#fTable tr.on').forEach(x=>x.classList.remove('on'));tr.classList.add('on');renderDetail();});
 
@@ -2961,7 +2962,7 @@ function setMode(m){
   if(m===mode)return;
   mode=m;rec('mode',{m});const a=$('#app');a.classList.toggle('sim',m==='sim');a.classList.toggle('design',m==='design');
   sim.traffic=false;document.body.classList.remove('traffic');
-  closeAllWins();packets.forEach(p=>p.el.remove());packets=[];sim.events=[];RT={};FLUX=[];CH.on=false;gFx.innerHTML='';gTemp.innerHTML='';
+  closeAllWins();packets.forEach(p=>p.el.remove());packets=[];sim.events=[];RT={};FLUX=[];CH.on=false;WF.der='';gFx.innerHTML='';gTemp.innerHTML='';
   sel=null;pendingCable=null;cancelAnimationFrame(sim.raf);
   if(m==='sim'){LOG=[];logN=0;fSel=null;sim.t=0;sim.last=0;sim.paused=false;updPause();sim.raf=requestAnimationFrame(loop);S.devices.forEach(d=>{if(d.dhcp&&TYPES[d.type].host){d.ip='';d.gw='';d.dhcpEtat='attente';schedule(.5+.3*(d.id%4),()=>dhcpStart(d,0));}});}
   else $$('#gCables .wire').forEach(w=>{w.classList.remove('busy');w.style.stroke='';});
@@ -3225,10 +3226,27 @@ const mesuresOn=()=>lv()>=1;
 function lienDefaut(c){const A=D(c.a.d),B=D(c.b.d);return A&&B&&(TYPES[A.type].wifi||TYPES[B.type].wifi)?'wifi':'eth100';}
 const lienDe=c=>LIAISONS[c.lien]?c.lien:lienDefaut(c);
 /* débit (Mbit/s) d’un câble parcouru depuis l’appareil de : montant quand on part d’un poste vers le réseau */
-function debitPas(c,de){const L=LIAISONS[lienDe(c)],A=D(c.a.d),B=D(c.b.d);if(!A||!B)return 0;const src=de===A.id?A:B,dst=src===A?B:A;
-  const hs=!!TYPES[src.type].host,hd=!!TYPES[dst.type].host;return hs&&!hd?L.m:!hs&&hd?L.d:(src===A?L.m:L.d);}
+/* côté de chaque appareil : 0 poste, 1 switch ou routeur, 2 serveur (côté réseau, comme internet) */
+const coteMes=o=>o.type==='server'?2:TYPES[o.type].host?0:1;
+function debitPas(c,de){const k=lienDe(c),L=LIAISONS[k],A=D(c.a.d),B=D(c.b.d);if(!A||!B)return 0;const src=de===A.id?A:B,dst=src===A?B:A;
+  const cs=coteMes(src),cd=coteMes(dst),v=cs<cd?L.m:cs>cd?L.d:(src===A?L.m:L.d);
+  return k==='wifi'?Math.round(v*signalWifi(c).f*10)/10:v;}
 const debitChemin=ch=>ch&&ch.length?Math.min(...ch.map(p=>{const c=C(p.c);return c?debitPas(c,p.de):0;})):0;
-const latenceChemin=ch=>(ch||[]).reduce((s,p)=>{const c=C(p.c);return s+(c?LIAISONS[lienDe(c)].lat:0);},0);
+const latenceChemin=ch=>(ch||[]).reduce((s,p)=>{const c=C(p.c);if(!c)return s;const k=lienDe(c);return s+LIAISONS[k].lat+(k==='wifi'?Math.round((1-signalWifi(c).f)*30):0);},0);
+/* ---------- Wi-Fi : signal (dBm) selon la distance et les murs (bords des salles) traversés ----------
+   100 px de la feuille = 1 m. Signal = −40 − 25 × log10(distance en m) − 6 dB par mur ; le débit Wi-Fi baisse avec la qualité. */
+const PX_M=100;
+function interSeg(ax,ay,bx,by,cx,cy,dx,dy){const r=(bx-ax)*(dy-cy)-(by-ay)*(dx-cx);if(!r)return null;
+  const t=((cx-ax)*(dy-cy)-(cy-ay)*(dx-cx))/r,u=((cx-ax)*(by-ay)-(cy-ay)*(bx-ax))/r;return t>0&&t<1&&u>=0&&u<=1?[ax+t*(bx-ax),ay+t*(by-ay)]:null;}
+function mursEntre(A,B){const pts=new Set();   // deux salles collées partagent leur mur : un seul point
+  S.zones.forEach(z=>[[z.x,z.y,z.x+z.w,z.y],[z.x+z.w,z.y,z.x+z.w,z.y+z.h],[z.x,z.y+z.h,z.x+z.w,z.y+z.h],[z.x,z.y,z.x,z.y+z.h]].forEach(([x1,y1,x2,y2])=>{
+    const q=interSeg(A.x,A.y,B.x,B.y,x1,y1,x2,y2);if(q)pts.add(Math.round(q[0]/24)+','+Math.round(q[1]/24));}));
+  return pts.size;}
+const QUALITES=[[-65,'Excellent',1,4],[-72,'Bon',0.7,3],[-78,'Moyen',0.4,2],[-84,'Faible',0.15,1],[-Infinity,'Hors de portée',0.02,0]];
+function signalWifi(c){const A=D(c.a.d),B=D(c.b.d);if(!A||!B)return {dbm:-100,dist:0,murs:0,qualite:'Hors de portée',f:0.02,barres:0};
+  const dist=Math.max(1,Math.hypot(A.x-B.x,A.y-B.y)/PX_M),murs=mursEntre(A,B),dbm=Math.round(-40-25*Math.log10(dist)-6*murs),q=QUALITES.find(x=>dbm>=x[0]);
+  return {dbm,dist,murs,qualite:q[1],f:q[2],barres:q[3]};}
+const estWifi=c=>{const A=D(c.a.d),B=D(c.b.d);return !!(A&&B)&&(TYPES[A.type].wifi||TYPES[B.type].wifi||(mesuresOn()&&lienDe(c)==='wifi'));};
 const fmtN=(n,dec=1)=>(Math.round(n*10**dec)/10**dec).toLocaleString('fr-FR');
 const appareilIP=ip=>S.devices.find(o=>ipsOf(o).includes(ip));
 /* flux en cours (envoi d’un fichier, test de débit) : câbles animés jusqu’à t1 */
@@ -3334,6 +3352,7 @@ function puissance(d,actifs){const p=PUISSANCE[d.type]||[0,0];return p[0]+((acti
 /* ---------- panneau « Mesurer » : chronomètre et wattmètre ---------- */
 const CH={on:false,t0:0,acc:0,auto:true};
 const WM={id:null,der:0,wh:0,sec:0,ech:1,etape:0};
+const WF={id:null,der:''};
 let instru='';
 const chronoVal=()=>CH.acc+(CH.on?Math.max(0,sim.t-CH.t0):0);
 function chronoAuto(k,t){if(!CH.auto)return;if(k==='start'){CH.acc=0;CH.on=true;CH.t0=t;}else if(CH.on){CH.acc+=sim.t-CH.t0;CH.on=false;rec('chrono',{valeur:Math.round(CH.acc*100)/100});}majMesures();}
@@ -3342,7 +3361,7 @@ function toggleMesures(){const b=$('#mesures');b.hidden=!b.hidden;$('#bMesures')
 function majMesures(){
   const box=$('#mesuresBody');if(!box||$('#mesures').hidden)return;
   const simOn=mode==='sim';
-  const choix=`<div class="instrus">${[['chronometre','Chronomètre','durée (s)'],['wattmetre','Wattmètre','puissance (W), énergie (Wh)'],['bilan','Bilan énergie','kWh, euros, CO₂ par an']].map(([k,t,u])=>`<button class="instru${instru===k?' on':''}" data-instru="${k}" type="button"><b>${t}</b><small>${u}</small></button>`).join('')}</div>`;
+  const choix=`<div class="instrus">${[['chronometre','Chronomètre','durée (s)'],['wattmetre','Wattmètre','puissance (W), énergie (Wh)'],['wifi','Analyseur Wi-Fi','signal (dBm)'],['bilan','Bilan énergie','kWh, euros, CO₂ par an']].map(([k,t,u])=>`<button class="instru${instru===k?' on':''}" data-instru="${k}" type="button"><b>${t}</b><small>${u}</small></button>`).join('')}</div>`;
   let corps='';
   if(instru==='chronometre')corps=simOn?`<div class="ecran"><span id="chVal">${fmtN(chronoVal(),2)}</span><small> s</small></div>
 <div class="row"><button class="btn small" data-ch="go" type="button">${CH.on?'Arrêter':'Démarrer'}</button><button class="btn small" data-ch="zero" type="button">Remise à zéro</button></div>
@@ -3355,6 +3374,14 @@ function majMesures(){
 <label class="small">Temps accéléré<select class="in" data-wm="ech">${[[1,'1 s = 1 s'],[60,'1 s = 1 min'],[3600,'1 s = 1 h']].map(([v,t])=>`<option value="${v}"${WM.ech===v?' selected':''}>${t}</option>`).join('')}</select></label>
 <div class="row"><button class="btn small" data-wm="zero" type="button">Remettre le compteur à zéro</button></div>
 <p class="small muted" style="margin:0">Énergie (Wh) = puissance (W) × durée (h). La puissance augmente quand l’appareil échange des données.</p>`:'<p class="small muted">Lance la simulation ▶ pour mesurer.</p>';}
+  if(instru==='wifi'){const ws=S.devices.filter(o=>{const c=cableAt(o.id,0);return TYPES[o.type].host&&c&&lienDe(c)==='wifi';}),d=D(WF.id),c=d&&cableAt(d.id,0),x=c&&lienDe(c)==='wifi'?signalWifi(c):null;
+    if(simOn&&x){const cle=d.id+':'+x.dbm;if(WF.der!==cle){WF.der=cle;rec('wifi',{app:d.name,dbm:x.dbm,murs:x.murs,distance:Math.round(x.dist*10)/10,qualite:x.qualite});}}
+    const o=x&&otherEnd(c,d.id,0),borne=o&&D(o.d),L=LIAISONS.wifi;
+    corps=simOn?(ws.length?`<label class="small">Appareil mesuré<select class="in" data-wf="app"><option value="">— choisir un appareil en Wi-Fi —</option>${ws.map(o=>`<option value="${o.id}"${o.id===WF.id?' selected':''}>${esc(o.name)}</option>`).join('')}</select></label>
+<div class="ecran">${x?x.dbm:'—'}<small> dBm</small></div>
+${x?`<div class="row small"><span class="wbars" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${i<=x.barres?'on':''}" style="height:${4+i*4}px"></i>`).join('')}</span><span>Qualité : <b>${x.qualite}</b></span></div>
+<div class="row small"><span>Borne : <b>${esc(borne?borne.name:'?')}</b></span><span>à <b>${fmtN(x.dist,1)} m</b></span><span><b>${x.murs}</b> mur${x.murs>1?'s':''}</span></div>`:''}
+<p class="small muted" style="margin:0">Le signal se mesure en dBm, un nombre négatif : plus il est proche de 0, meilleur il est (−50 : excellent, −80 : faible). Il baisse avec la distance et chaque mur traversé ; le débit Wi-Fi baisse avec lui (au mieux ${L.d} ↓ / ${L.m} ↑ Mbit/s). Pour déplacer un appareil, reviens en conception (⏸).</p>`:'<p class="small muted">Aucun appareil n’est relié en Wi-Fi.</p>'):'<p class="small muted">Lance la simulation ▶ pour mesurer.</p>';}
   box.innerHTML=choix+(corps?`<div class="instrubody">${corps}</div>`:'<p class="small muted" style="margin:0">Choisis l’instrument adapté à ce que tu veux mesurer.</p>');
 }
 const wmEnergie=()=>D(WM.id)?(WM.wh>=1000?fmtN(WM.wh/1000,3)+' kWh':fmtN(WM.wh,1)+' Wh'):'—';
@@ -3737,6 +3764,24 @@ const EXOS=[
   q:['Quelle est la puissance de la box ? Quelle énergie consomme-t-elle en 24 h, en Wh puis en kWh ?','Que devient la puissance de PC 1 pendant l’envoi du fichier ? Pourquoi ?','Avec le bilan : combien de kWh, d’euros et de kg de CO₂ économise-t-on par an avec le scénario B ?','Propose deux gestes pour réduire la consommation du réseau du collège.'],
   verif:'L’énergie de la box est mesurée sur 24 h et le bilan compare deux scénarios.',
   depart:{zones:[{id:1,name:'Salle 101',x:0,y:0,w:900,h:520,color:'bleu'}],devices:[{id:2,type:'switch',name:'Switch 1',x:450,y:260},{id:3,type:'router',name:'Box internet',x:450,y:60,ifs:[{ip:'192.168.1.254'}]},{id:4,type:'pc',name:'PC 1',x:150,y:150,ip:'192.168.1.11',gw:'192.168.1.254'},{id:5,type:'pc',name:'PC 2',x:150,y:380,ip:'192.168.1.12',gw:'192.168.1.254'},{id:6,type:'printer',name:'Imprimante 1',x:750,y:400,ip:'192.168.1.50',gw:'192.168.1.254'},{id:7,type:'server',name:'Serveur 1',x:750,y:150,ip:'192.168.1.5',gw:'192.168.1.254'}],cables:[{id:8,a:{d:3,p:0},b:{d:2,p:0}},{id:9,a:{d:4,p:0},b:{d:2,p:1}},{id:10,a:{d:5,p:0},b:{d:2,p:2}},{id:11,a:{d:6,p:0},b:{d:2,p:3}},{id:12,a:{d:7,p:0},b:{d:2,p:4}}],nextId:13}},
+ {k:'e4-12',c:'4e',cat:'mesures',dur:'30 min',t:'Wi-Fi : portée et murs',p:'Mesurer le signal Wi-Fi de deux appareils avec l’analyseur, comprendre l’effet de la distance et des murs, puis améliorer la connexion du smartphone.',
+  steps:[ETAPE_SIM,
+   {t:'Clique sur « Mesurer », choisis l’analyseur Wi-Fi et mesure le signal de Portable 1.',h:'Le signal Wi-Fi se mesure en dBm. Choisis Portable 1 dans la liste « Appareil mesuré ».',verifier:{test:'action',type:'wifi',si:{app:'Portable 1'}}},
+   {t:'Mesure maintenant le signal de Smartphone 1, qui est dans la salle 102.',verifier:{test:'action',type:'wifi',si:{app:'Smartphone 1'}}},
+   {t:'Ouvre Smartphone 1, puis « Test de débit » : teste le serveur `192.168.1.5`.',verifier:{test:'action',type:'debit',si:{de:'Smartphone 1',vers:'192.168.1.5'}}},
+   {t:'Reviens en conception (⏸) et approche Smartphone 1 de la borne Wi-Fi, dans la salle 101. Relance la simulation et mesure de nouveau son signal.',h:'Fais glisser Smartphone 1 près de la borne : le signal doit être « Excellent » (−65 dBm ou plus).',verifier:{test:'action',type:'wifi',si:{app:'Smartphone 1',dbm:{min:-65}}}},
+   {t:'Refais le test de débit depuis Smartphone 1.',verifier:{test:'action',type:'debit',si:{de:'Smartphone 1',descendant:{min:50}}}}],
+  q:['Note le signal (dBm), la distance et le nombre de murs pour Portable 1, puis pour Smartphone 1 dans la salle 102.','Compare les débits de Smartphone 1 loin de la borne, puis près d’elle. Qu’est-ce qui fait baisser le débit Wi-Fi ?','Où placerais-tu une deuxième borne pour que la salle 102 ait un bon Wi-Fi ? Pourquoi ?'],
+  verif:'Le signal du smartphone est mesuré loin puis près de la borne, avec son débit.',
+  depart:{zones:[{id:1,name:'Salle 101',x:0,y:0,w:600,h:520,color:'bleu'},{id:2,name:'Couloir',x:600,y:0,w:300,h:520,color:'gris'},{id:3,name:'Salle 102',x:900,y:0,w:600,h:520,color:'vert'}],devices:[{id:4,type:'switch',name:'Borne Wi-Fi',x:300,y:260},{id:5,type:'laptop',name:'Portable 1',x:150,y:120,ip:'192.168.1.12'},{id:6,type:'phone',name:'Smartphone 1',x:1400,y:420,ip:'192.168.1.30'},{id:7,type:'server',name:'Serveur 1',x:460,y:380,ip:'192.168.1.5'}],cables:[{id:8,a:{d:5,p:0},b:{d:4,p:0},lien:'wifi'},{id:9,a:{d:6,p:0},b:{d:4,p:1},lien:'wifi'},{id:10,a:{d:7,p:0},b:{d:4,p:2},lien:'eth1g'}],nextId:11,fixe:true}},
+ {k:'e4-13',c:'4e',cat:'mesures',dur:'40 min',t:'Choisir sa connexion',p:'L’annexe du collège doit être reliée à internet. Mesurer trois solutions (4G, 5G, fibre) et choisir celle qui respecte le cahier des charges.',
+  steps:[ETAPE_SIM,
+   {t:'Cahier des charges : pour la visioconférence, latence de 50 ms au plus et débit montant d’au moins 20 Mbit/s ; pour télécharger les manuels, débit descendant d’au moins 100 Mbit/s. La box est reliée en 4G : depuis PC 1, fais un test de débit vers le serveur internet `10.0.0.5`.',h:'Ouvre PC 1, puis « Test de débit ». Note la latence et les deux débits dans un tableau.',verifier:{test:'action',type:'debit',si:{de:'PC 1',vers:'10.0.0.5',montant:{max:15}}}},
+   {t:'Reviens en conception (⏸) : passe la liaison entre la box et internet en « 5G ». Relance la simulation et refais le test.',h:'Clique sur la liaison entre Box annexe et Internet (FAI), puis choisis son type dans le panneau de droite.',verifier:[{test:'type-liaison',a:'Box annexe',b:'Internet (FAI)',vaut:'5g'},{test:'action',type:'debit',si:{de:'PC 1',vers:'10.0.0.5',montant:{min:40,max:60}}}]},
+   {t:'Fais de même avec la « Fibre optique », puis refais le test.',verifier:[{test:'type-liaison',a:'Box annexe',b:'Internet (FAI)',vaut:'fibre'},{test:'action',type:'debit',si:{de:'PC 1',vers:'10.0.0.5',montant:{min:400}}}]}],
+  q:['Recopie et complète le tableau : latence (ms), débit descendant et débit montant (Mbit/s) en 4G, en 5G et en fibre.','Quelles solutions respectent tout le cahier des charges ? Justifie avec tes mesures.','La fibre n’arrivera à l’annexe que dans deux ans. Quelle solution choisis-tu pour cette année ? Pourquoi ?','Donne un autre critère de choix que les mesures (prix de l’abonnement, installation, consommation…).'],
+  verif:'Les trois connexions sont mesurées et comparées au cahier des charges.',
+  depart:{zones:[{id:1,name:'Annexe',x:0,y:0,w:760,h:520,color:'orange'}],devices:[{id:2,type:'switch',name:'Switch annexe',x:380,y:300},{id:3,type:'pc',name:'PC 1',x:150,y:150,ip:'192.168.1.11',gw:'192.168.1.254'},{id:4,type:'pc',name:'PC 2',x:150,y:430,ip:'192.168.1.12',gw:'192.168.1.254'},{id:5,type:'router',name:'Box annexe',x:600,y:150,ifs:[{ip:'192.168.1.254'},{ip:'10.0.0.1'}]},{id:6,type:'server',name:'Internet (FAI)',x:1000,y:150,ip:'10.0.0.5',gw:'10.0.0.1'}],cables:[{id:7,a:{d:3,p:0},b:{d:2,p:0},lien:'eth1g'},{id:8,a:{d:4,p:0},b:{d:2,p:1},lien:'eth1g'},{id:9,a:{d:5,p:0},b:{d:2,p:2},lien:'eth1g'},{id:10,a:{d:5,p:1},b:{d:6,p:0},lien:'4g'}],nextId:11,fixe:true}},
 
  {k:'e3-6',c:'3e',cat:'noms',dur:'35 min',t:'Le nom du collège',p:'Configurer un serveur DNS pour que les postes atteignent le site du collège par son nom, et comprendre ce que fait le navigateur avant d’afficher la page.',
    steps:[{t:'Place un switch, un serveur, PC 1 et PC 2 sur la feuille, puis relie-les tous au switch.',h:'Le serveur héberge le site du collège. Les deux PC et le serveur se branchent sur le switch.',verifier:{test:'cables',min:3}},
@@ -4084,7 +4129,7 @@ const simNiveau=(c,niv)=>({'5e':1,'4e':1,'3e':1})[c]?niv:2;
 function loadExo(x,niveau,ratt){
   docFixer(null);   // un atelier ne se range pas dans un document libre
   const avant=S.exo&&S.exo.k===x.k&&!S.exo.constate?S.exo.essai||1:0;   // « Recommencer » : un essai de plus
-  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:simNiveau(x.c,x.niv);if(x.build)x.build(H());else poserDepart(x.depart);const membres=new Map(S.zones.map(z=>[z.id,S.devices.filter(d=>inZone(z,d)).map(d=>({d,x:d.x,y:d.y}))]));$('#app').classList.toggle('trames-requises',tramesRequises(x));arpAffiche=x.steps.some(s=>/ARP/.test((s.t||'')+' '+(s.h||'')));$('#app').classList.toggle('arp-requis',arpAffiche);S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles(membres);S.help=x.help!==false;
+  setMode('design');snap();S=blank();S.level=niveau!=null?niveau:simNiveau(x.c,x.niv);if(x.build)x.build(H());else poserDepart(x.depart);const membres=new Map(S.zones.map(z=>[z.id,S.devices.filter(d=>inZone(z,d)).map(d=>({d,x:d.x,y:d.y}))]));$('#app').classList.toggle('trames-requises',tramesRequises(x));arpAffiche=x.steps.some(s=>/ARP/.test((s.t||'')+' '+(s.h||'')));$('#app').classList.toggle('arp-requis',arpAffiche);S.devices.forEach(d=>{const p=surGrilleIso(d.x,d.y);d.x=p.x;d.y=p.y;});if(!(x.depart&&x.depart.fixe)){alignerAppareils();symetriserAutourDesConcentrateurs();espacer();ajusterSalles(membres);}   /* depart.fixe : positions gardées (distances du Wi-Fi) */S.help=x.help!==false;
   S.exo={k:x.k,ratt:!!ratt,c:x.c,cat:x.cat,t:x.t,dur:x.dur,steps:x.steps.map(s=>s.t),q:x.q||[],verif:x.verif,done:[],cur:0,essai:avant+1,ind:[],saut:0};
   EV=[];
   closeParc();$('#exoBox').classList.remove('folded');markProg();if(x.cat==='premiers'&&!debutVu(x.k))setTimeout(startTourDebut,300);
@@ -4631,7 +4676,7 @@ function buildTopologie(k,routesDe){
    et centrale.json (descripteur de l’atelier).
    ============================================================ */
 EXOS.forEach(x=>{if(x.niv===undefined)x.niv=CLASSES[x.c].lv;});
-const NETSIM_VERSION='1.20.0';
+const NETSIM_VERSION='1.21.0';
 /* Ateliers composés, publiés dans ateliers.json en plus des exercices : plusieurs exercices à la suite (#atelier=<id>),
    et la session libre (#libre) où l'élève crée ses propres documents. */
 var ATELIERS_NS=[
@@ -4683,7 +4728,7 @@ function majModeAtelier(){Object.keys(INTERFACE_ATELIER).forEach(k=>document.doc
    Recopiées dans centrale.json (activites.liste[].competences) : outils/verifier-descripteur.html compare. */
 const COMP_EXO={
   'e5-0a':['SFC15.5.1'],'e5-0b':['SFC15.5.1','SFC15.5.2'],'e5-1':['SFC15.5.1'],'e5-2':['SFC15.5.1'],'e5-3':['SFC15.5.2'],'e5-4':['SFC15.5.2'],'e5-5':['SFC15.5.2'],'e5-6':['SFC15.5.2'],'e5-7':['SFC15.5.1'],
-  'e4-1':['SFC15.4.1','SFC15.4.3'],'e4-2':['SFC15.4.2'],'e4-3':['SFC15.4.3'],'e4-4':['SFC15.4.3'],'e4-5':['SFC15.4.2'],'e4-6':['SFC15.4.1','CCRI17.4.1'],'e4-9':['OST32.4.1','OST31.4.1','SFC15.4.2'],'e4-10':['OST32.4.1','OST31.4.1'],'e4-11':['OST32.4.1','OST31.4.2'],
+  'e4-1':['SFC15.4.1','SFC15.4.3'],'e4-2':['SFC15.4.2'],'e4-3':['SFC15.4.3'],'e4-4':['SFC15.4.3'],'e4-5':['SFC15.4.2'],'e4-6':['SFC15.4.1','CCRI17.4.1'],'e4-9':['OST32.4.1','OST31.4.1','SFC15.4.2'],'e4-10':['OST32.4.1','OST31.4.1'],'e4-11':['OST32.4.1','OST31.4.2'],'e4-12':['OST32.4.1','OST31.4.1'],'e4-13':['OST31.4.1','OST32.4.1'],
   'e4-0':['SFC15.4.2'],'e5-8':['SFC15.4.1'],'e5-9':['SFC15.4.2'],'e4-8':['SFC15.4.2','SFC15.3.1'],'e3-0':['SFC15.5.1'],'e3-8':['SFC15.4.2'],'e4-7':['SFC15.4.2','SFC15.4.3'],'e3-1':['SFC15.3.2'],'e3-2':['SFC15.3.2','CCRI22.3.1'],'e3-3':['SFC15.3.2'],'e3-4':['SFC15.3.2'],'e3-5':['SFC15.3.1'],'e3-6':['SFC15.3.1'],'e3-7':['SFC15.3.1']
 };
 const REF_TEXTE={ 'CCRI17.4.1': 'Interfacer un objet technique avec un réseau', 'CCRI22.3.1': 'Proposer un protocole de test pour valider le comportement et les performances d’un objet technique', 'SFC15.3.1': 'Identifier et représenter la circulation d’une information dans le réseau Internet', 'SFC15.3.2': 'Justifier la nécessité d’un protocole de routage pour faire communiquer plusieurs réseaux (activité débranchée, table de routage donnée)', 'SFC15.4.1': 'Paramétrer une adresse IP fixe pour ajouter un objet connecté à un réseau local.', 'SFC15.4.2': 'Résoudre des problèmes pour assurer la communication entre les différents terminaux dans un réseau informatique (simulation ou réseau local déconnecté du réseau pédagogique)', 'SFC15.4.3': 'Compléter une simulation fournie pour valider le comportement d’un réseau informatique', 'SFC15.5.1': 'Identifier les composants qui constituent un réseau local (terminaux, commutateurs, liaisons filaires et sans fil (WiFi)) et sa topologie', 'SFC15.5.2': 'Justifier la nécessité d’identifier les terminaux pour communiquer sur un réseau local (activité débranchée et vérification par un outil de simulation)' };

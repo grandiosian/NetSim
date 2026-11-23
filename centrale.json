@@ -6,8 +6,8 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.20.0",
-    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 55 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
+    "version": "1.21.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 57 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
     "icone": "🌐",
@@ -787,6 +787,55 @@
           "Que devient la puissance de PC 1 pendant l’envoi du fichier ? Pourquoi ?",
           "Avec le bilan : combien de kWh, d’euros et de kg de CO₂ économise-t-on par an avec le scénario B ?",
           "Propose deux gestes pour réduire la consommation du réseau du collège."
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-12",
+        "titre": "Wi-Fi : portée et murs",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 6,
+        "competences": [
+          "OST32.4.1",
+          "OST31.4.1"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "mesures",
+        "categorie_titre": "Mesurer le réseau",
+        "resume": "Mesurer le signal Wi-Fi de deux appareils avec l’analyseur, comprendre l’effet de la distance et des murs, puis améliorer la connexion du smartphone.",
+        "duree": "30 min",
+        "etapes": 6,
+        "etapes_auto": 6,
+        "questions": [
+          "Note le signal (dBm), la distance et le nombre de murs pour Portable 1, puis pour Smartphone 1 dans la salle 102.",
+          "Compare les débits de Smartphone 1 loin de la borne, puis près d’elle. Qu’est-ce qui fait baisser le débit Wi-Fi ?",
+          "Où placerais-tu une deuxième borne pour que la salle 102 ait un bon Wi-Fi ? Pourquoi ?"
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-13",
+        "titre": "Choisir sa connexion",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 4,
+        "competences": [
+          "OST31.4.1",
+          "OST32.4.1"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "mesures",
+        "categorie_titre": "Mesurer le réseau",
+        "resume": "L’annexe du collège doit être reliée à internet. Mesurer trois solutions (4G, 5G, fibre) et choisir celle qui respecte le cahier des charges.",
+        "duree": "40 min",
+        "etapes": 4,
+        "etapes_auto": 4,
+        "questions": [
+          "Recopie et complète le tableau : latence (ms), débit descendant et débit montant (Mbit/s) en 4G, en 5G et en fibre.",
+          "Quelles solutions respectent tout le cahier des charges ? Justifie avec tes mesures.",
+          "La fibre n’arrivera à l’annexe que dans deux ans. Quelle solution choisis-tu pour cette année ? Pourquoi ?",
+          "Donne un autre critère de choix que les mesures (prix de l’abonnement, installation, consommation…)."
         ],
         "alertes": true
       },
