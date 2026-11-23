@@ -6,8 +6,8 @@
   "atelier": {
     "app": "netsim",
     "nom": "NetSim",
-    "version": "1.21.0",
-    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 57 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
+    "version": "1.22.0",
+    "description": "Simulateur de réseau inspiré de Filius : câblage, adresses IP, routeurs, pare-feu, trames animées et 58 ateliers guidés, du collège (5e, 4e, 3e) au lycée et au supérieur (Bac+1, Bac+2).",
     "url": "https://grandiosian.github.io/NetSim/",
     "urls_secours": [],
     "icone": "🌐",
@@ -163,6 +163,11 @@
           "id": "mesures",
           "titre": "Mesurer le réseau",
           "description": "Débit, temps de transfert, consommation électrique."
+        },
+        {
+          "id": "formes",
+          "titre": "Formes de réseau",
+          "description": "Étoile, bus, anneau : manipuler et comparer."
         }
       ],
       "3e": [
@@ -836,6 +841,31 @@
           "Quelles solutions respectent tout le cahier des charges ? Justifie avec tes mesures.",
           "La fibre n’arrivera à l’annexe que dans deux ans. Quelle solution choisis-tu pour cette année ? Pourquoi ?",
           "Donne un autre critère de choix que les mesures (prix de l’abonnement, installation, consommation…)."
+        ],
+        "alertes": true
+      },
+      {
+        "id": "e4-14",
+        "titre": "Étoile, bus ou anneau ?",
+        "groupe": "4ᵉ · Intermédiaire",
+        "total": 7,
+        "competences": [
+          "SFC15.4.3",
+          "SFC15.4.2"
+        ],
+        "classe": "4e",
+        "niveau": 1,
+        "categorie": "formes",
+        "categorie_titre": "Formes de réseau",
+        "resume": "Manipuler trois formes de réseau (étoile, bus, anneau) : envoyer un message, couper un câble, et observer ce qui se passe.",
+        "duree": "30 min",
+        "etapes": 7,
+        "etapes_auto": 7,
+        "questions": [
+          "Étoile : le câble de PC E2 est coupé. Les autres postes communiquent-ils encore ?",
+          "Bus : le câble est coupé au milieu. PC B1 peut-il encore joindre PC B4 ? Pourquoi ?",
+          "Anneau : un câble est coupé. Par où passe maintenant le message de PC A1 vers PC A3 ?",
+          "Quelle forme garde le réseau en marche quand un câble est coupé ?"
         ],
         "alertes": true
       },

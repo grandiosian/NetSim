@@ -2166,6 +2166,7 @@ function logFrame(from,to,fr){
 }
 function txFrame(d,port,fr){
   const c=cableAt(d.id,port);if(!c)return false;
+  if(d.type!=='switch')fr=Object.assign({},fr,{uid:++UID});   // numéro de trame : un switch d’une boucle (anneau) ne la relaie qu’une fois
   const o=otherEnd(c,d.id,port),to=D(o.d);if(!to)return false;
   if(fr.type==='IP'&&fr.ip.proto==='DATA')fr=Object.assign({},fr,{ip:Object.assign({},fr.ip,{data:Object.assign({},fr.ip.data,{chemin:(fr.ip.data.chemin||[]).concat({c:c.id,de:d.id})})})});   // sonde des mesures : câbles traversés
   const n=logFrame(d,to,fr),cls=fcls(fr),hid=!arpVisible()&&fr.type==='ARP';
@@ -2185,7 +2186,9 @@ function rxFrame(d,port,fr){
   return l3Rx(d,port,fr);
 }
 function swRx(d,port,fr){
-  const r=rt(d);r.mac.set(fr.src,port);pulse(d);
+  const r=rt(d);
+  if(fr.uid){r.vues=r.vues||new Set();if(r.vues.has(fr.uid))return;if(r.vues.size>4000)r.vues.clear();r.vues.add(fr.uid);}   // déjà relayée : arrivée par l’autre côté d’une boucle
+  r.mac.set(fr.src,port);pulse(d);
   const known=fr.dst!==BCAST&&r.mac.has(fr.dst);
   const out=known?[r.mac.get(fr.dst)]:[...Array(TYPES.switch.ports).keys()].filter(p=>cableAt(d.id,p));
   out.forEach(p=>{if(p!==port)txFrame(d,p,fr);});
@@ -3198,7 +3201,7 @@ const pas=c=>{if(LYC[c])return `<span class="pas" style="background:${LYC[c].c};
 const barres=n=>`<span class="nvb" aria-label="Niveau ${n+1} sur 3">${[0,1,2].map(i=>`<i${i<=n?' class="on"':''}></i>`).join('')}</span>`;
 const CATS={
  '5e':[['premiers','Premiers pas','Un appareil, un câble, un premier ping.'],['cabler','Relier les appareils','Câbles, switch et liaison Wi-Fi.'],['adresses','Les adresses IP','Donner, vérifier et corriger des adresses.'],['services','Les services du réseau','Imprimer et consulter une page web.'],['passerelle','Deux salles, une passerelle','Relier deux salles par un routeur, pas à pas.'],['masque','Le masque de sous-réseau','Savoir si deux appareils sont dans le même réseau.']],
- '4e':[['salle','Le réseau de la salle','Relier, adresser et dépanner un petit réseau.'],['routeur','Routeur et passerelle','Faire communiquer deux réseaux.'],['dhcp','Adresses automatiques','Un serveur DHCP attribue les adresses aux appareils.'],['observer','Observer les échanges','ARP, adresses MAC et table du switch.'],['diag','Diagnostiquer une panne','Symptôme, hypothèse, test, correction.'],['iot','Objets connectés','Un capteur qui publie ses mesures.'],['nomsreseau','Noms et réseaux','Un nom ne fonctionne plus à travers le routeur.'],['mesures','Mesurer le réseau','Débit, temps de transfert, consommation électrique.']],
+ '4e':[['salle','Le réseau de la salle','Relier, adresser et dépanner un petit réseau.'],['routeur','Routeur et passerelle','Faire communiquer deux réseaux.'],['dhcp','Adresses automatiques','Un serveur DHCP attribue les adresses aux appareils.'],['observer','Observer les échanges','ARP, adresses MAC et table du switch.'],['diag','Diagnostiquer une panne','Symptôme, hypothèse, test, correction.'],['iot','Objets connectés','Un capteur qui publie ses mesures.'],['nomsreseau','Noms et réseaux','Un nom ne fonctionne plus à travers le routeur.'],['mesures','Mesurer le réseau','Débit, temps de transfert, consommation électrique.'],['formes','Formes de réseau','Étoile, bus, anneau : manipuler et comparer.']],
  '2nde':[['reseau','Réseau local','Adresses, switch et protocole ARP.'],['diag','Diagnostic','Trouver une panne dans un réseau local.']],
  '1re':[['routage','Routage','Routeurs, passerelles et sous-réseaux.']],
  'tle':[['services','Services réseau','DNS, DHCP et serveur web.']],
@@ -3782,6 +3785,28 @@ const EXOS=[
   q:['Recopie et complète le tableau : latence (ms), débit descendant et débit montant (Mbit/s) en 4G, en 5G et en fibre.','Quelles solutions respectent tout le cahier des charges ? Justifie avec tes mesures.','La fibre n’arrivera à l’annexe que dans deux ans. Quelle solution choisis-tu pour cette année ? Pourquoi ?','Donne un autre critère de choix que les mesures (prix de l’abonnement, installation, consommation…).'],
   verif:'Les trois connexions sont mesurées et comparées au cahier des charges.',
   depart:{zones:[{id:1,name:'Annexe',x:0,y:0,w:760,h:520,color:'orange'}],devices:[{id:2,type:'switch',name:'Switch annexe',x:380,y:300},{id:3,type:'pc',name:'PC 1',x:150,y:150,ip:'192.168.1.11',gw:'192.168.1.254'},{id:4,type:'pc',name:'PC 2',x:150,y:430,ip:'192.168.1.12',gw:'192.168.1.254'},{id:5,type:'router',name:'Box annexe',x:600,y:150,ifs:[{ip:'192.168.1.254'},{ip:'10.0.0.1'}]},{id:6,type:'server',name:'Internet (FAI)',x:1000,y:150,ip:'10.0.0.5',gw:'10.0.0.1'}],cables:[{id:7,a:{d:3,p:0},b:{d:2,p:0},lien:'eth1g'},{id:8,a:{d:4,p:0},b:{d:2,p:1},lien:'eth1g'},{id:9,a:{d:5,p:0},b:{d:2,p:2},lien:'eth1g'},{id:10,a:{d:5,p:1},b:{d:6,p:0},lien:'4g'}],nextId:11,fixe:true}},
+
+ {k:'e4-14',c:'4e',cat:'formes',dur:'30 min',t:'Étoile, bus ou anneau ?',p:'Manipuler trois formes de réseau (étoile, bus, anneau) : envoyer un message, couper un câble, et observer ce qui se passe.',
+  steps:[ETAPE_SIM,
+   {t:'Réseau en étoile : Ouvre PC E1, puis l’invite de commandes. Tape `ping 192.168.1.13` pour envoyer un message à PC E3.',h:'Le message passe par le switch, au centre de l’étoile.',verifier:{test:'action',type:'ping',si:{from:'PC E1',dst:'192.168.1.13',ok:true}}},
+   {t:'Reviens en conception (⏸) et supprime le câble de PC E2. Relance la simulation et refais le ping de PC E1 vers PC E3.',h:'Clique sur le câble de PC E2, puis sur « Supprimer le câble ».',verifier:[{test:'lien',a:'PC E2',b:'Switch étoile',non:true},{test:'action',type:'ping',si:{from:'PC E1',dst:'192.168.1.13',ok:true},min:2}]},
+   {t:'Réseau en bus : Depuis PC B1, tape `ping 192.168.2.14` pour envoyer un message à PC B4, au bout du bus.',h:'Le message suit le câble du bus, de raccord en raccord.',verifier:{test:'action',type:'ping',si:{from:'PC B1',dst:'192.168.2.14',ok:true}}},
+   {t:'Reviens en conception (⏸) et coupe le bus : supprime le câble entre Raccord 2 et Raccord 3. Relance et refais le ping de PC B1 vers PC B4.',verifier:[{test:'lien',a:'Raccord 2',b:'Raccord 3',non:true},{test:'action',type:'ping',si:{from:'PC B1',dst:'192.168.2.14',ok:false}}]},
+   {t:'Réseau en anneau : Depuis PC A1, tape `ping 192.168.3.13` pour envoyer un message à PC A3.',verifier:{test:'action',type:'ping',si:{from:'PC A1',dst:'192.168.3.13',ok:true}}},
+   {t:'Reviens en conception (⏸) et coupe l’anneau : supprime le câble entre Nœud 1 et Nœud 2. Relance et refais le ping de PC A1 vers PC A3.',h:'Regarde le chemin des enveloppes : elles font le tour par l’autre côté.',verifier:[{test:'lien',a:'Nœud 1',b:'Nœud 2',non:true},{test:'action',type:'ping',si:{from:'PC A1',dst:'192.168.3.13',ok:true},min:2}]}],
+  q:['Étoile : le câble de PC E2 est coupé. Les autres postes communiquent-ils encore ?','Bus : le câble est coupé au milieu. PC B1 peut-il encore joindre PC B4 ? Pourquoi ?','Anneau : un câble est coupé. Par où passe maintenant le message de PC A1 vers PC A3 ?','Quelle forme garde le réseau en marche quand un câble est coupé ?'],
+  verif:'Les trois réseaux sont testés avant et après une coupure.',
+  depart:{zones:[{id:1,name:'Réseau en étoile',x:0,y:0,w:620,h:700,color:'violet'},{id:2,name:'Réseau en bus',x:700,y:0,w:860,h:700,color:'orange'},{id:3,name:'Réseau en anneau',x:1620,y:0,w:840,h:700,color:'vert'}],
+   devices:[{id:4,type:'switch',name:'Switch étoile',x:310,y:350},{id:5,type:'pc',name:'PC E1',x:310,y:110,ip:'192.168.1.11'},{id:6,type:'pc',name:'PC E2',x:530,y:350,ip:'192.168.1.12'},{id:7,type:'pc',name:'PC E3',x:310,y:600,ip:'192.168.1.13'},{id:8,type:'pc',name:'PC E4',x:90,y:350,ip:'192.168.1.14'},
+    {id:9,type:'switch',name:'Raccord 1',x:800,y:350},{id:10,type:'switch',name:'Raccord 2',x:1000,y:350},{id:11,type:'switch',name:'Raccord 3',x:1200,y:350},{id:12,type:'switch',name:'Raccord 4',x:1400,y:350},
+    {id:13,type:'pc',name:'PC B1',x:800,y:130,ip:'192.168.2.11'},{id:14,type:'pc',name:'PC B2',x:1000,y:570,ip:'192.168.2.12'},{id:15,type:'pc',name:'PC B3',x:1200,y:130,ip:'192.168.2.13'},{id:16,type:'pc',name:'PC B4',x:1400,y:570,ip:'192.168.2.14'},
+    {id:17,type:'switch',name:'Nœud 1',x:2040,y:170},{id:18,type:'switch',name:'Nœud 2',x:2230,y:350},{id:19,type:'switch',name:'Nœud 3',x:2040,y:530},{id:20,type:'switch',name:'Nœud 4',x:1850,y:350},
+    {id:21,type:'pc',name:'PC A1',x:2040,y:40,ip:'192.168.3.11'},{id:22,type:'pc',name:'PC A2',x:2390,y:350,ip:'192.168.3.12'},{id:23,type:'pc',name:'PC A3',x:2040,y:650,ip:'192.168.3.13'},{id:24,type:'pc',name:'PC A4',x:1690,y:350,ip:'192.168.3.14'}],
+   cables:[{id:25,a:{d:5,p:0},b:{d:4,p:0}},{id:26,a:{d:6,p:0},b:{d:4,p:1}},{id:27,a:{d:7,p:0},b:{d:4,p:2}},{id:28,a:{d:8,p:0},b:{d:4,p:3}},
+    {id:29,a:{d:9,p:0},b:{d:10,p:0}},{id:30,a:{d:10,p:1},b:{d:11,p:0}},{id:31,a:{d:11,p:1},b:{d:12,p:0}},
+    {id:32,a:{d:13,p:0},b:{d:9,p:1}},{id:33,a:{d:14,p:0},b:{d:10,p:2}},{id:34,a:{d:15,p:0},b:{d:11,p:2}},{id:35,a:{d:16,p:0},b:{d:12,p:1}},
+    {id:36,a:{d:17,p:0},b:{d:18,p:0}},{id:37,a:{d:18,p:1},b:{d:19,p:0}},{id:38,a:{d:19,p:1},b:{d:20,p:0}},{id:39,a:{d:20,p:1},b:{d:17,p:1}},
+    {id:40,a:{d:21,p:0},b:{d:17,p:2}},{id:41,a:{d:22,p:0},b:{d:18,p:2}},{id:42,a:{d:23,p:0},b:{d:19,p:2}},{id:43,a:{d:24,p:0},b:{d:20,p:2}}],nextId:44,fixe:true}},
 
  {k:'e3-6',c:'3e',cat:'noms',dur:'35 min',t:'Le nom du collège',p:'Configurer un serveur DNS pour que les postes atteignent le site du collège par son nom, et comprendre ce que fait le navigateur avant d’afficher la page.',
    steps:[{t:'Place un switch, un serveur, PC 1 et PC 2 sur la feuille, puis relie-les tous au switch.',h:'Le serveur héberge le site du collège. Les deux PC et le serveur se branchent sur le switch.',verifier:{test:'cables',min:3}},
@@ -4676,7 +4701,7 @@ function buildTopologie(k,routesDe){
    et centrale.json (descripteur de l’atelier).
    ============================================================ */
 EXOS.forEach(x=>{if(x.niv===undefined)x.niv=CLASSES[x.c].lv;});
-const NETSIM_VERSION='1.21.0';
+const NETSIM_VERSION='1.22.0';
 /* Ateliers composés, publiés dans ateliers.json en plus des exercices : plusieurs exercices à la suite (#atelier=<id>),
    et la session libre (#libre) où l'élève crée ses propres documents. */
 var ATELIERS_NS=[
@@ -4728,7 +4753,7 @@ function majModeAtelier(){Object.keys(INTERFACE_ATELIER).forEach(k=>document.doc
    Recopiées dans centrale.json (activites.liste[].competences) : outils/verifier-descripteur.html compare. */
 const COMP_EXO={
   'e5-0a':['SFC15.5.1'],'e5-0b':['SFC15.5.1','SFC15.5.2'],'e5-1':['SFC15.5.1'],'e5-2':['SFC15.5.1'],'e5-3':['SFC15.5.2'],'e5-4':['SFC15.5.2'],'e5-5':['SFC15.5.2'],'e5-6':['SFC15.5.2'],'e5-7':['SFC15.5.1'],
-  'e4-1':['SFC15.4.1','SFC15.4.3'],'e4-2':['SFC15.4.2'],'e4-3':['SFC15.4.3'],'e4-4':['SFC15.4.3'],'e4-5':['SFC15.4.2'],'e4-6':['SFC15.4.1','CCRI17.4.1'],'e4-9':['OST32.4.1','OST31.4.1','SFC15.4.2'],'e4-10':['OST32.4.1','OST31.4.1'],'e4-11':['OST32.4.1','OST31.4.2'],'e4-12':['OST32.4.1','OST31.4.1'],'e4-13':['OST31.4.1','OST32.4.1'],
+  'e4-1':['SFC15.4.1','SFC15.4.3'],'e4-2':['SFC15.4.2'],'e4-3':['SFC15.4.3'],'e4-4':['SFC15.4.3'],'e4-5':['SFC15.4.2'],'e4-6':['SFC15.4.1','CCRI17.4.1'],'e4-9':['OST32.4.1','OST31.4.1','SFC15.4.2'],'e4-10':['OST32.4.1','OST31.4.1'],'e4-11':['OST32.4.1','OST31.4.2'],'e4-12':['OST32.4.1','OST31.4.1'],'e4-13':['OST31.4.1','OST32.4.1'],'e4-14':['SFC15.4.3','SFC15.4.2'],
   'e4-0':['SFC15.4.2'],'e5-8':['SFC15.4.1'],'e5-9':['SFC15.4.2'],'e4-8':['SFC15.4.2','SFC15.3.1'],'e3-0':['SFC15.5.1'],'e3-8':['SFC15.4.2'],'e4-7':['SFC15.4.2','SFC15.4.3'],'e3-1':['SFC15.3.2'],'e3-2':['SFC15.3.2','CCRI22.3.1'],'e3-3':['SFC15.3.2'],'e3-4':['SFC15.3.2'],'e3-5':['SFC15.3.1'],'e3-6':['SFC15.3.1'],'e3-7':['SFC15.3.1']
 };
 const REF_TEXTE={ 'CCRI17.4.1': 'Interfacer un objet technique avec un réseau', 'CCRI22.3.1': 'Proposer un protocole de test pour valider le comportement et les performances d’un objet technique', 'SFC15.3.1': 'Identifier et représenter la circulation d’une information dans le réseau Internet', 'SFC15.3.2': 'Justifier la nécessité d’un protocole de routage pour faire communiquer plusieurs réseaux (activité débranchée, table de routage donnée)', 'SFC15.4.1': 'Paramétrer une adresse IP fixe pour ajouter un objet connecté à un réseau local.', 'SFC15.4.2': 'Résoudre des problèmes pour assurer la communication entre les différents terminaux dans un réseau informatique (simulation ou réseau local déconnecté du réseau pédagogique)', 'SFC15.4.3': 'Compléter une simulation fournie pour valider le comportement d’un réseau informatique', 'SFC15.5.1': 'Identifier les composants qui constituent un réseau local (terminaux, commutateurs, liaisons filaires et sans fil (WiFi)) et sa topologie', 'SFC15.5.2': 'Justifier la nécessité d’identifier les terminaux pour communiquer sur un réseau local (activité débranchée et vérification par un outil de simulation)' };
@@ -4855,7 +4880,7 @@ $('#bTour').onclick=startTour;
    Mes TP : un parcours. Chaque TP regroupe les exercices d’une
    même catégorie ; on les fait dans l’ordre, étape par étape.
    ============================================================ */
-const TP_LABEL={premiers:'Atelier-Découverte',dhcp:'Atelier-DHCP',noms:'Atelier-Noms',salle:'Atelier-Salle',passerelle:'Atelier-Passerelle',masque:'Atelier-Masque',nomsreseau:'Atelier-NomsRéseau',imprimer:'Atelier-Impression',dhcprouteur:'Atelier-DHCPRouteur',messagerie:'Atelier-Messagerie',cabler:'Atelier-PremierReseau',adresses:'Atelier-Adresses',services:'Atelier-Services',reseau:'Atelier-Réseau',routeur:'Atelier-Routeur',observer:'Atelier-Échanges',diag:'Atelier-Panne',iot:'Atelier-Objets',mesures:'Atelier-Mesures',sousreseau:'Atelier-SousRéseaux',routage:'Atelier-Routage',protocoles:'Atelier-Protocoles',client:'Atelier-ClientServeur',analyse:'Atelier-Trames',adressage:'Atelier-Adressage',conception:'Atelier-Conception',securite:'Atelier-Sécurité'};
+const TP_LABEL={premiers:'Atelier-Découverte',dhcp:'Atelier-DHCP',noms:'Atelier-Noms',salle:'Atelier-Salle',passerelle:'Atelier-Passerelle',masque:'Atelier-Masque',nomsreseau:'Atelier-NomsRéseau',imprimer:'Atelier-Impression',dhcprouteur:'Atelier-DHCPRouteur',messagerie:'Atelier-Messagerie',cabler:'Atelier-PremierReseau',adresses:'Atelier-Adresses',services:'Atelier-Services',reseau:'Atelier-Réseau',routeur:'Atelier-Routeur',observer:'Atelier-Échanges',diag:'Atelier-Panne',iot:'Atelier-Objets',mesures:'Atelier-Mesures',formes:'Atelier-Topologies',sousreseau:'Atelier-SousRéseaux',routage:'Atelier-Routage',protocoles:'Atelier-Protocoles',client:'Atelier-ClientServeur',analyse:'Atelier-Trames',adressage:'Atelier-Adressage',conception:'Atelier-Conception',securite:'Atelier-Sécurité'};
 /* Préfixe du code de TP : chiffre ou lettre de la classe (5, 4, 3, 2, 1, t), b1 et b2 pour le supérieur. */
 const prefixeTP=c=>({bac1:'b1',bac2:'b2'})[c]||c[0];
 /* Ordre du parcours : TP par TP, exercices dans leur ordre. */

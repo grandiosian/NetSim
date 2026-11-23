@@ -20,7 +20,7 @@ Le choix de classe se fait avec **Changer de classe**, dans le widget « Visiteu
 
 | Onglet | Classes | Ateliers |
 |---|---|---|
-| Collège | 5ème, 4ème, 3ème | 36 |
+| Collège | 5ème, 4ème, 3ème | 37 |
 | Lycée | 2nde, 1re, Terminale | 9 |
 | Supérieur | Bac+1, Bac+2 | 12 |
 
@@ -38,7 +38,7 @@ Le panneau **Consigne** guide l’élève une étape à la fois : une barre de p
 
 Thèmes principaux :
 - **Collège 5ème** : premiers pas, câbles, adresses IP, services (impression, page web).
-- **Collège 4ème** : réseau de salle, routeur et passerelle, ARP et table du switch, diagnostic, capteur connecté, DHCP, noms de réseau, mesures (débit, temps de transfert, consommation électrique, portée du Wi-Fi, choix d’une connexion à internet).
+- **Collège 4ème** : réseau de salle, routeur et passerelle, ARP et table du switch, diagnostic, capteur connecté, DHCP, noms de réseau, mesures (débit, temps de transfert, consommation électrique, portée du Wi-Fi, choix d’une connexion à internet), formes de réseau (étoile, bus, anneau : couper un câble et observer).
 - **Collège 3ème** : sous-réseaux et masques, routage (routes statiques, TTL), messagerie, DNS, DHCP, encapsulation.
 - **Lycée** : 2nde (réseau local, table du switch, doublon) ; 1re (passerelle, masque, deux routeurs en chaîne) ; Terminale (page web, DNS, DHCP).
 - **Supérieur** (deux ateliers par niveau de difficulté ; les consignes donnent l’objectif, pas la valeur à recopier) :
@@ -91,7 +91,7 @@ Pour utiliser une autre Centrale, définir `window.CENTRALE_URL = "https://…/"
 
 ### Passerelle avec la Centrale
 
-Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 57 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 59 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
+Le contrat entre NetSim et la Centrale (structures de données, clés enregistrées, activités, progression) est décrit dans [`PASSERELLE.md`](PASSERELLE.md). Sa version lisible par une machine est [`centrale.json`](centrale.json) : fiche de l’atelier, liste des 58 activités et schémas JSON des données. Le catalogue [`ateliers.json`](ateliers.json) liste les 60 ateliers avec leurs compétences, importé par la Centrale (Ateliers → « Ateliers des applications »). La page [`outils/verifier-descripteur.html`](outils/verifier-descripteur.html) vérifie que ces deux fichiers correspondent à l’application et donne leur version à jour en cas d’écart.
 
 **Règle :** toute modification d’un atelier (titre, résumé, nombre d’étapes, catégorie, classe, niveau) doit être reportée dans `ateliers.json` et `centrale.json`, puis vérifiée avec le verifier.
 
